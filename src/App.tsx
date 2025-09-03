@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Header } from './components/Header';
 import { Dashboard } from './components/Dashboard';
 import { AddInvestmentForm } from './components/AddInvestmentForm';
@@ -14,7 +14,7 @@ import { CurrencyProvider } from './contexts/CurrencyContext';
 function App() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingInvestment, setEditingInvestment] = useState<string | null>(null);
-  const [showStats, setShowStats] = useState(false);
+
   const [showBondAnalysis, setShowBondAnalysis] = useState(false);
   
   // Refs for smooth scrolling
@@ -101,7 +101,7 @@ function App() {
           isLoading={isLoading}
         />
 
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <main className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
                   {showAddForm ? (
           <div ref={addFormRef} className="mb-8 mt-4 animate-fadeInUp">
             <AddInvestmentForm
@@ -122,8 +122,8 @@ function App() {
         ) : null}
 
           {!showBondAnalysis && (
-            <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
-              <div className="xl:col-span-3">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+              <div className="lg:col-span-3">
                 <Dashboard
                   investments={investments}
                   summary={summary}
@@ -135,7 +135,7 @@ function App() {
                 />
               </div>
 
-              <div className="xl:col-span-1">
+              <div className="lg:col-span-1">
                 <PortfolioStats summary={summary} />
               </div>
             </div>
@@ -150,11 +150,11 @@ function App() {
           )}
 
           {!showBondAnalysis && investments.length > 0 && (
-            <div className="mt-8 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 transition-colors duration-200">
+            <div className="mt-4 sm:mt-8 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6 transition-colors duration-200">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Quick Actions</h2>
+                <h2 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100">Quick Actions</h2>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                 <button
                   onClick={updatePrices}
                   disabled={isLoading}

@@ -2,6 +2,27 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Mobile-first responsive base styles */
+@layer base {
+  html {
+    /* Prevent horizontal scroll on mobile */
+    overflow-x: hidden;
+  }
+  
+  body {
+    /* Ensure full width on mobile */
+    width: 100%;
+    min-width: 320px;
+    /* Prevent zoom on input focus on iOS */
+    -webkit-text-size-adjust: 100%;
+  }
+  
+  /* Ensure proper viewport behavior */
+  * {
+    box-sizing: border-box;
+  }
+}
+
 /* Custom CSS Variables for Brand Colors */
 :root {
   --brand-primary: #7c3aed;
@@ -115,5 +136,30 @@
   
   .brand-input {
     @apply w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100;
+  }
+  
+  /* Mobile-specific utilities */
+  .mobile-container {
+    @apply w-full px-4 sm:px-6 lg:px-8;
+  }
+  
+  .mobile-header {
+    @apply flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0;
+  }
+  
+  .mobile-nav {
+    @apply flex flex-wrap items-center gap-2 sm:gap-3;
+  }
+  
+  .mobile-text-responsive {
+    @apply text-sm sm:text-base;
+  }
+  
+  .mobile-title {
+    @apply text-lg sm:text-xl lg:text-2xl;
+  }
+  
+  .mobile-subtitle {
+    @apply text-xs sm:text-sm;
   }
 }

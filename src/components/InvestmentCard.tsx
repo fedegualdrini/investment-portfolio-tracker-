@@ -47,20 +47,20 @@ export function InvestmentCard({ investment, onRemove, onEdit }: InvestmentCardP
   return (
     <>
       <div 
-        className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md hover:shadow-blue-500/20 hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-300 hover:scale-[1.02] cursor-pointer"
+        className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6 hover:shadow-md hover:shadow-blue-500/20 hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-300 hover:scale-[1.02] cursor-pointer"
         onClick={() => setShowModal(true)}
       >
-      <div className="flex items-start justify-between mb-4">
-        <div>
+      <div className="flex items-start justify-between mb-3 sm:mb-4">
+        <div className="min-w-0 flex-1">
           <div className="flex items-center space-x-2 mb-1">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{investment.symbol}</h3>
-            <span className={`px-2 py-1 text-xs font-medium rounded-full border ${getTypeColor(investment.type)}`}>
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100 truncate">{investment.symbol}</h3>
+            <span className={`px-2 py-1 text-xs font-medium rounded-full border flex-shrink-0 ${getTypeColor(investment.type)}`}>
               {investment.type.toUpperCase()}
             </span>
           </div>
-          <p className="text-sm text-gray-600 dark:text-gray-400">{investment.name}</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400 truncate">{investment.name}</p>
         </div>
-        <div className="flex items-center space-x-1">
+        <div className="flex items-center space-x-1 flex-shrink-0">
           <button
             onClick={(e) => {
               e.stopPropagation();

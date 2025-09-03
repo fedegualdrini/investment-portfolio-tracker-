@@ -59,50 +59,50 @@ export function Dashboard({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Portfolio Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="brand-card p-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        <div className="brand-card p-4 sm:p-6">
           <div className="flex items-center justify-between">
-            <div>
+            <div className="min-w-0 flex-1">
               <p className="brand-subtext-sm">{t('total.value')}</p>
-              <p className="brand-heading-lg">
+              <p className="brand-heading-lg truncate">
                 {formatCurrency(summary.totalValue)}
               </p>
             </div>
-            <div className="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-              <DollarSign className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+            <div className="p-2 sm:p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg flex-shrink-0">
+              <DollarSign className="h-5 w-5 sm:h-6 sm:w-6 text-purple-600 dark:text-purple-400" />
             </div>
           </div>
         </div>
 
-        <div className="brand-card p-6">
+        <div className="brand-card p-4 sm:p-6">
           <div className="flex items-center justify-between">
-            <div>
+            <div className="min-w-0 flex-1">
               <p className="brand-subtext-sm">{t('total.gain.loss')}</p>
-              <p className={`brand-heading-lg ${getGainLossColor(summary.totalGainLoss)}`}>
+              <p className={`brand-heading-lg truncate ${getGainLossColor(summary.totalGainLoss)}`}>
                 {formatCurrency(summary.totalGainLoss)}
               </p>
             </div>
-            <div className={`p-3 rounded-lg ${summary.totalGainLoss >= 0 ? 'bg-green-50 dark:bg-green-900/20' : 'bg-red-50 dark:bg-red-900/20'}`}>
+            <div className={`p-2 sm:p-3 rounded-lg flex-shrink-0 ${summary.totalGainLoss >= 0 ? 'bg-green-50 dark:bg-green-900/20' : 'bg-red-50 dark:bg-red-900/20'}`}>
               {summary.totalGainLoss >= 0 ? (
-                <TrendingUp className={`h-6 w-6 ${summary.totalGainLoss >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`} />
+                <TrendingUp className={`h-5 w-5 sm:h-6 sm:w-6 ${summary.totalGainLoss >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`} />
               ) : (
-                <TrendingDown className="h-6 w-6 text-red-600 dark:text-red-400" />
+                <TrendingDown className="h-5 w-5 sm:h-6 sm:w-6 text-red-600 dark:text-red-400" />
               )}
             </div>
           </div>
         </div>
 
-        <div className="brand-card p-6">
+        <div className="brand-card p-4 sm:p-6">
           <div className="flex items-center justify-between">
-            <div>
+            <div className="min-w-0 flex-1">
               <p className="brand-subtext-sm">{t('gain.loss.percentage')}</p>
-              <p className={`brand-heading-lg ${getGainLossColor(summary.totalGainLossPercentage)}`}>
+              <p className={`brand-heading-lg truncate ${getGainLossColor(summary.totalGainLossPercentage)}`}>
                 {formatPercentage(summary.totalGainLossPercentage)}
               </p>
             </div>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 flex-shrink-0">
               <button
                 onClick={onUpdatePrices}
                 disabled={isLoading}
@@ -126,7 +126,7 @@ export function Dashboard({
       </div>
 
       {/* Investments Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
         {investments.map((investment) => (
           <InvestmentCard
             key={investment.id}
