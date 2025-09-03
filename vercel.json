@@ -1,9 +1,4 @@
 {
-  "functions": {
-    "api/yahoo.js": {
-      "runtime": "@vercel/node"
-    }
-  },
   "rewrites": [
     {
       "source": "/api/yahoo/(.*)",
