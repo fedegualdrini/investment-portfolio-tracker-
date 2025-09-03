@@ -1,0 +1,5 @@
+---
+description:always follow project documentation, saved in .md files in docs folder
+globs:
+alwaysApply: true
+---

@@ -1,0 +1,119 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom CSS Variables for Brand Colors */
+:root {
+  --brand-primary: #7c3aed;
+  --brand-primary-dark: #5b21b6;
+  --brand-primary-light: #a78bfa;
+  --brand-secondary: #1f2937;
+  --brand-secondary-dark: #111827;
+  --brand-accent: #f3f4f6;
+  --brand-accent-dark: #374151;
+  --brand-text-primary: #111827;
+  --brand-text-secondary: #6b7280;
+  --brand-text-light: #9ca3af;
+  --brand-border: #e5e7eb;
+  --brand-border-dark: #374151;
+  --brand-success: #10b981;
+  --brand-success-dark: #059669;
+  --brand-warning: #f59e0b;
+  --brand-warning-dark: #d97706;
+  --brand-error: #ef4444;
+  --brand-error-dark: #dc2626;
+}
+
+/* Dark mode overrides */
+.dark {
+  --brand-primary: #a78bfa;
+  --brand-primary-dark: #7c3aed;
+  --brand-primary-light: #c4b5fd;
+  --brand-secondary: #f9fafb;
+  --brand-secondary-dark: #f3f4f6;
+  --brand-accent: #374151;
+  --brand-accent-dark: #1f2937;
+  --brand-text-primary: #f9fafb;
+  --brand-text-secondary: #d1d5db;
+  --brand-text-light: #9ca3af;
+  --brand-border: #4b5563;
+  --brand-border-dark: #6b7280;
+}
+
+/* Custom animations for form focus */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeInUp {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+/* Custom utility classes for brand consistency */
+@layer components {
+  .brand-heading {
+    @apply font-bold text-gray-900 dark:text-white;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+  
+  .brand-heading-lg {
+    @apply brand-heading text-3xl;
+  }
+  
+  .brand-heading-md {
+    @apply brand-heading text-xl;
+  }
+  
+  .brand-heading-sm {
+    @apply brand-heading text-lg;
+  }
+  
+  .brand-text {
+    @apply font-medium text-gray-700 dark:text-gray-300;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+  
+  .brand-text-sm {
+    @apply brand-text text-sm;
+  }
+  
+  .brand-text-lg {
+    @apply brand-text text-base;
+  }
+  
+  .brand-subtext {
+    @apply font-normal text-gray-600 dark:text-gray-400;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+  
+  .brand-subtext-sm {
+    @apply brand-subtext text-sm;
+  }
+  
+  .brand-subtext-xs {
+    @apply brand-subtext text-xs;
+  }
+  
+  .brand-button-primary {
+    @apply bg-purple-600 hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800;
+  }
+  
+  .brand-button-secondary {
+    @apply bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-medium py-2 px-4 rounded-lg transition-all duration-200 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800;
+  }
+  
+  .brand-card {
+    @apply bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 transition-all duration-200;
+  }
+  
+  .brand-input {
+    @apply w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100;
+  }
+}
