@@ -90,8 +90,8 @@ src/
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
-   cd projectINV
+   git clone https://github.com/fedegualdrini/investment-portfolio-tracker-.git
+   cd investment-portfolio-tracker-
    ```
 
 2. **Install dependencies**
@@ -393,9 +393,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 📞 Support
 
 ### **Issues & Questions**
-- **GitHub Issues**: [Create an issue](https://github.com/your-repo/issues)
-- **Discussions**: [Join discussions](https://github.com/your-repo/discussions)
-- **Email**: support@yourproject.com
+- **GitHub Issues**: [Create an issue](https://github.com/fedegualdrini/investment-portfolio-tracker-/issues)
+- **Discussions**: [Join discussions](https://github.com/fedegualdrini/investment-portfolio-tracker-/discussions)
+- **Email**: fedegualdrini@github.com
 
 ### **Feature Requests**
 - **GitHub Discussions**: Share ideas and suggestions

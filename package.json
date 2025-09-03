@@ -1,8 +1,26 @@
 {
-  "name": "vite-react-typescript-starter",
+  "name": "investment-portfolio-tracker",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.4.0",
   "type": "module",
+  "description": "A modern, feature-rich web application for tracking and analyzing investment portfolios with advanced bond analysis, multi-currency support, and real-time data integration.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fedegualdrini/investment-portfolio-tracker-.git"
+  },
+  "author": "fedegualdrini",
+  "license": "MIT",
+  "keywords": [
+    "investment",
+    "portfolio",
+    "tracker",
+    "finance",
+    "bonds",
+    "stocks",
+    "crypto",
+    "react",
+    "typescript"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "vite build",

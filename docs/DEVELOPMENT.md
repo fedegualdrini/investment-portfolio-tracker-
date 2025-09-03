@@ -25,8 +25,8 @@
 ### **Initial Setup**
 ```bash
 # Clone the repository
-git clone <repository-url>
-cd projectINV
+git clone https://github.com/fedegualdrini/investment-portfolio-tracker-.git
+cd investment-portfolio-tracker-
 
 # Install dependencies
 npm install
