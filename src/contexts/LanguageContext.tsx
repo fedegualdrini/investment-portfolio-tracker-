@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, ReactNode } from 'react';
 
 export type Language = 'en' | 'es';
 
@@ -30,6 +30,14 @@ const translations = {
     'gain.loss.percentage': 'Gain/Loss %',
     'no.investments': 'No investments yet',
     'add.first.investment': 'Add your first investment to get started',
+    
+    // Charts
+          'view.chart': 'View Chart',
+      'price.history': 'Price History',
+      'chart.powered.by': 'Powered by TradingView',
+      'chart.real.time': 'Real-time data',
+      'chart.symbol': 'Symbol',
+      'chart.loading': 'Loading chart...',
     
     // Investment Types
     'type.crypto': 'Cryptocurrency',
@@ -94,7 +102,6 @@ const translations = {
     'confidence': 'Confidence',
     'estimated.payment': 'Estimated payment',
     'payment.amount': 'Payment amount',
-    'annual.income': 'Annual income',
     'per.payment': 'per payment',
     'next.payment': 'Next Payment',
     'days': 'days',
@@ -205,6 +212,14 @@ const translations = {
     'no.investments': 'Aún no hay inversiones',
     'add.first.investment': 'Agrega tu primera inversión para comenzar',
     
+    // Charts
+          'view.chart': 'Ver Gráfico',
+      'price.history': 'Historial de Precios',
+      'chart.powered.by': 'Desarrollado por TradingView',
+      'chart.real.time': 'Datos en tiempo real',
+      'chart.symbol': 'Símbolo',
+      'chart.loading': 'Cargando gráfico...',
+    
     // Investment Types
     'type.crypto': 'Criptomoneda',
     'type.stock': 'Acción',
@@ -268,7 +283,6 @@ const translations = {
     'confidence': 'Confianza',
     'estimated.payment': 'Pago estimado',
     'payment.amount': 'Monto del pago',
-    'annual.income': 'Ingreso anual',
     'per.payment': 'por pago',
     'next.payment': 'Próximo Pago',
     'days': 'días',
@@ -366,7 +380,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const [language, setLanguage] = useState<Language>('en');
 
   const t = (key: string): string => {
-    return translations[language][key] || key;
+    return (translations[language] as any)[key] || key;
   };
 
   return (

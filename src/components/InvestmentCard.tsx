@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { TrendingUp, TrendingDown, Trash2, Edit3 } from 'lucide-react';
+import { TrendingUp, TrendingDown, Trash2, Edit3, BarChart3 } from 'lucide-react';
 import type { Investment } from '../types/investment';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useCurrency } from '../contexts/CurrencyContext';
+import { PriceChart } from './PriceChart';
 
 interface InvestmentCardProps {
   investment: Investment;
@@ -14,6 +15,7 @@ export function InvestmentCard({ investment, onRemove, onEdit }: InvestmentCardP
   const { t } = useLanguage();
   const { formatCurrency } = useCurrency();
   const [showModal, setShowModal] = useState(false);
+  const [showChart, setShowChart] = useState(false);
   
   const currentPrice = investment.currentPrice || investment.purchasePrice;
   const totalValue = currentPrice * investment.quantity;
@@ -71,6 +73,18 @@ export function InvestmentCard({ investment, onRemove, onEdit }: InvestmentCardP
           >
             <Edit3 className="h-4 w-4" />
           </button>
+          {(investment.type === 'stock' || investment.type === 'crypto') && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowChart(true);
+              }}
+              className="p-2 text-gray-400 dark:text-gray-500 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors duration-200"
+              title={t('view.chart')}
+            >
+              <BarChart3 className="h-4 w-4" />
+            </button>
+          )}
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -389,6 +403,13 @@ export function InvestmentCard({ investment, onRemove, onEdit }: InvestmentCardP
           </div>
         </div>
       )}
+
+      {/* Price Chart Modal */}
+      <PriceChart
+        investment={investment}
+        isVisible={showChart}
+        onClose={() => setShowChart(false)}
+      />
     </>
   );
 }
