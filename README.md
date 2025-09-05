@@ -21,6 +21,13 @@ A modern, feature-rich web application for tracking and analyzing investment por
 - **Maturity Tracking**: Automated maturity date calculations
 - **Yield Optimization**: Fixed yield analysis and optimization tools
 
+### 🤖 **AI Investment Assistant**
+- **Portfolio-Aware Chat**: AI chatbot with full access to your portfolio data
+- **Real-time Market Context**: AI has access to current market data and exchange rates
+- **Bond Payment Insights**: Detailed bond coupon payment analysis and scheduling
+- **Personalized Advice**: Data-driven investment recommendations based on your holdings
+- **Multi-language Support**: AI assistant available in English and Spanish
+
 ### 🌍 **Internationalization & Multi-Currency**
 - **Language Support**: English and Spanish with full translations
 - **Currency Conversion**: USD and ARS (Argentine Peso) support
@@ -52,6 +59,7 @@ A modern, feature-rich web application for tracking and analyzing investment por
 ### **External APIs**
 - **DolarAPI**: Real-time Argentine Peso exchange rates
 - **Open Exchange Rates**: Multi-currency conversion service
+- **OpenAI API**: AI-powered investment assistant and portfolio analysis
 
 ## 📁 Project Structure
 
@@ -71,12 +79,15 @@ src/
 │   ├── ThemeContext.tsx    # Theme management context
 │   └── CurrencyContext.tsx # Currency conversion context
 ├── pages/              # Page components
-│   └── BondAnalysisPage.tsx # Dedicated bond analysis page
+│   ├── BondAnalysisPage.tsx # Dedicated bond analysis page
+│   └── ChatPage.tsx    # AI investment assistant page
 ├── services/           # Business logic and API services
 │   ├── currencyService.ts   # Currency conversion service
 │   └── bondAnalysisService.ts # Bond analysis algorithms
 ├── types/              # TypeScript type definitions
 │   └── investment.ts   # Investment and portfolio types
+├── api/                # Vercel serverless functions
+│   └── chat.js         # AI chat API endpoint
 └── App.tsx             # Main application component
 ```
 
@@ -99,12 +110,26 @@ src/
    npm install
    ```
 
-3. **Start development server**
+3. **Set up environment variables**
    ```bash
-   npm run dev
+   # Copy the example environment file
+   cp .env.example .env
+   
+   # Edit .env and add your OpenAI API key
+   OPENAI_API_KEY=your_openai_api_key_here
    ```
 
-4. **Open your browser**
+4. **Start development server**
+   ```bash
+   # Start both frontend and backend servers
+   npm run dev:full
+   
+   # Or start them separately:
+   # Terminal 1: npm run server
+   # Terminal 2: npm run dev
+   ```
+
+5. **Open your browser**
    Navigate to `http://localhost:5173`
 
 ### **Build for Production**
@@ -142,6 +167,14 @@ npm run preview
 3. **Cash Flow**: Monthly, quarterly, and annual income projections
 4. **Payment Schedule**: Upcoming coupon payments and maturity dates
 
+### **AI Investment Assistant**
+
+1. **Click "Chat"** in the header
+2. **Ask Questions**: Get personalized advice about your portfolio
+3. **Bond Insights**: Ask about upcoming coupon payments and bond analysis
+4. **Market Context**: AI has access to your real-time portfolio data and market information
+5. **Multi-language**: Switch between English and Spanish for AI responses
+
 ### **Currency & Language**
 
 - **Currency**: Use dropdown to switch between USD and ARS
@@ -158,6 +191,7 @@ Create a `.env` file in the root directory:
 # API Keys (optional - fallbacks available)
 VITE_CURRENCY_API_KEY=your_open_exchange_rate_key
 VITE_DOLAR_API_URL=https://dolarapi.com/v1/dolares/oficial
+OPENAI_API_KEY=your_openai_api_key
 
 # App Configuration
 VITE_APP_NAME=Investment Portfolio Tracker
@@ -232,10 +266,69 @@ npm run build
 ```
 
 ### **Deploy to Vercel**
+
+#### **Method 1: Vercel Dashboard (Recommended)**
+
+1. **Connect your GitHub repository**
+   - Go to [vercel.com](https://vercel.com) and log in
+   - Click **"New Project"**
+   - Import your GitHub repository
+
+2. **Set up Environment Variables**
+   - In your Vercel project dashboard, go to **Settings** → **Environment Variables**
+   - Add the following variables:
+     - **Name**: `OPENAI_API_KEY`
+     - **Value**: `your_openai_api_key_here`
+     - **Environment**: Select all (Production, Preview, Development)
+   - Click **Save**
+
+3. **Deploy**
+   - Vercel will automatically deploy your project
+   - Your app will be available at `https://your-project-name.vercel.app`
+
+#### **Method 2: Vercel CLI**
+
 ```bash
+# Install Vercel CLI
 npm install -g vercel
+
+# Login to Vercel
+vercel login
+
+# Set environment variable
+vercel env add OPENAI_API_KEY
+# Enter your API key when prompted
+# Select all environments (Production, Preview, Development)
+
+# Deploy
 vercel --prod
 ```
+
+#### **Method 3: GitHub Integration**
+
+1. **Push to GitHub**
+   ```bash
+   git add .
+   git commit -m "Add AI chat functionality and secure API key management"
+   git push origin main
+   ```
+
+2. **Connect to Vercel**
+   - Go to [vercel.com](https://vercel.com)
+   - Click **"New Project"**
+   - Select your GitHub repository
+   - Vercel will automatically detect it's a Vite project
+
+3. **Configure Environment Variables**
+   - In Vercel dashboard, go to **Settings** → **Environment Variables**
+   - Add `OPENAI_API_KEY` with your actual API key
+   - Select all environments
+
+4. **Deploy**
+   - Vercel will automatically build and deploy your project
+   - Future pushes to your main branch will trigger automatic deployments
+
+📖 **For detailed deployment instructions, see [DEPLOYMENT.md](docs/DEPLOYMENT.md)**
 
 ### **Deploy to Netlify**
 ```bash

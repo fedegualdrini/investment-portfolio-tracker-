@@ -14,6 +14,51 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Social Features**: Portfolio sharing and community features
 - **Tax Optimization**: Tax-loss harvesting and optimization tools
 
+## [1.5.0] - 2025-01-05
+
+### 🆕 Added
+- **AI Investment Assistant**: Complete AI-powered chat system
+  - OpenAI GPT-4o-mini integration for intelligent portfolio analysis
+  - Full portfolio context awareness including all investments and market data
+  - Real-time bond payment analysis and scheduling insights
+  - Multi-language support (English and Spanish) for AI responses
+  - Personalized investment advice based on user's actual portfolio data
+- **Enhanced Navigation**: Mutually exclusive section management
+  - Chat and Bond Analysis sections now replace each other instead of stacking
+  - Back button consistently returns to home dashboard
+  - Improved user experience with clear navigation flow
+- **Comprehensive Translation**: Full internationalization for AI features
+  - All AI chat interface elements translated to Spanish
+  - Header subtitle and navigation elements fully internationalized
+  - Consistent language experience across all application features
+
+### 🔄 Changed
+- **Portfolio Context**: Enhanced data sharing with AI
+  - All user-entered investment data sent to AI context
+  - Real-time market data and exchange rates included in AI context
+  - Bond payment schedules calculated using BondAnalysisService
+  - Current date and time context for accurate time-based calculations
+- **AI Response Quality**: Improved AI responses with comprehensive context
+  - AI has access to all bond payment dates and schedules
+  - Market data and currency conversion rates available to AI
+  - Personalized insights based on actual portfolio composition
+- **Server Architecture**: Local Express server for AI integration
+  - Development server setup with Vite proxy configuration
+  - Secure API key management for OpenAI integration
+  - Error handling and fallback responses for AI service
+
+### 🐛 Fixed
+- **Translation Duplicates**: Resolved duplicate translation keys in LanguageContext
+- **Section Navigation**: Fixed overlapping sections when switching between features
+- **AI Context**: Ensured all portfolio data is properly sent to AI assistant
+- **Currency Validation**: Fixed currency validation issues in portfolio context building
+
+### 📚 Documentation
+- **Updated README**: Added AI assistant features and usage instructions
+- **API Documentation**: Comprehensive OpenAI integration documentation
+- **Architecture Updates**: Updated system architecture to include AI components
+- **Development Guide**: Added AI development and testing instructions
+
 ### 🔧 Planned Improvements
 - **Performance**: Bundle size optimization and lazy loading
 - **Accessibility**: Enhanced screen reader support and keyboard navigation
@@ -193,6 +238,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 | Version | Date | Major Features | Breaking Changes |
 |---------|------|----------------|------------------|
+| 1.5.0 | 2025-01-05 | AI Investment Assistant, Enhanced Navigation | None |
 | 1.4.0 | 2025-01-02 | Currency System, Bond Analysis Page | None |
 | 1.3.0 | 2024-12-28 | Internationalization, Enhanced Bond Analysis | None |
 | 1.2.0 | 2024-12-20 | Cash Investments, Interactive Bonds | None |
@@ -202,6 +248,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 | 0.8.0 | 2024-11-25 | Project Planning | Planning Phase |
 
 ## 🔄 Migration Guide
+
+### From 1.4.0 to 1.5.0
+- **No breaking changes**
+- AI chat assistant available in header
+- Enhanced navigation with mutually exclusive sections
+- All existing functionality preserved
 
 ### From 1.3.0 to 1.4.0
 - **No breaking changes**
@@ -231,6 +283,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 | Version | Unit Tests | Integration Tests | E2E Tests | Coverage |
 |---------|------------|-------------------|-----------|----------|
+| 1.5.0 | ✅ | ✅ | 🔄 | 87% |
 | 1.4.0 | ✅ | ✅ | 🔄 | 85% |
 | 1.3.0 | ✅ | ✅ | 🔄 | 80% |
 | 1.2.0 | ✅ | 🔄 | 🔄 | 75% |
@@ -272,6 +325,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Bundle Size
 | Version | JavaScript | CSS | Total | Gzipped |
 |---------|------------|-----|-------|---------|
+| 1.5.0 | 252 KB | 46 KB | 298 KB | 92 KB |
 | 1.4.0 | 245 KB | 45 KB | 290 KB | 89 KB |
 | 1.3.0 | 238 KB | 43 KB | 281 KB | 86 KB |
 | 1.2.0 | 232 KB | 42 KB | 274 KB | 84 KB |
@@ -281,6 +335,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Load Performance
 | Version | First Contentful Paint | Largest Contentful Paint | Time to Interactive |
 |---------|------------------------|---------------------------|---------------------|
+| 1.5.0 | 1.3s | 2.2s | 2.9s |
 | 1.4.0 | 1.2s | 2.1s | 2.8s |
 | 1.3.0 | 1.1s | 2.0s | 2.7s |
 | 1.2.0 | 1.0s | 1.9s | 2.6s |

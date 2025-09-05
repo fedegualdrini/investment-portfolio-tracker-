@@ -5,6 +5,7 @@ import { AddInvestmentForm } from './components/AddInvestmentForm';
 import { EditInvestmentForm } from './components/EditInvestmentForm';
 import { PortfolioStats } from './components/PortfolioStats';
 import { BondAnalysisPage } from './pages/BondAnalysisPage';
+import { ChatPage } from './pages/ChatPage';
 import { useInvestments } from './hooks/useInvestments';
 import type { Investment } from './types/investment';
 import { ThemeProvider } from './contexts/ThemeContext';
@@ -16,6 +17,34 @@ function App() {
   const [editingInvestment, setEditingInvestment] = useState<string | null>(null);
 
   const [showBondAnalysis, setShowBondAnalysis] = useState(false);
+  const [showChat, setShowChat] = useState(false);
+
+  // Helper function to close all sections and return to home
+  const closeAllSections = () => {
+    setShowAddForm(false);
+    setEditingInvestment(null);
+    setShowBondAnalysis(false);
+    setShowChat(false);
+  };
+
+  // Helper function to open a specific section (closes others)
+  const openSection = (section: 'addForm' | 'editForm' | 'bondAnalysis' | 'chat') => {
+    closeAllSections();
+    switch (section) {
+      case 'addForm':
+        setShowAddForm(true);
+        break;
+      case 'editForm':
+        // editForm is handled by setEditingInvestment
+        break;
+      case 'bondAnalysis':
+        setShowBondAnalysis(true);
+        break;
+      case 'chat':
+        setShowChat(true);
+        break;
+    }
+  };
   
   // Refs for smooth scrolling
   const addFormRef = useRef<HTMLDivElement>(null);
@@ -57,12 +86,12 @@ function App() {
 
   const handleAddInvestment = (investment: any) => {
     addInvestment(investment);
-    setShowAddForm(false);
+    closeAllSections();
   };
 
   const handleEditInvestment = (id: string, updates: Partial<Investment>) => {
     updateInvestment(id, updates);
-    setEditingInvestment(null);
+    closeAllSections();
   };
   const handleImport = () => {
     const input = document.createElement('input');
@@ -93,11 +122,12 @@ function App() {
         <CurrencyProvider>
           <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
         <Header
-          onAddInvestment={() => setShowAddForm(true)}
+          onAddInvestment={() => openSection('addForm')}
           onExport={exportPortfolio}
           onImport={handleImport}
           onUpdatePrices={updatePrices}
-          onBondAnalysis={() => setShowBondAnalysis(true)}
+          onBondAnalysis={() => openSection('bondAnalysis')}
+          onChat={() => openSection('chat')}
           isLoading={isLoading}
         />
 
@@ -106,7 +136,7 @@ function App() {
           <div ref={addFormRef} className="mb-8 mt-4 animate-fadeInUp">
             <AddInvestmentForm
               onAdd={handleAddInvestment}
-              onCancel={() => setShowAddForm(false)}
+              onCancel={closeAllSections}
             />
           </div>
         ) : null}
@@ -116,12 +146,12 @@ function App() {
             <EditInvestmentForm
               investment={investmentToEdit}
               onSave={handleEditInvestment}
-              onCancel={() => setEditingInvestment(null)}
+              onCancel={closeAllSections}
             />
           </div>
         ) : null}
 
-          {!showBondAnalysis && (
+          {!showAddForm && !editingInvestment && !showBondAnalysis && !showChat && (
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
               <div className="lg:col-span-3">
                 <Dashboard
@@ -129,7 +159,10 @@ function App() {
                   summary={summary}
                   onUpdatePrices={updatePrices}
                   onRemoveInvestment={removeInvestment}
-                  onEditInvestment={setEditingInvestment}
+                  onEditInvestment={(id) => {
+                    closeAllSections();
+                    setEditingInvestment(id);
+                  }}
                   isLoading={isLoading}
                   lastUpdate={lastUpdate}
                 />
@@ -145,11 +178,18 @@ function App() {
           {showBondAnalysis && (
             <BondAnalysisPage
               investments={investments}
-              onBack={() => setShowBondAnalysis(false)}
+              onBack={closeAllSections}
             />
           )}
 
-          {!showBondAnalysis && investments.length > 0 && (
+          {/* Chat Page */}
+          {showChat && (
+            <ChatPage
+              onBack={closeAllSections}
+            />
+          )}
+
+          {!showAddForm && !editingInvestment && !showBondAnalysis && !showChat && investments.length > 0 && (
             <div className="mt-4 sm:mt-8 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6 transition-colors duration-200">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100">Quick Actions</h2>

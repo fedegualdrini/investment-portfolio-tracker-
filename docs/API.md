@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Investment Portfolio Tracker integrates with several external APIs for currency conversion and financial data. This document outlines all API integrations, endpoints, and data structures.
+The Investment Portfolio Tracker integrates with several external APIs for currency conversion, financial data, and AI-powered investment assistance. This document outlines all API integrations, endpoints, and data structures.
 
 ## 🌍 Currency Conversion APIs
 
@@ -103,6 +103,119 @@ const data = await response.json();
 if (data.result === 'success' && data.rates.USD) {
   const eurToUsd = data.rates.USD; // 1 EUR = 1.08 USD
   return eurToUsd;
+}
+```
+
+## 🤖 AI Integration APIs
+
+### **OpenAI API - Investment Assistant**
+
+#### **Endpoint**
+```
+POST https://api.openai.com/v1/chat/completions
+```
+
+#### **Model Configuration**
+```typescript
+const model = 'gpt-4o-mini';
+const maxTokens = 2000;
+const temperature = 0.7;
+```
+
+#### **Request Format**
+```json
+{
+  "model": "gpt-4o-mini",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are an AI investment assistant with access to the user's portfolio data..."
+    },
+    {
+      "role": "user", 
+      "content": "What are my upcoming bond payments?"
+    }
+  ],
+  "max_tokens": 2000,
+  "temperature": 0.7
+}
+```
+
+#### **Portfolio Context Structure**
+```typescript
+interface PortfolioContext {
+  investments: Investment[];
+  totalValue: number;
+  totalInvested: number;
+  totalGainLoss: number;
+  totalGainLossPercentage: number;
+  exchangeRates: Record<string, number>;
+  currentDate: string;
+  currentDateFormatted: string;
+  currentTime: string;
+  portfolioAnalysis: {
+    bondCount: number;
+    stockCount: number;
+    cryptoCount: number;
+    cashCount: number;
+    totalBondValue: number;
+    totalAnnualCouponIncome: number;
+    allBondPayments: BondPaymentInfo[];
+    upcomingBondPayments: BondPaymentInfo[];
+  };
+}
+```
+
+#### **Bond Payment Information**
+```typescript
+interface BondPaymentInfo {
+  symbol: string;
+  name: string;
+  nextPaymentDate: string;
+  paymentAmount: number;
+  paymentFrequency: string;
+  maturityDate: string;
+  fixedYield: number;
+  faceValue: number;
+  hasSpecificDate: boolean;
+  daysUntilPayment?: number;
+  isOverdue?: boolean;
+  relativeTiming?: string;
+}
+```
+
+#### **Usage in Application**
+```typescript
+// Send portfolio context to AI
+const response = await fetch('/api/chat', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    messages: [{ role: 'user', content: userMessage }],
+    portfolioContext: portfolioData
+  })
+});
+
+const aiResponse = await response.json();
+```
+
+#### **Error Handling**
+```typescript
+try {
+  const response = await fetch('/api/chat', options);
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  const data = await response.json();
+  return data;
+} catch (error) {
+  console.error('Error calling AI assistant:', error);
+  // Fallback to generic response
+  return {
+    content: "I'm currently having trouble connecting to the AI service. Please try again in a moment."
+  };
 }
 ```
 

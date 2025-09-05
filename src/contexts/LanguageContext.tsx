@@ -15,12 +15,16 @@ const translations = {
   en: {
     // Header
     'app.title': 'Investment Portfolio Tracker',
+    'app.subtitle': 'Track your investments in real-time',
     'add.investment': 'Add Investment',
     'export.portfolio': 'Export Portfolio',
     'import.portfolio': 'Import Portfolio',
     'update.prices': 'Update Prices',
     'loading': 'Loading...',
     'last.update': 'Last Update',
+    'bond.analysis.button': 'Bond Analysis',
+    'chat.button': 'Chat',
+    'back.to.portfolio': 'Back to Portfolio',
     
     // Dashboard
     'dashboard.title': 'Portfolio Dashboard',
@@ -174,6 +178,15 @@ const translations = {
     'error.export.failed': 'Failed to export portfolio',
     'error.update.prices': 'Failed to update prices',
     
+    // Chat/AI Assistant
+    'chat.title': 'AI Investment Assistant',
+    'chat.subtitle': 'Get help with your investment portfolio',
+    'chat.welcome.title': 'Welcome to your AI Investment Assistant!',
+    'chat.welcome.message': 'I can help you with investment strategies, portfolio analysis, bond calculations, market insights, and more. What would you like to know?',
+    'chat.placeholder': 'Ask me about investments, portfolio analysis, bonds...',
+    'chat.error.connection': 'Sorry, there was an error connecting to the AI assistant. Please try again.',
+    'chat.error.generic': 'I\'m currently having trouble connecting to the AI service. Please try again in a moment.',
+    
     // Theme
     'theme.light': 'Light',
     'theme.dark': 'Dark',
@@ -184,24 +197,23 @@ const translations = {
     'language.spanish': 'Español',
     
     // Navigation
-    'back.to.portfolio': 'Back to Portfolio',
     'bond.analysis.subtitle': 'Advanced bond portfolio analysis and cash flow projections',
-    'bond.analysis.button': 'Bond Analysis',
-    
-    // Currency
-    'currency.display': 'Display Currency',
     
 
   },
   es: {
     // Header
     'app.title': 'Rastreador de Portafolio de Inversiones',
+    'app.subtitle': 'Rastrea tus inversiones en tiempo real',
     'add.investment': 'Agregar Inversión',
     'export.portfolio': 'Exportar Portafolio',
     'import.portfolio': 'Importar Portafolio',
     'update.prices': 'Actualizar Precios',
     'loading': 'Cargando...',
     'last.update': 'Última Actualización',
+    'bond.analysis.button': 'Análisis de Bonos',
+    'chat.button': 'Chat',
+    'back.to.portfolio': 'Volver al Portafolio',
     
     // Dashboard
     'dashboard.title': 'Panel del Portafolio',
@@ -355,6 +367,15 @@ const translations = {
     'error.export.failed': 'Falló la exportación del portafolio',
     'error.update.prices': 'Falló la actualización de precios',
     
+    // Chat/AI Assistant
+    'chat.title': 'Asistente de IA para Inversiones',
+    'chat.subtitle': 'Obtén ayuda con tu portafolio de inversiones',
+    'chat.welcome.title': '¡Bienvenido a tu Asistente de IA para Inversiones!',
+    'chat.welcome.message': 'Puedo ayudarte con estrategias de inversión, análisis de portafolio, cálculos de bonos, perspectivas del mercado y más. ¿Qué te gustaría saber?',
+    'chat.placeholder': 'Pregúntame sobre inversiones, análisis de portafolio, bonos...',
+    'chat.error.connection': 'Lo siento, hubo un error al conectar con el asistente de IA. Por favor, inténtalo de nuevo.',
+    'chat.error.generic': 'Actualmente tengo problemas para conectar con el servicio de IA. Por favor, inténtalo de nuevo en un momento.',
+    
     // Theme
     'theme.light': 'Claro',
     'theme.dark': 'Oscuro',
@@ -365,12 +386,7 @@ const translations = {
     'language.spanish': 'Español',
     
     // Navigation
-    'back.to.portfolio': 'Volver al Portafolio',
     'bond.analysis.subtitle': 'Análisis avanzado de portafolio de bonos y proyecciones de flujo de caja',
-    'bond.analysis.button': 'Análisis de Bonos',
-    
-    // Currency
-    'currency.display': 'Moneda de Visualización',
     
 
   }

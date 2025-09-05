@@ -41,8 +41,12 @@ App
 │   │   └── Investment Grid
 │   │       └── InvestmentCard[]
 │   ├── PortfolioStats (Sidebar)
-│   └── BondAnalysisPage (Conditional)
-│       └── BondCashFlow
+│   ├── BondAnalysisPage (Conditional)
+│   │   └── BondCashFlow
+│   └── ChatPage (Conditional)
+│       ├── Chat Interface
+│       ├── Message History
+│       └── AI Response Display
 └── Modals
     ├── AddInvestmentForm
     └── EditInvestmentForm
@@ -209,6 +213,22 @@ interface ExchangeRateResponse {
 **Endpoint**: `https://open.er-api.com/v6/latest/{currency}`
 **Usage**: Multi-currency conversion
 **Caching**: 1-hour cache
+
+#### **OpenAI API (AI Assistant)**
+```typescript
+interface ChatRequest {
+  messages: Array<{
+    role: 'system' | 'user' | 'assistant';
+    content: string;
+  }>;
+  portfolioContext: PortfolioContext;
+}
+```
+
+**Endpoint**: `https://api.openai.com/v1/chat/completions`
+**Usage**: AI-powered investment assistance
+**Model**: GPT-4o-mini
+**Context**: Full portfolio data and market information
 
 ### **Data Flow for Currency Conversion**
 ```

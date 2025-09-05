@@ -50,6 +50,8 @@ src/
 ├── contexts/           # React context providers
 ├── hooks/              # Custom React hooks
 ├── pages/              # Page components
+│   ├── BondAnalysisPage.tsx # Bond analysis page
+│   └── ChatPage.tsx    # AI assistant page
 ├── services/           # Business logic and API services
 ├── types/              # TypeScript type definitions
 ├── utils/              # Utility functions
@@ -541,10 +543,12 @@ git commit -m "test: add tests for bond analysis service"
 # .env.local (development)
 VITE_API_URL=http://localhost:3000
 VITE_APP_NAME=Investment Portfolio Tracker (Dev)
+OPENAI_API_KEY=your_openai_api_key
 
 # .env.production
 VITE_API_URL=https://api.production.com
 VITE_APP_NAME=Investment Portfolio Tracker
+OPENAI_API_KEY=your_production_openai_api_key
 ```
 
 ### **Build Commands**
