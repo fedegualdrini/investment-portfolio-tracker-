@@ -377,7 +377,7 @@ What specific aspect of investing would you like to discuss?`,
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
       <div className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
         {/* Header */}
-        <div className="flex items-center space-x-3 sm:space-x-4 mb-6 sm:mb-8">
+        <div className="flex items-center space-x-2 sm:space-x-4 mb-4 sm:mb-8">
           <button
             onClick={onBack}
             className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors flex-shrink-0"
@@ -386,14 +386,14 @@ What specific aspect of investing would you like to discuss?`,
             <ArrowLeft className="h-5 w-5" />
           </button>
           <div className="flex items-center space-x-2 min-w-0 flex-1">
-            <div className="p-2 bg-blue-600 dark:bg-blue-500 rounded-lg flex-shrink-0">
-              <Bot className="h-5 w-5 text-white" />
+            <div className="p-1.5 sm:p-2 bg-blue-600 dark:bg-blue-500 rounded-lg flex-shrink-0">
+              <Bot className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
             </div>
             <div className="min-w-0 flex-1">
-              <h1 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-gray-100 truncate">
+              <h1 className="text-base sm:text-xl font-semibold text-gray-900 dark:text-gray-100 truncate">
                 {t('chat.title')}
               </h1>
-              <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
+              <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate">
                 {t('chat.subtitle')}
               </p>
             </div>
@@ -401,9 +401,9 @@ What specific aspect of investing would you like to discuss?`,
         </div>
 
         {/* Chat Container */}
-        <div className="flex flex-col h-[calc(100vh-200px)]">
+        <div className="flex flex-col h-[calc(100vh-180px)] sm:h-[calc(100vh-200px)]">
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-20">
+        <div className="flex-1 overflow-y-auto p-2 sm:p-4 space-y-4 pb-20">
           {messages.length === 0 && (
             <div className="text-center py-8">
               <Bot className="h-12 w-12 text-blue-500 mx-auto mb-4" />
@@ -421,7 +421,7 @@ What specific aspect of investing would you like to discuss?`,
               key={message.id}
               className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
-              <div className={`flex max-w-xs lg:max-w-2xl ${message.role === 'user' ? 'flex-row-reverse' : 'flex-row'} space-x-2`}>
+              <div className={`flex max-w-[85%] sm:max-w-xs lg:max-w-2xl ${message.role === 'user' ? 'flex-row-reverse' : 'flex-row'} space-x-2`}>
                 <div className={`flex-shrink-0 ${message.role === 'user' ? 'ml-2' : 'mr-2'}`}>
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
                     message.role === 'user' 
@@ -435,7 +435,7 @@ What specific aspect of investing would you like to discuss?`,
                     )}
                   </div>
                 </div>
-                <div className={`px-4 py-2 rounded-lg ${
+                <div className={`px-3 py-2 sm:px-4 rounded-lg ${
                   message.role === 'user'
                     ? 'bg-blue-600 text-white'
                     : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100'
@@ -450,13 +450,13 @@ What specific aspect of investing would you like to discuss?`,
           
           {isLoading && (
             <div className="flex justify-start">
-              <div className="flex max-w-xs lg:max-w-2xl space-x-2">
+              <div className="flex max-w-[85%] sm:max-w-xs lg:max-w-2xl space-x-2">
                 <div className="flex-shrink-0 mr-2">
                   <div className="w-8 h-8 rounded-full flex items-center justify-center bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
                     <Bot className="h-4 w-4" />
                   </div>
                 </div>
-                <div className="px-4 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+                <div className="px-3 py-2 sm:px-4 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
                   <div className="flex space-x-1">
                     <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
                     <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
@@ -477,20 +477,20 @@ What specific aspect of investing would you like to discuss?`,
         </div>
 
           {/* Input Form */}
-          <div className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4">
+          <div className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-2 sm:p-4">
             <form onSubmit={handleSubmit} className="flex space-x-2">
               <input
                 type="text"
                 value={input}
                 onChange={handleInputChange}
                 placeholder={t('chat.placeholder')}
-                className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+                className="flex-1 px-3 py-2 sm:px-4 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 text-sm sm:text-base"
                 disabled={isLoading}
               />
               <button
                 type="submit"
                 disabled={isLoading || !input.trim()}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="px-3 py-2 sm:px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex-shrink-0"
               >
                 <Send className="h-4 w-4" />
               </button>
