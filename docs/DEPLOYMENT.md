@@ -107,7 +107,7 @@ The project includes a `vercel.json` file with:
 
 | Variable | Description | Example |
 |----------|-------------|---------|
-| `OPENAI_API_KEY` | OpenAI API key for AI chat | `sk-proj-...` |
+| `OPENAI_API_KEY` | OpenAI API key for AI chat | `your_openai_api_key_here` |
 
 ### **Optional Variables**
 
