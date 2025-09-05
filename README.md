@@ -21,12 +21,14 @@ A modern, feature-rich web application for tracking and analyzing investment por
 - **Maturity Tracking**: Automated maturity date calculations
 - **Yield Optimization**: Fixed yield analysis and optimization tools
 
-### 🤖 **AI Investment Assistant**
+### 🤖 **AI Investment Assistant (Powered by Vercel AI Gateway)**
 - **Portfolio-Aware Chat**: AI chatbot with full access to your portfolio data
 - **Real-time Market Context**: AI has access to current market data and exchange rates
 - **Bond Payment Insights**: Detailed bond coupon payment analysis and scheduling
 - **Personalized Advice**: Data-driven investment recommendations based on your holdings
 - **Multi-language Support**: AI assistant available in English and Spanish
+- **High Reliability**: Automatic retries and fallbacks via Vercel AI Gateway
+- **Cost Optimization**: Unified API with spend monitoring and budget controls
 
 ### 🌍 **Internationalization & Multi-Currency**
 - **Language Support**: English and Spanish with full translations
@@ -59,7 +61,7 @@ A modern, feature-rich web application for tracking and analyzing investment por
 ### **External APIs**
 - **DolarAPI**: Real-time Argentine Peso exchange rates
 - **Open Exchange Rates**: Multi-currency conversion service
-- **OpenAI API**: AI-powered investment assistant and portfolio analysis
+- **Vercel AI Gateway**: Unified AI API with OpenAI GPT-4o-mini for investment analysis
 
 ## 📁 Project Structure
 
@@ -191,7 +193,9 @@ Create a `.env` file in the root directory:
 # API Keys (optional - fallbacks available)
 VITE_CURRENCY_API_KEY=your_open_exchange_rate_key
 VITE_DOLAR_API_URL=https://dolarapi.com/v1/dolares/oficial
-OPENAI_API_KEY=your_openai_api_key
+
+# AI Gateway Configuration (required for AI features)
+AI_GATEWAY_API_KEY=your_ai_gateway_api_key
 
 # App Configuration
 VITE_APP_NAME=Investment Portfolio Tracker
@@ -277,8 +281,8 @@ npm run build
 2. **Set up Environment Variables**
    - In your Vercel project dashboard, go to **Settings** → **Environment Variables**
    - Add the following variables:
-     - **Name**: `OPENAI_API_KEY`
-     - **Value**: `your_openai_api_key_here`
+     - **Name**: `AI_GATEWAY_API_KEY`
+     - **Value**: `your_ai_gateway_api_key_here` (get this from Vercel AI Gateway dashboard)
      - **Environment**: Select all (Production, Preview, Development)
    - Click **Save**
 

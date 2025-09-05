@@ -1,4 +1,3 @@
-import { openai } from '@ai-sdk/openai';
 import { generateText } from 'ai';
 
 export default async function handler(req, res) {
@@ -25,11 +24,11 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Messages array is required' });
     }
 
-    // Check if OpenAI API key is available
-    if (!process.env.OPENAI_API_KEY) {
-      console.error('❌ OPENAI_API_KEY is not set in environment variables');
+    // Check if AI Gateway API key is available
+    if (!process.env.AI_GATEWAY_API_KEY) {
+      console.error('❌ AI_GATEWAY_API_KEY is not set in environment variables');
       return res.status(500).json({ 
-        error: 'OpenAI API key not configured',
+        error: 'AI Gateway API key not configured',
         content: "I'm currently having trouble connecting to the AI service. Please try again in a moment."
       });
     }
@@ -87,9 +86,9 @@ Portfolio Analysis:
 - Respond in the same language as the user's question
 - Be concise but comprehensive in your responses`;
 
-    // Generate AI response
+    // Generate AI response using Vercel AI Gateway
     const result = await generateText({
-      model: openai('gpt-4o-mini'),
+      model: 'openai/gpt-4o-mini',
       messages: [
         {
           role: 'system',
