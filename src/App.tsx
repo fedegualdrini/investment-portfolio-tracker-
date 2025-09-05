@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
+import { Analytics } from '@vercel/analytics/react';
 import { Header } from './components/Header';
 import { Dashboard } from './components/Dashboard';
 import { AddInvestmentForm } from './components/AddInvestmentForm';
@@ -123,6 +124,7 @@ function App() {
         <CurrencyProvider>
           <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
         <SpeedInsights />
+        <Analytics />
         <Header
           onAddInvestment={() => openSection('addForm')}
           onExport={exportPortfolio}
