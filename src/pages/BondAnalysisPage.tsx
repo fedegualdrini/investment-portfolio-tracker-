@@ -69,7 +69,7 @@ export function BondAnalysisPage({ investments, onBack }: BondAnalysisPageProps)
           <div className="flex items-center space-x-3 sm:space-x-4 mb-6 sm:mb-8">
             <button
               onClick={onBack}
-              className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors flex-shrink-0"
+              className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors flex-shrink-0"
             >
               <ArrowLeft className="h-5 w-5" />
             </button>
@@ -107,7 +107,7 @@ export function BondAnalysisPage({ investments, onBack }: BondAnalysisPageProps)
         <div className="flex items-center space-x-3 sm:space-x-4 mb-6 sm:mb-8">
           <button
             onClick={onBack}
-            className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors flex-shrink-0"
+            className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors flex-shrink-0"
           >
             <ArrowLeft className="h-5 w-5" />
           </button>

@@ -182,7 +182,7 @@ export function EditInvestmentForm({ investment, onSave, onCancel }: EditInvestm
         <h2 className="brand-heading-md">{t('edit')}</h2>
         <button
           onClick={onCancel}
-          className="p-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
+          className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
         >
           <X className="h-5 w-5" />
         </button>

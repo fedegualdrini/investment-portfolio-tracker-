@@ -47,7 +47,7 @@ export function Header({
               aria-label="Bond Analysis"
             >
               <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5" />
-              <span className="max-w-0 overflow-hidden group-hover:max-w-xs transition-all duration-500 whitespace-nowrap text-sm sm:text-base">
+              <span className="max-w-0 overflow-hidden group-hover:max-w-xs transition-all duration-500 whitespace-nowrap text-sm sm:text-base" aria-hidden="true">
                 {t('bond.analysis.button')}
               </span>
             </button>
@@ -58,7 +58,7 @@ export function Header({
               disabled={isLoading}
               className={`p-2 rounded-lg transition-colors ${
                 isLoading
-                  ? 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
+                  ? 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 cursor-not-allowed'
                   : 'bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'
               }`}
               title={t('update.prices')}

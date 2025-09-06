@@ -109,7 +109,7 @@ export function Dashboard({
                 disabled={isLoading}
                 className={`p-2 rounded-lg transition-colors ${
                   isLoading
-                    ? 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
+                    ? 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 cursor-not-allowed'
                     : 'bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 hover:bg-purple-100 dark:hover:bg-purple-900/30'
                 }`}
                 title={t('update.prices')}

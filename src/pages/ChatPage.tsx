@@ -427,7 +427,7 @@ What specific aspect of investing would you like to discuss?`,
         <div className="flex items-center space-x-2 sm:space-x-4">
           <button
             onClick={onBack}
-            className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors flex-shrink-0"
+            className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors flex-shrink-0"
             title={t('back.to.portfolio')}
           >
             <ArrowLeft className="h-5 w-5" />
@@ -448,7 +448,7 @@ What specific aspect of investing would you like to discuss?`,
           {messages.length > 0 && (
             <button
               onClick={clearChatHistory}
-              className="p-2 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors flex-shrink-0"
+              className="p-2 text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors flex-shrink-0"
               title="Clear chat history"
             >
               <Trash2 className="h-4 w-4 sm:h-5 sm:w-5" />

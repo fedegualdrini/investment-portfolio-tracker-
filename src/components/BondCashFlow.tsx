@@ -163,10 +163,11 @@ export function BondCashFlow({ investments }: BondCashFlowProps) {
                 onClick={handleClearCache}
                 className="flex items-center space-x-1 sm:space-x-2 px-2 sm:px-3 py-2 text-xs sm:text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200"
                 title="Clear cache and recalculate payment dates"
+                aria-label="Clear cache and recalculate payment dates"
               >
                 <RefreshCw className="h-3 w-3 sm:h-4 sm:w-4" />
-                <span className="hidden sm:inline" aria-hidden="true">{t('refresh.calculations')}</span>
-                <span className="sm:hidden" aria-hidden="true">Refresh</span>
+                <span className="hidden sm:inline">{t('refresh.calculations')}</span>
+                <span className="sm:hidden">Refresh</span>
               </button>
               <button
                 onClick={() => {

@@ -268,7 +268,7 @@ export function ChatBlob() {
               )}
               <button
                 onClick={toggleChat}
-                className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+                className="p-1.5 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
                 title="Close chat"
                 aria-label="Close chat"
               >
