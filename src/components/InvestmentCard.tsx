@@ -30,13 +30,13 @@ export function InvestmentCard({ investment, onRemove, onEdit }: InvestmentCardP
 
   const getTypeColor = (type: string) => {
     const colors = {
-      crypto: 'bg-orange-50 text-orange-600 border-orange-200',
-      stock: 'bg-purple-50 text-purple-600 border-purple-200',
-      bond: 'bg-blue-50 text-blue-600 border-blue-200',
-      etf: 'bg-green-50 text-green-600 border-green-200',
-      commodity: 'bg-yellow-50 text-yellow-600 border-yellow-200',
-      cash: 'bg-emerald-50 text-emerald-600 border-emerald-200',
-      other: 'bg-gray-50 text-gray-600 border-gray-200',
+      crypto: 'bg-orange-100 text-orange-800 border-orange-300 dark:bg-orange-900 dark:text-orange-200 dark:border-orange-700',
+      stock: 'bg-purple-100 text-purple-800 border-purple-300 dark:bg-purple-900 dark:text-purple-200 dark:border-purple-700',
+      bond: 'bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-900 dark:text-blue-200 dark:border-blue-700',
+      etf: 'bg-green-100 text-green-800 border-green-300 dark:bg-green-900 dark:text-green-200 dark:border-green-700',
+      commodity: 'bg-yellow-100 text-yellow-800 border-yellow-300 dark:bg-yellow-900 dark:text-yellow-200 dark:border-yellow-700',
+      cash: 'bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-900 dark:text-emerald-200 dark:border-emerald-700',
+      other: 'bg-gray-100 text-gray-800 border-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600',
     };
     return colors[type as keyof typeof colors] || colors.other;
   };

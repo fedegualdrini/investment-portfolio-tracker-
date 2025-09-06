@@ -90,7 +90,7 @@ export function Header({
               className="brand-button-primary flex items-center space-x-1 sm:space-x-2 px-3 sm:px-4 py-2 text-sm sm:text-base"
             >
               <Plus className="h-4 w-4" />
-              <span className="hidden sm:inline">{t('add.investment')}</span>
+              <span className="hidden sm:inline" aria-hidden="true">{t('add.investment')}</span>
             </button>
           </div>
         </div>

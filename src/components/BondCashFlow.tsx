@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import { Calendar, DollarSign, TrendingUp, Clock, RefreshCw, ChevronDown, ChevronRight } from 'lucide-react';
 import type { Investment, PaymentEvent } from '../types/investment';
 import { BondAnalysisService } from '../services/bondAnalysisService';
@@ -165,8 +165,8 @@ export function BondCashFlow({ investments }: BondCashFlowProps) {
                 title="Clear cache and recalculate payment dates"
               >
                 <RefreshCw className="h-3 w-3 sm:h-4 sm:w-4" />
-                <span className="hidden sm:inline">{t('refresh.calculations')}</span>
-                <span className="sm:hidden">Refresh</span>
+                <span className="hidden sm:inline" aria-hidden="true">{t('refresh.calculations')}</span>
+                <span className="sm:hidden" aria-hidden="true">Refresh</span>
               </button>
               <button
                 onClick={() => {
