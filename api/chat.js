@@ -26,6 +26,8 @@ export default async function handler(req, res) {
     }
 
     // AI Gateway provider handles authentication automatically
+    console.log('🚀 Starting AI Gateway request...');
+    console.log('Environment check - AI_GATEWAY_API_KEY exists:', !!process.env.AI_GATEWAY_API_KEY);
 
     // Build system prompt with portfolio context
     let systemPrompt = `You are an AI investment assistant with access to the user's portfolio data. You can help with investment strategies, portfolio analysis, bond calculations, market insights, and more.
@@ -94,7 +96,9 @@ Portfolio Analysis:
       temperature: 0.7,
     });
 
-    console.log('AI Response generated successfully');
+    console.log('✅ AI Response generated successfully');
+    console.log('📊 AI Gateway usage:', result.usage);
+    console.log('🔍 Response length:', result.text?.length || 0);
 
     res.status(200).json({
       content: result.text,
