@@ -1,5 +1,4 @@
 import { generateText } from 'ai';
-import { createGateway } from '@ai-sdk/gateway';
 
 export default async function handler(req, res) {
   // Set CORS headers
@@ -91,15 +90,10 @@ Portfolio Analysis:
 - Respond in the same language as the user's question
 - Be concise but comprehensive in your responses`;
 
-    // Create AI Gateway instance
-    const gateway = createGateway({
-      apiKey: process.env.AI_GATEWAY_API_KEY,
-      baseURL: 'https://ai-gateway.vercel.sh/v1',
-    });
-
-    // Generate AI response using AI Gateway
+    // Generate AI response using AI Gateway (auto-routed)
+    console.log('🤖 Generating AI response through AI Gateway...');
     const result = await generateText({
-      model: gateway('openai/gpt-4o-mini'),
+      model: 'openai/gpt-4o-mini',
       messages: [
         {
           role: 'system',
@@ -121,9 +115,29 @@ Portfolio Analysis:
     });
 
   } catch (error) {
-    console.error('Error in chat API:', error);
+    console.error('❌ Error in chat API:', error);
+    console.error('❌ Error details:', error.message);
+    console.error('❌ Error stack:', error.stack);
     
-    // Return a fallback response
+    // Check if it's an AI Gateway specific error
+    if (error.message?.includes('AI_GATEWAY_API_KEY') || error.message?.includes('gateway')) {
+      console.error('❌ AI Gateway authentication error');
+      return res.status(500).json({
+        error: 'AI Gateway authentication failed',
+        content: "I'm having trouble connecting to the AI service. Please try again in a moment."
+      });
+    }
+    
+    // Check if it's a model-specific error
+    if (error.message?.includes('model') || error.message?.includes('openai')) {
+      console.error('❌ Model configuration error');
+      return res.status(500).json({
+        error: 'Model configuration error',
+        content: "I'm having trouble with the AI model configuration. Please try again in a moment."
+      });
+    }
+    
+    // Generic error fallback
     res.status(500).json({
       error: 'Internal server error',
       content: "I'm currently having trouble connecting to the AI service. Please try again in a moment."
