@@ -32,7 +32,8 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { messages, portfolioContext } = req.body;
+    const { messages } = req.body;
+    let { portfolioContext } = req.body;
 
     if (!messages || !Array.isArray(messages)) {
       res.writeHead(400, { 'Content-Type': 'application/json' });
