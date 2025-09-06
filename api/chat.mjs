@@ -90,7 +90,7 @@ Portfolio Analysis:
 - Respond in the same language as the user's question
 - Be concise but comprehensive in your responses`;
 
-    // Generate AI response using OpenAI with AI Gateway
+    // Generate AI response using OpenAI through Vercel AI Gateway
     const result = await generateText({
       model: openai('gpt-4o-mini'),
       messages: [
@@ -102,6 +102,10 @@ Portfolio Analysis:
       ],
       maxTokens: 2000,
       temperature: 0.7,
+      api: {
+        baseURL: 'https://ai-gateway.vercel.sh/v1',
+        apiKey: process.env.OPENAI_API_KEY,
+      },
     });
 
     console.log('✅ AI Response generated successfully');
