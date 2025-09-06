@@ -28,6 +28,7 @@ export default async function handler(req, res) {
     // Check if OpenAI API key is available
     console.log('🚀 Starting AI request...');
     console.log('Environment check - OPENAI_API_KEY exists:', !!process.env.OPENAI_API_KEY);
+    console.log('Environment check - OPENAI_API_KEY length:', process.env.OPENAI_API_KEY?.length || 0);
     
     if (!process.env.OPENAI_API_KEY) {
       console.error('❌ OPENAI_API_KEY is not set in environment variables');
