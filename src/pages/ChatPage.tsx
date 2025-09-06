@@ -302,8 +302,15 @@ export function ChatPage({ onBack }: ChatPageProps) {
   }, [investments, currency, calculatePortfolioSummary, lastUpdate, currencyService]);
 
   const handleSubmit = async (e: React.FormEvent) => {
+    console.log('🎯 Frontend: handleSubmit called!');
+    console.log('🎯 Frontend: input value:', input);
+    console.log('🎯 Frontend: isLoading:', isLoading);
+    
     e.preventDefault();
-    if (!input.trim() || isLoading) return;
+    if (!input.trim() || isLoading) {
+      console.log('🚫 Frontend: Early return - input empty or loading');
+      return;
+    }
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -376,6 +383,7 @@ What specific aspect of investing would you like to discuss?`,
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('📝 Frontend: Input changed:', e.target.value);
     setInput(e.target.value);
   };
 
