@@ -71,6 +71,7 @@ export function InvestmentCard({ investment, onRemove, onEdit }: InvestmentCardP
             }}
             className="p-2 text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors duration-200"
             title={t('edit')}
+            aria-label={t('edit')}
           >
             <Edit3 className="h-4 w-4" />
           </button>
@@ -82,6 +83,7 @@ export function InvestmentCard({ investment, onRemove, onEdit }: InvestmentCardP
               }}
               className="p-2 text-gray-400 dark:text-gray-500 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors duration-200"
               title={t('view.chart')}
+              aria-label={t('view.chart')}
             >
               <BarChart3 className="h-4 w-4" />
             </button>
@@ -93,6 +95,7 @@ export function InvestmentCard({ investment, onRemove, onEdit }: InvestmentCardP
             }}
             className="p-2 text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200"
             title={t('remove')}
+            aria-label={t('remove')}
           >
             <Trash2 className="h-4 w-4" />
           </button>

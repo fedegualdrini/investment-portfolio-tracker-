@@ -231,6 +231,7 @@ export function ChatBlob() {
           onClick={toggleChat}
           className="fixed bottom-6 right-6 w-14 h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center z-50"
           title={t('chat.title')}
+          aria-label={t('chat.title')}
         >
           <Bot className="h-6 w-6" />
         </button>
@@ -260,6 +261,7 @@ export function ChatBlob() {
                   onClick={clearChatHistory}
                   className="p-1.5 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
                   title="Clear chat history"
+                  aria-label="Clear chat history"
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>
@@ -268,6 +270,7 @@ export function ChatBlob() {
                 onClick={toggleChat}
                 className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
                 title="Close chat"
+                aria-label="Close chat"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -363,6 +366,7 @@ export function ChatBlob() {
                 type="submit"
                 disabled={isLoading || !input.trim()}
                 className="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                aria-label="Send message"
               >
                 <Send className="h-4 w-4" />
               </button>

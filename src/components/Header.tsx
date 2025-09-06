@@ -44,6 +44,7 @@ export function Header({
               onClick={onBondAnalysis}
               className="group flex items-center space-x-1 sm:space-x-2 px-2 sm:px-3 py-2 bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-all duration-500 hover:pr-3 sm:hover:pr-4"
               title="Bond Analysis"
+              aria-label="Bond Analysis"
             >
               <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5" />
               <span className="max-w-0 overflow-hidden group-hover:max-w-xs transition-all duration-500 whitespace-nowrap text-sm sm:text-base">
@@ -61,6 +62,7 @@ export function Header({
                   : 'bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'
               }`}
               title={t('update.prices')}
+              aria-label={t('update.prices')}
             >
               <RefreshCw className={`h-4 w-4 sm:h-5 sm:w-5 ${isLoading ? 'animate-spin' : ''}`} />
             </button>
@@ -69,6 +71,7 @@ export function Header({
               onClick={onImport}
               className="p-2 bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
               title={t('import.portfolio')}
+              aria-label={t('import.portfolio')}
             >
               <Upload className="h-4 w-4 sm:h-5 sm:w-5" />
             </button>
@@ -77,6 +80,7 @@ export function Header({
               onClick={onExport}
               className="p-2 bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
               title={t('export.portfolio')}
+              aria-label={t('export.portfolio')}
             >
               <Download className="h-4 w-4 sm:h-5 sm:w-5" />
             </button>
@@ -88,9 +92,10 @@ export function Header({
             <button
               onClick={onAddInvestment}
               className="brand-button-primary flex items-center space-x-1 sm:space-x-2 px-3 sm:px-4 py-2 text-sm sm:text-base"
+              aria-label={t('add.investment')}
             >
               <Plus className="h-4 w-4" />
-              <span className="hidden sm:inline" aria-hidden="true">{t('add.investment')}</span>
+              <span className="hidden sm:inline">{t('add.investment')}</span>
             </button>
           </div>
         </div>
