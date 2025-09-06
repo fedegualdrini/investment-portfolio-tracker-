@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Send, ArrowLeft, Bot, User } from 'lucide-react';
+import { Send, ArrowLeft, Bot, User, Trash2 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useCurrency } from '../contexts/CurrencyContext';
 import { useInvestments } from '../hooks/useInvestments';
@@ -37,6 +37,28 @@ export function ChatPage({ onBack }: ChatPageProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [portfolioContext, setPortfolioContext] = useState<PortfolioContext | null>(null);
+
+  // Load chat history from localStorage on component mount
+  useEffect(() => {
+    const savedMessages = localStorage.getItem('chatHistory');
+    if (savedMessages) {
+      try {
+        const parsedMessages = JSON.parse(savedMessages);
+        setMessages(parsedMessages);
+      } catch (error) {
+        console.error('Error loading chat history:', error);
+        // If there's an error parsing, start with empty messages
+        setMessages([]);
+      }
+    }
+  }, []);
+
+  // Save chat history to localStorage whenever messages change
+  useEffect(() => {
+    if (messages.length > 0) {
+      localStorage.setItem('chatHistory', JSON.stringify(messages));
+    }
+  }, [messages]);
 
   const currencyService = useMemo(() => new CurrencyService(), []);
   const bondAnalysisService = useMemo(() => new BondAnalysisService(), []);
@@ -387,6 +409,11 @@ What specific aspect of investing would you like to discuss?`,
     setInput(e.target.value);
   };
 
+  const clearChatHistory = () => {
+    setMessages([]);
+    localStorage.removeItem('chatHistory');
+  };
+
   return (
     <div className="fixed top-16 left-0 right-0 bottom-0 bg-gray-50 dark:bg-gray-900 transition-colors duration-200 flex flex-col z-50">
       {/* Chat Header */}
@@ -412,6 +439,15 @@ What specific aspect of investing would you like to discuss?`,
               </p>
             </div>
           </div>
+          {messages.length > 0 && (
+            <button
+              onClick={clearChatHistory}
+              className="p-2 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors flex-shrink-0"
+              title="Clear chat history"
+            >
+              <Trash2 className="h-4 w-4 sm:h-5 sm:w-5" />
+            </button>
+          )}
         </div>
       </div>
 
