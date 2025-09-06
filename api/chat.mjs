@@ -92,6 +92,12 @@ Portfolio Analysis:
 
     // Generate AI response using AI Gateway (auto-routed)
     console.log('🤖 Generating AI response through AI Gateway...');
+    console.log('🔑 AI_GATEWAY_API_KEY present:', !!process.env.AI_GATEWAY_API_KEY);
+    console.log('🔑 AI_GATEWAY_API_KEY starts with:', process.env.AI_GATEWAY_API_KEY?.substring(0, 10) + '...');
+    console.log('📝 Model being used: openai/gpt-4o-mini');
+    console.log('📊 Messages count:', messages.length);
+    console.log('📏 System prompt length:', systemPrompt.length);
+    
     const result = await generateText({
       model: 'openai/gpt-4o-mini',
       messages: [
@@ -108,6 +114,8 @@ Portfolio Analysis:
     console.log('✅ AI Response generated successfully');
     console.log('📊 AI Gateway usage:', result.usage);
     console.log('🔍 Response length:', result.text?.length || 0);
+    console.log('🔍 Full result object keys:', Object.keys(result));
+    console.log('🔍 Usage details:', JSON.stringify(result.usage, null, 2));
 
     res.status(200).json({
       content: result.text,
