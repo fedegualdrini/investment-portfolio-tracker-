@@ -25,15 +25,15 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Messages array is required' });
     }
 
-    // Check if OpenAI API key is available
+    // Check if AI Gateway API key is available
     console.log('🚀 Starting AI request...');
-    console.log('Environment check - OPENAI_API_KEY exists:', !!process.env.OPENAI_API_KEY);
-    console.log('Environment check - OPENAI_API_KEY length:', process.env.OPENAI_API_KEY?.length || 0);
+    console.log('Environment check - AI_GATEWAY_API_KEY exists:', !!process.env.AI_GATEWAY_API_KEY);
+    console.log('Environment check - AI_GATEWAY_API_KEY length:', process.env.AI_GATEWAY_API_KEY?.length || 0);
     
-    if (!process.env.OPENAI_API_KEY) {
-      console.error('❌ OPENAI_API_KEY is not set in environment variables');
+    if (!process.env.AI_GATEWAY_API_KEY) {
+      console.error('❌ AI_GATEWAY_API_KEY is not set in environment variables');
       return res.status(500).json({ 
-        error: 'OpenAI API key not configured',
+        error: 'AI Gateway API key not configured',
         content: "I'm currently having trouble connecting to the AI service. Please try again in a moment."
       });
     }
@@ -105,7 +105,7 @@ Portfolio Analysis:
       temperature: 0.7,
       api: {
         baseURL: 'https://ai-gateway.vercel.sh/v1',
-        apiKey: process.env.OPENAI_API_KEY,
+        apiKey: process.env.AI_GATEWAY_API_KEY,
       },
     });
 
