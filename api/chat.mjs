@@ -44,7 +44,10 @@ export default async function handler(req, res) {
     }
 
     // Build system prompt with portfolio context
-    let systemPrompt = `You are an AI investment assistant with access to the user's portfolio data. You can help with investment strategies, portfolio analysis, bond calculations, market insights, and more.
+    let systemPrompt = `You are an advanced AI investment assistant with access to the user's portfolio data and real-time market information. Your role is to provide personalized, data-driven insights, analysis, and recommendations.
+
+PORTFOLIO CONTEXT:
+The user has a diversified investment portfolio with the following holdings:
 
 Current Date and Time: ${portfolioContext?.currentDateFormatted || 'Not available'} (${portfolioContext?.currentTime || 'Not available'})
 
@@ -61,8 +64,62 @@ Portfolio Analysis:
 - Total Bond Value: $${portfolioContext?.portfolioAnalysis?.totalBondValue?.toFixed(2) || '0.00'}
 - Total Annual Coupon Income: $${portfolioContext?.portfolioAnalysis?.totalAnnualCouponIncome?.toFixed(2) || '0.00'}`;
 
+    // Add detailed investment information by type
+    if (portfolioContext?.investments?.length > 0) {
+      const investments = portfolioContext.investments;
+      
+      // Group investments by type
+      const cryptoInvestments = investments.filter(inv => inv.type === 'crypto');
+      const stockInvestments = investments.filter(inv => inv.type === 'stock');
+      const bondInvestments = investments.filter(inv => inv.type === 'bond');
+      const cashInvestments = investments.filter(inv => inv.type === 'cash');
+      
+      if (cryptoInvestments.length > 0) {
+        systemPrompt += `\n\nCRYPTOCURRENCY (${cryptoInvestments.length} investment${cryptoInvestments.length > 1 ? 's' : ''}):`;
+        cryptoInvestments.forEach(inv => {
+          const gainLoss = inv.currentPrice - inv.purchasePrice;
+          const gainLossPercent = ((gainLoss / inv.purchasePrice) * 100).toFixed(2);
+          systemPrompt += `\n- ${inv.symbol} (${inv.name}): ${inv.quantity} units at $${inv.purchasePrice} purchase price, currently $${inv.currentPrice} (${gainLossPercent}% ${gainLoss >= 0 ? 'gain' : 'loss'})`;
+        });
+      }
+      
+      if (stockInvestments.length > 0) {
+        systemPrompt += `\n\nSTOCKS (${stockInvestments.length} investment${stockInvestments.length > 1 ? 's' : ''}):`;
+        stockInvestments.forEach(inv => {
+          const gainLoss = inv.currentPrice - inv.purchasePrice;
+          const gainLossPercent = ((gainLoss / inv.purchasePrice) * 100).toFixed(2);
+          systemPrompt += `\n- ${inv.symbol} (${inv.name}): ${inv.quantity} units at $${inv.purchasePrice} purchase price, currently $${inv.currentPrice} (${gainLossPercent}% ${gainLoss >= 0 ? 'gain' : 'loss'})`;
+        });
+      }
+      
+      if (bondInvestments.length > 0) {
+        systemPrompt += `\n\nBONDS (${bondInvestments.length} investment${bondInvestments.length > 1 ? 's' : ''}):`;
+        bondInvestments.forEach(inv => {
+          const gainLoss = inv.currentPrice - inv.purchasePrice;
+          const gainLossPercent = ((gainLoss / inv.purchasePrice) * 100).toFixed(2);
+          let bondInfo = `\n- ${inv.symbol} (${inv.name}): ${inv.quantity} units at $${inv.purchasePrice}, currently $${inv.currentPrice} (${gainLossPercent}% ${gainLoss >= 0 ? 'gain' : 'loss'}), ${inv.fixedYield}% yield, ${inv.paymentFrequency} payments, matures ${inv.maturityDate}`;
+          
+          if (inv.nextPaymentDate) {
+            bondInfo += `, next payment ${inv.nextPaymentDate}`;
+          } else if (inv.lastPaymentDate) {
+            bondInfo += `, last payment ${inv.lastPaymentDate}`;
+          }
+          
+          systemPrompt += bondInfo;
+        });
+      }
+      
+      if (cashInvestments.length > 0) {
+        systemPrompt += `\n\nCASH (${cashInvestments.length} holding${cashInvestments.length > 1 ? 's' : ''}):`;
+        cashInvestments.forEach(inv => {
+          systemPrompt += `\n- ${inv.name}: $${inv.quantity.toFixed(2)}`;
+        });
+      }
+    }
+
     // Add bond payment information if available
     if (portfolioContext?.portfolioAnalysis?.allBondPayments?.length > 0) {
+      systemPrompt += `\n\nBOND PAYMENT SCHEDULE:`;
       systemPrompt += `\n\nAll Bond Payment Information:\n${portfolioContext.portfolioAnalysis.allBondPayments.map(payment => {
         let paymentInfo = `- ${payment.symbol} (${payment.name}): $${payment.paymentAmount?.toFixed(2) || '0.00'} annual coupon`;
         
@@ -79,22 +136,43 @@ Portfolio Analysis:
     }
 
     if (portfolioContext?.portfolioAnalysis?.upcomingBondPayments?.length > 0) {
-      systemPrompt += `\n\nUpcoming Bond Payments (with specific dates):\n${portfolioContext.portfolioAnalysis.upcomingBondPayments.map(payment => {
-        let paymentInfo = `- ${payment.symbol} (${payment.name}): $${payment.paymentAmount?.toFixed(2) || '0.00'} on ${payment.nextPaymentDate} (${payment.paymentFrequency}) - ${payment.relativeTiming || 'Not specified'}${payment.isOverdue ? ' ⚠️ OVERDUE' : ''}`;
-        return paymentInfo;
-      }).join('\n')}`;
+      systemPrompt += `\n\nUpcoming payments: ${portfolioContext.portfolioAnalysis.upcomingBondPayments.map(payment => `${payment.symbol} (${payment.nextPaymentDate})`).join(', ')}`;
     }
 
-    systemPrompt += `\n\nInstructions:
-- Always be helpful and provide accurate information based on the user's actual portfolio data
-- Use the current date context for any time-based calculations
-- If asked about bond payments, provide information for ALL bonds - those with specific dates and those without
-- If asked about bond payment schedules, include all bonds and clearly indicate which ones have specific dates vs. which ones don't
-- If asked about time-sensitive information, use the current date context to provide accurate relative timing
-- Always be specific with their actual data when relevant and use the current date for any time-based calculations
-- When discussing bond payments, always mention all bonds in their portfolio, not just those with upcoming payment dates
-- Respond in the same language as the user's question
-- Be concise but comprehensive in your responses`;
+    systemPrompt += `\n\nCore Responsibilities:
+- Portfolio Analysis: Calculate performance (absolute, % gains, IRR, Sharpe ratio) and compare against benchmarks (S&P 500, Bitcoin, global bond index, etc.)
+- Rebalancing Strategies: Suggest allocation adjustments based on risk tolerance, target asset mix, and market conditions
+- Bond Intelligence: Track coupons, maturity dates, yield to maturity (YTM), yield to call (YTC), and projected cash flows. Provide a bond payment calendar and simulate reinvestment strategies
+- Cash Flow Forecasting: Project semi-annual bond payments, dividends, and interest, and estimate expected monthly/annual passive income
+- Scenario Modeling: Run "what if" simulations (e.g., BTC drops 20%, bonds roll down the curve, Fed rate hike). Show the impact on total portfolio value
+- Risk Management: Highlight concentration risk, volatility, and downside exposure. Suggest hedging strategies (e.g., via cash, defensive sectors, options)
+- Macro Insights: Summarize relevant market news (inflation, commodities, interest rates, Argentina-specific developments) and explain their portfolio impact
+
+Advanced Features:
+- Currency Awareness: Convert between USD, ARS, EUR, and BTC for valuation and compare local vs. international returns
+- Dividend & Coupon Reinvestment: Estimate compounding returns if payments are reinvested
+- Goal Tracking: Help user track specific income goals (e.g., $2,000/month in passive income by 2028) and measure progress
+- Tax Awareness (high-level): Provide general considerations about capital gains, interest income, and withholding taxes (never specific tax advice, but highlight where it matters)
+- Comparison Engine: Contrast user holdings with alternatives (e.g., other Argentine ONs, U.S. Treasuries, MSCI Emerging Markets ETF)
+- Alerts & Signals: Detect unusual moves (bond price drops, crypto volatility spikes, stock dividend suspensions) and explain why they matter
+- Kelly Criterion & Betting Overlays (if user applies to betting strategies): Provide expected value (EV) calculations, bankroll risk percentages, and optimal bet sizing
+
+Interaction Style:
+- Always use the actual portfolio context provided
+- Be data-driven, specific, and clear. Show numbers, percentages, dates, and comparisons
+- Explain reasoning transparently, not just conclusions
+- Avoid generic advice—tie everything to the user's actual portfolio
+- Provide both short-term tactical insights (market trends, signals) and long-term strategy guidance (retirement, compounding, rebalancing)
+
+Example Queries You Can Handle:
+- "How much passive income will I receive from my bonds in 2026?"
+- "What happens to my portfolio if BTC drops 15%?"
+- "Compare my Edenor bond to YPF in terms of YTM and risk."
+- "Am I too concentrated in crypto?"
+- "How close am I to my $2,000/month passive income target?"
+- "Simulate rebalancing to 50% bonds, 30% crypto, 20% stocks."
+
+Always provide specific, data-driven insights based on the user's actual portfolio holdings and current market conditions.`;
 
     // Generate AI response using AI Gateway (auto-routed)
     console.log('🤖 Generating AI response through AI Gateway...');
