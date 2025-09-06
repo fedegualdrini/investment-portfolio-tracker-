@@ -240,7 +240,7 @@ export function ChatBlob() {
       {isOpen && (
         <div className="fixed bottom-6 right-6 w-96 h-[500px] bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 flex flex-col z-50 transition-all duration-300">
           {/* Chat Header */}
-          <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 rounded-t-xl bg-gray-50 dark:bg-gray-750">
+          <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 rounded-t-xl bg-white dark:bg-gray-800">
             <div className="flex items-center space-x-2">
               <div className="p-1.5 bg-blue-600 dark:bg-blue-500 rounded-lg">
                 <Bot className="h-4 w-4 text-white" />
