@@ -318,6 +318,9 @@ export function ChatPage({ onBack }: ChatPageProps) {
     setError(null); // Clear any previous errors
 
     try {
+      console.log('🚀 Frontend: Making API call to /api/chat');
+      console.log('📦 Frontend: Portfolio context:', portfolioContext ? 'Present' : 'Missing');
+      
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {
@@ -328,6 +331,8 @@ export function ChatPage({ onBack }: ChatPageProps) {
           portfolioContext,
         }),
       });
+      
+      console.log('📡 Frontend: API response status:', response.status);
 
       if (!response.ok) {
         throw new Error('Network response was not ok');
@@ -343,7 +348,8 @@ export function ChatPage({ onBack }: ChatPageProps) {
 
       setMessages(prev => [...prev, assistantMessage]);
     } catch (err) {
-      console.error('Chat error:', err);
+      console.error('❌ Frontend: Chat error:', err);
+      console.error('❌ Frontend: Error details:', err.message);
       setError('Failed to connect to AI service');
       // Fallback response when API is not available
       const fallbackMessage: Message = {
