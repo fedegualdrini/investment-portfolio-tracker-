@@ -98,6 +98,10 @@ Portfolio Analysis:
       ],
       maxTokens: 2000,
       temperature: 0.7,
+      api: {
+        baseURL: 'https://gateway.ai.vercel.com/v1',
+        apiKey: process.env.AI_GATEWAY_API_KEY,
+      },
     });
 
     console.log('AI Response generated successfully');
