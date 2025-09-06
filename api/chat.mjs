@@ -1,6 +1,12 @@
 import { generateText } from 'ai';
 
 export default async function handler(req, res) {
+  // IMMEDIATE LOGGING - This should show up if function is called
+  console.log('🔥 FUNCTION CALLED - api/chat.mjs handler started');
+  console.log('🔥 Request method:', req.method);
+  console.log('🔥 Request URL:', req.url);
+  console.log('🔥 Request headers:', JSON.stringify(req.headers, null, 2));
+  
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
