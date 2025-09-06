@@ -492,6 +492,20 @@ Always provide specific, data-driven insights based on the user's actual portfol
             ...(input.currency && { currency: input.currency })
           };
 
+          // Initialize portfolio context if it doesn't exist
+          if (!portfolioContext) {
+            portfolioContext = {
+              investments: [],
+              totalValue: 0,
+              totalInvested: 0,
+              totalGainLoss: 0,
+              totalGainLossPercentage: 0,
+              currency: 'USD',
+              exchangeRates: {},
+              lastUpdated: null
+            };
+          }
+
           // Add to portfolio context
           portfolioContext.investments = [...(portfolioContext.investments || []), newInvestment];
           
@@ -547,6 +561,20 @@ Always provide specific, data-driven insights based on the user's actual portfol
         
         try {
           const { id, updates } = input;
+          
+          // Initialize portfolio context if it doesn't exist
+          if (!portfolioContext) {
+            portfolioContext = {
+              investments: [],
+              totalValue: 0,
+              totalInvested: 0,
+              totalGainLoss: 0,
+              totalGainLossPercentage: 0,
+              currency: 'USD',
+              exchangeRates: {},
+              lastUpdated: null
+            };
+          }
           
           // Find the investment
           const investmentIndex = portfolioContext.investments.findIndex(inv => inv.id === id);
@@ -612,6 +640,20 @@ Always provide specific, data-driven insights based on the user's actual portfol
         try {
           const { id } = input;
           
+          // Initialize portfolio context if it doesn't exist
+          if (!portfolioContext) {
+            portfolioContext = {
+              investments: [],
+              totalValue: 0,
+              totalInvested: 0,
+              totalGainLoss: 0,
+              totalGainLossPercentage: 0,
+              currency: 'USD',
+              exchangeRates: {},
+              lastUpdated: null
+            };
+          }
+          
           // Find the investment
           const investmentIndex = portfolioContext.investments.findIndex(inv => inv.id === id);
           if (investmentIndex === -1) {
@@ -667,6 +709,20 @@ Always provide specific, data-driven insights based on the user's actual portfol
         console.log('📋 Raw input received:', JSON.stringify(input, null, 2));
         
         try {
+          // Initialize portfolio context if it doesn't exist
+          if (!portfolioContext) {
+            portfolioContext = {
+              investments: [],
+              totalValue: 0,
+              totalInvested: 0,
+              totalGainLoss: 0,
+              totalGainLossPercentage: 0,
+              currency: 'USD',
+              exchangeRates: {},
+              lastUpdated: null
+            };
+          }
+          
           let filteredInvestments = portfolioContext.investments || [];
           
           // Apply filters
