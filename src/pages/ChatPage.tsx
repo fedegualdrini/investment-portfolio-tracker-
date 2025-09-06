@@ -388,10 +388,10 @@ What specific aspect of investing would you like to discuss?`,
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
-      <div className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
-        {/* Header */}
-        <div className="flex items-center space-x-2 sm:space-x-4 mb-4 sm:mb-8">
+    <div className="fixed top-16 left-0 right-0 bottom-0 bg-gray-50 dark:bg-gray-900 transition-colors duration-200 flex flex-col z-50">
+      {/* Chat Header */}
+      <div className="flex-shrink-0 px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+        <div className="flex items-center space-x-2 sm:space-x-4">
           <button
             onClick={onBack}
             className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors flex-shrink-0"
@@ -413,11 +413,10 @@ What specific aspect of investing would you like to discuss?`,
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Chat Container */}
-        <div className="flex flex-col h-[calc(100vh-180px)] sm:h-[calc(100vh-200px)]">
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-2 sm:p-4 space-y-4 pb-20">
+      {/* Messages Area - Takes remaining space */}
+      <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-4 space-y-4">
           {messages.length === 0 && (
             <div className="text-center py-8">
               <Bot className="h-12 w-12 text-blue-500 mx-auto mb-4" />
@@ -488,29 +487,27 @@ What specific aspect of investing would you like to discuss?`,
               </div>
             </div>
           )}
-        </div>
+      </div>
 
-          {/* Input Form */}
-          <div className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-2 sm:p-4">
-            <form onSubmit={handleSubmit} className="flex space-x-2">
-              <input
-                type="text"
-                value={input}
-                onChange={handleInputChange}
-                placeholder={t('chat.placeholder')}
-                className="flex-1 px-3 py-2 sm:px-4 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 text-sm sm:text-base"
-                disabled={isLoading}
-              />
-              <button
-                type="submit"
-                disabled={isLoading || !input.trim()}
-                className="px-3 py-2 sm:px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex-shrink-0"
-              >
-                <Send className="h-4 w-4" />
-              </button>
-            </form>
-          </div>
-        </div>
+      {/* Input Form - Fixed at bottom */}
+      <div className="flex-shrink-0 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 sm:px-6 lg:px-8 py-4">
+        <form onSubmit={handleSubmit} className="flex space-x-2">
+          <input
+            type="text"
+            value={input}
+            onChange={handleInputChange}
+            placeholder={t('chat.placeholder')}
+            className="flex-1 px-3 py-2 sm:px-4 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 text-sm sm:text-base"
+            disabled={isLoading}
+          />
+          <button
+            type="submit"
+            disabled={isLoading || !input.trim()}
+            className="px-3 py-2 sm:px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex-shrink-0"
+          >
+            <Send className="h-4 w-4" />
+          </button>
+        </form>
       </div>
     </div>
   );

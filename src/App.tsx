@@ -135,6 +135,15 @@ function App() {
           isLoading={isLoading}
         />
 
+        {/* Chat Page - Full screen when active */}
+        {showChat && (
+          <ChatPage
+            onBack={closeAllSections}
+          />
+        )}
+
+        {/* Main content - Only show when chat is not active */}
+        {!showChat && (
         <main className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
                   {showAddForm ? (
           <div ref={addFormRef} className="mb-8 mt-4 animate-fadeInUp">
@@ -186,14 +195,7 @@ function App() {
             />
           )}
 
-          {/* Chat Page */}
-          {showChat && (
-            <ChatPage
-              onBack={closeAllSections}
-            />
-          )}
-
-          {!showAddForm && !editingInvestment && !showBondAnalysis && !showChat && investments.length > 0 && (
+          {!showAddForm && !editingInvestment && !showBondAnalysis && investments.length > 0 && (
             <div className="mt-4 sm:mt-8 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6 transition-colors duration-200">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100">Quick Actions</h2>
@@ -237,6 +239,7 @@ function App() {
             </div>
           )}
         </main>
+        )}
               </div>
           </CurrencyProvider>
       </LanguageProvider>
