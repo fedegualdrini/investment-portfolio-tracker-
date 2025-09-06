@@ -1,5 +1,5 @@
 import { generateText } from 'ai';
-import { gateway } from '@ai-sdk/gateway';
+import { openai } from '@ai-sdk/openai';
 
 export default async function handler(req, res) {
   // Set CORS headers
@@ -25,9 +25,17 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Messages array is required' });
     }
 
-    // AI Gateway provider handles authentication automatically
-    console.log('🚀 Starting AI Gateway request...');
-    console.log('Environment check - AI_GATEWAY_API_KEY exists:', !!process.env.AI_GATEWAY_API_KEY);
+    // Check if OpenAI API key is available
+    console.log('🚀 Starting AI request...');
+    console.log('Environment check - OPENAI_API_KEY exists:', !!process.env.OPENAI_API_KEY);
+    
+    if (!process.env.OPENAI_API_KEY) {
+      console.error('❌ OPENAI_API_KEY is not set in environment variables');
+      return res.status(500).json({ 
+        error: 'OpenAI API key not configured',
+        content: "I'm currently having trouble connecting to the AI service. Please try again in a moment."
+      });
+    }
 
     // Build system prompt with portfolio context
     let systemPrompt = `You are an AI investment assistant with access to the user's portfolio data. You can help with investment strategies, portfolio analysis, bond calculations, market insights, and more.
@@ -82,9 +90,9 @@ Portfolio Analysis:
 - Respond in the same language as the user's question
 - Be concise but comprehensive in your responses`;
 
-    // Generate AI response using Vercel AI Gateway
+    // Generate AI response using OpenAI with AI Gateway
     const result = await generateText({
-      model: gateway('openai/gpt-4o-mini'),
+      model: openai('gpt-4o-mini'),
       messages: [
         {
           role: 'system',
