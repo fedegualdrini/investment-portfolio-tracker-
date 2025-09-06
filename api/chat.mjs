@@ -1,5 +1,5 @@
 import { generateText } from 'ai';
-import { openai } from '@ai-sdk/openai';
+import { createGateway } from '@ai-sdk/gateway';
 
 export default async function handler(req, res) {
   // Set CORS headers
@@ -91,9 +91,15 @@ Portfolio Analysis:
 - Respond in the same language as the user's question
 - Be concise but comprehensive in your responses`;
 
-    // Generate AI response using OpenAI through Vercel AI Gateway
+    // Create AI Gateway instance
+    const gateway = createGateway({
+      apiKey: process.env.AI_GATEWAY_API_KEY,
+      baseURL: 'https://ai-gateway.vercel.sh/v1',
+    });
+
+    // Generate AI response using AI Gateway
     const result = await generateText({
-      model: openai('gpt-4o-mini'),
+      model: gateway('openai/gpt-4o-mini'),
       messages: [
         {
           role: 'system',
@@ -103,10 +109,6 @@ Portfolio Analysis:
       ],
       maxTokens: 2000,
       temperature: 0.7,
-      api: {
-        baseURL: 'https://ai-gateway.vercel.sh/v1',
-        apiKey: process.env.AI_GATEWAY_API_KEY,
-      },
     });
 
     console.log('✅ AI Response generated successfully');
