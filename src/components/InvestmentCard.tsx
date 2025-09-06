@@ -17,6 +17,7 @@ export function InvestmentCard({ investment, onRemove, onEdit }: InvestmentCardP
   const [showModal, setShowModal] = useState(false);
   const [showChart, setShowChart] = useState(false);
   
+  
   const currentPrice = investment.currentPrice || investment.purchasePrice;
   const totalValue = currentPrice * investment.quantity;
   const totalInvested = investment.purchasePrice * investment.quantity;

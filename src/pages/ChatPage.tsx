@@ -31,7 +31,7 @@ interface PortfolioContext {
 export function ChatPage({ onBack }: ChatPageProps) {
   const { t } = useLanguage();
   const { currency } = useCurrency();
-  const { investments, calculatePortfolioSummary, lastUpdate } = useInvestments();
+  const { investments, calculatePortfolioSummary, lastUpdate, setInvestments } = useInvestments();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -368,6 +368,12 @@ export function ChatPage({ onBack }: ChatPageProps) {
       }
 
       const data = await response.json();
+      
+      // Handle investment updates if the AI made changes
+      if (data.updatedPortfolio && data.updatedPortfolio.investments) {
+        console.log('📈 ChatPage: Applying investment updates:', data.updatedPortfolio.investments);
+        setInvestments(data.updatedPortfolio.investments);
+      }
       
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),

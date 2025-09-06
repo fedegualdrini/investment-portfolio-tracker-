@@ -27,6 +27,7 @@ export function Dashboard({
   const { t } = useLanguage();
   const { formatCurrency } = useCurrency();
   
+  
   // Auto-update prices every 5 minutes
   useEffect(() => {
     if (investments.length === 0) return;

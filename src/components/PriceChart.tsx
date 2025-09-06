@@ -1,3 +1,4 @@
+import React from 'react';
 import { AdvancedChart } from 'react-tradingview-embed';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useTheme } from '../contexts/ThemeContext';
@@ -48,10 +49,7 @@ export function PriceChart({ investment, isVisible, onClose }: PriceChartProps) 
     allow_symbol_change: true,
     save_image: false,
     container_id: `tradingview_${investment.id}_${isDarkMode ? 'dark' : 'light'}`,
-    studies: [
-      'Volume@tv-basicstudies',
-      'RSI@tv-basicstudies'
-    ],
+    studies: [],
     disabled_features: [
       'use_localstorage_for_settings',
       'volume_force_overlay'
@@ -62,7 +60,7 @@ export function PriceChart({ investment, isVisible, onClose }: PriceChartProps) 
     ],
     enable_publishing: false,
     withdateranges: true,
-    hide_volume: false,
+    hide_volume: true,
     hide_top_toolbar: false,
     hide_legend: false,
     range: "YTD",

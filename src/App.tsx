@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import { Analytics } from '@vercel/analytics/react';
 import { Header } from './components/Header';
@@ -7,30 +7,29 @@ import { AddInvestmentForm } from './components/AddInvestmentForm';
 import { EditInvestmentForm } from './components/EditInvestmentForm';
 import { PortfolioStats } from './components/PortfolioStats';
 import { BondAnalysisPage } from './pages/BondAnalysisPage';
-import { ChatPage } from './pages/ChatPage';
-import { useInvestments } from './hooks/useInvestments';
+import { ChatBlob } from './components/ChatBlob';
+import { useInvestmentContext } from './contexts/InvestmentContext';
 import type { Investment } from './types/investment';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { CurrencyProvider } from './contexts/CurrencyContext';
+import { InvestmentProvider } from './contexts/InvestmentContext';
 
-function App() {
+function AppContent() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingInvestment, setEditingInvestment] = useState<string | null>(null);
 
   const [showBondAnalysis, setShowBondAnalysis] = useState(false);
-  const [showChat, setShowChat] = useState(false);
 
   // Helper function to close all sections and return to home
   const closeAllSections = () => {
     setShowAddForm(false);
     setEditingInvestment(null);
     setShowBondAnalysis(false);
-    setShowChat(false);
   };
 
   // Helper function to open a specific section (closes others)
-  const openSection = (section: 'addForm' | 'editForm' | 'bondAnalysis' | 'chat') => {
+  const openSection = (section: 'addForm' | 'editForm' | 'bondAnalysis') => {
     closeAllSections();
     switch (section) {
       case 'addForm':
@@ -41,9 +40,6 @@ function App() {
         break;
       case 'bondAnalysis':
         setShowBondAnalysis(true);
-        break;
-      case 'chat':
-        setShowChat(true);
         break;
     }
   };
@@ -63,7 +59,7 @@ function App() {
     importPortfolio,
     isLoading,
     lastUpdate,
-  } = useInvestments();
+  } = useInvestmentContext();
 
   // Smooth scroll effect when forms are shown
   useEffect(() => {
@@ -131,19 +127,10 @@ function App() {
           onImport={handleImport}
           onUpdatePrices={updatePrices}
           onBondAnalysis={() => openSection('bondAnalysis')}
-          onChat={() => openSection('chat')}
           isLoading={isLoading}
         />
 
-        {/* Chat Page - Full screen when active */}
-        {showChat && (
-          <ChatPage
-            onBack={closeAllSections}
-          />
-        )}
-
-        {/* Main content - Only show when chat is not active */}
-        {!showChat && (
+        {/* Main content */}
         <main className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
                   {showAddForm ? (
           <div ref={addFormRef} className="mb-8 mt-4 animate-fadeInUp">
@@ -164,7 +151,7 @@ function App() {
           </div>
         ) : null}
 
-          {!showAddForm && !editingInvestment && !showBondAnalysis && !showChat && (
+          {!showAddForm && !editingInvestment && !showBondAnalysis && (
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
               <div className="lg:col-span-3">
                 <Dashboard
@@ -239,12 +226,22 @@ function App() {
             </div>
           )}
         </main>
-        )}
+
+        {/* ChatBlob - Floating chat interface */}
+        <ChatBlob />
               </div>
           </CurrencyProvider>
       </LanguageProvider>
       </ThemeProvider>
     );
   }
+
+function App() {
+  return (
+    <InvestmentProvider>
+      <AppContent />
+    </InvestmentProvider>
+  );
+}
 
 export default App;
