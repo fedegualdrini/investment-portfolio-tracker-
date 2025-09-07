@@ -68,7 +68,7 @@ export function AddInvestmentForm({ onAdd, onCancel }: AddInvestmentFormProps) {
     }
   }, [formData.purchaseDate, formData.maturityDate, formData.paymentFrequency, formData.type]);
 
-  // Smart bond analysis when symbol or yield changes
+  // Smart bond analysis when symbol or yield changes (for suggestions only)
   useEffect(() => {
     if (formData.type === 'bond' && formData.symbol && formData.fixedYield) {
       const mockInvestment: Partial<Investment> = {
@@ -84,13 +84,8 @@ export function AddInvestmentForm({ onAdd, onCancel }: AddInvestmentFormProps) {
       const analysis = bondAnalysisService.analyzeBond(mockInvestment as Investment);
       setBondAnalysis(analysis);
       
-      // Auto-update payment frequency if confidence is high
-      if (analysis.confidence > 0.7) {
-        setFormData(prev => ({
-          ...prev,
-          paymentFrequency: analysis.paymentFrequency
-        }));
-      }
+      // Don't auto-override user input - just show analysis for reference
+      // User can manually change payment frequency if they want to use the suggestion
     } else {
       setBondAnalysis(null);
     }
@@ -414,6 +409,15 @@ export function AddInvestmentForm({ onAdd, onCancel }: AddInvestmentFormProps) {
                     </option>
                   ))}
                 </select>
+                {bondAnalysis && bondAnalysis.confidence > 0.6 && (
+                  <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                    <p className="text-sm text-blue-700 dark:text-blue-300">
+                      💡 <strong>Suggestion:</strong> Based on the bond symbol and yield, 
+                      we suggest <strong>{bondAnalysis.paymentFrequency}</strong> payments 
+                      (confidence: {Math.round(bondAnalysis.confidence * 100)}%)
+                    </p>
+                  </div>
+                )}
               </div>
 
               <div>

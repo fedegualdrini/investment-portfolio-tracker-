@@ -60,27 +60,21 @@ export class BondAnalysisService {
       return this.createDefaultBondInfo();
     }
 
-    // If user has set a payment frequency, prioritize that over analysis
+    // PRIORITY 1: If user has set a payment frequency, use it directly
     if (investment.paymentFrequency && investment.paymentFrequency !== 'unknown') {
       const paymentInfo = this.calculatePaymentDetails(investment, investment.paymentFrequency);
       
-      // Use smart detection confidence if available, otherwise default to user confidence
-      let confidence = 1.0; // User input is 100% confident for frequency
-      if (investment.maturityDate) {
-        const smartPrediction = this.smartPaymentPatternDetection(investment, investment.paymentFrequency);
-        // Keep high confidence since user set the frequency, but show smart detection confidence
-        confidence = Math.max(0.85, smartPrediction.confidence);
-      }
-      
+      // User input is always 100% confident - trust the user
       return {
         paymentFrequency: investment.paymentFrequency,
         nextPaymentDate: paymentInfo.nextPaymentDate,
         paymentAmount: paymentInfo.paymentAmount,
         totalAnnualPayments: paymentInfo.totalAnnualPayments,
-        confidence
+        confidence: 1.0 // User input is always 100% confident
       };
     }
 
+    // PRIORITY 2: Smart detection only when user hasn't provided payment frequency
     // Check if we have cached data for this symbol (only for auto-analysis)
     if (this.bondDatabase[investment.symbol]) {
       return this.bondDatabase[investment.symbol];

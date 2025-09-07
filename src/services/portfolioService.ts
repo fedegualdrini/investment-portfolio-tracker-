@@ -82,8 +82,8 @@ export class PortfolioService {
       const annualYield = (inv.fixedYield || 0) / 100;
       const paymentAmount = faceValue * annualYield;
 
-      // Determine payment frequency
-      let paymentFrequency = inv.paymentFrequency || 'semi-annual';
+      // Use user-provided payment frequency directly (trust user input)
+      const paymentFrequency = inv.paymentFrequency || 'semi-annual';
       let paymentsPerYear = 2; // Default to semi-annual
 
       switch (paymentFrequency) {

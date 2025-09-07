@@ -331,7 +331,20 @@ export class AnalysisService {
         
         const faceValue = inv.faceValue || inv.purchasePrice * inv.quantity;
         const annualYield = (inv.fixedYield || 0) / 100;
-        const paymentAmount = faceValue * annualYield / 2; // Assuming semi-annual
+        
+        // Use user-provided payment frequency to calculate correct payment amount
+        const paymentFrequency = inv.paymentFrequency || 'semi-annual';
+        let paymentsPerYear = 2; // Default to semi-annual
+        
+        switch (paymentFrequency) {
+          case 'monthly': paymentsPerYear = 12; break;
+          case 'quarterly': paymentsPerYear = 4; break;
+          case 'semi-annual': paymentsPerYear = 2; break;
+          case 'annual': paymentsPerYear = 1; break;
+          case 'zero-coupon': paymentsPerYear = 0; break;
+        }
+        
+        const paymentAmount = paymentsPerYear > 0 ? (faceValue * annualYield) / paymentsPerYear : 0;
 
         return {
           symbol: inv.symbol,
