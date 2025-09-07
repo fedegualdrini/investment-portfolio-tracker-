@@ -7,6 +7,7 @@ import { CurrencyService } from '../services/currencyService';
 import { BondAnalysisService } from '../services/bondAnalysisService';
 import { PortfolioService, type PortfolioContext } from '../services/portfolioService';
 import { ChatApiService } from '../services/chatApiService';
+import { trackInvestmentActions } from './GoogleAnalytics';
 import type { Investment } from '../types/investment';
 
 interface Message {
@@ -27,6 +28,12 @@ export function ChatBlob() {
   } = useInvestmentContext();
   
   const [isOpen, setIsOpen] = useState(false);
+  
+  // Track chat open/close
+  const handleToggleChat = (open: boolean) => {
+    setIsOpen(open);
+    trackInvestmentActions.chatInteraction(open ? 'open_chat' : 'close_chat');
+  };
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -119,6 +126,9 @@ export function ChatBlob() {
   const sendMessage = async (messageContent: string) => {
     console.log('🎯 ChatBlob: sendMessage called with:', messageContent);
     
+    // Track chat interaction
+    trackInvestmentActions.chatInteraction('send_message');
+    
     if (!messageContent.trim() || isLoading) {
       console.log('🚫 ChatBlob: Early return - input empty or loading');
       return;
@@ -197,7 +207,7 @@ export function ChatBlob() {
   };
 
   const toggleChat = () => {
-    setIsOpen(!isOpen);
+    handleToggleChat(!isOpen);
   };
 
   return (

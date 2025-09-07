@@ -5,6 +5,7 @@ import { ThemeToggle } from './ThemeToggle';
 import { useLanguage } from '../contexts/LanguageContext';
 import { LanguageToggle } from './LanguageToggle';
 import { CurrencyDropdown } from './CurrencyDropdown';
+import { trackInvestmentActions } from './GoogleAnalytics';
 
 interface HeaderProps {
   onAddInvestment: () => void;
@@ -41,7 +42,10 @@ export function Header({
 
           <div className="mobile-nav w-full sm:w-auto">
             <button
-              onClick={onBondAnalysis}
+              onClick={() => {
+                trackInvestmentActions.bondAnalysis();
+                onBondAnalysis();
+              }}
               className="group flex items-center space-x-1 sm:space-x-2 px-2 sm:px-3 py-2 bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-all duration-500 hover:pr-3 sm:hover:pr-4"
               title="Bond Analysis"
               aria-label="Bond Analysis"
@@ -54,7 +58,10 @@ export function Header({
 
 
             <button
-              onClick={onUpdatePrices}
+              onClick={() => {
+                trackInvestmentActions.refreshPrices();
+                onUpdatePrices();
+              }}
               disabled={isLoading}
               className={`p-2 rounded-lg transition-colors ${
                 isLoading
@@ -90,7 +97,10 @@ export function Header({
             <ThemeToggle />
 
             <button
-              onClick={onAddInvestment}
+              onClick={() => {
+                trackInvestmentActions.addInvestment('form_open');
+                onAddInvestment();
+              }}
               className="brand-button-primary flex items-center space-x-1 sm:space-x-2 px-3 sm:px-4 py-2 text-sm sm:text-base"
               aria-label={t('add.investment')}
             >

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ChevronDown, DollarSign } from 'lucide-react';
 import { useCurrency } from '../contexts/CurrencyContext';
 import { useLanguage } from '../contexts/LanguageContext';
+import { trackInvestmentActions } from './GoogleAnalytics';
 
 export function CurrencyDropdown() {
   const { displayCurrency, setDisplayCurrency } = useCurrency();
@@ -16,6 +17,7 @@ export function CurrencyDropdown() {
   const selectedCurrency = currencies.find(c => c.code === displayCurrency);
 
   const handleCurrencyChange = (currencyCode: 'USD' | 'ARS') => {
+    trackInvestmentActions.currencyChange(displayCurrency, currencyCode);
     setDisplayCurrency(currencyCode);
     setIsOpen(false);
   };

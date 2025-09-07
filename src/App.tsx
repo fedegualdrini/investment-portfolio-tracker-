@@ -8,6 +8,7 @@ import { EditInvestmentForm } from './components/EditInvestmentForm';
 import { PortfolioStats } from './components/PortfolioStats';
 import { BondAnalysisPage } from './pages/BondAnalysisPage';
 import { ChatBlob } from './components/ChatBlob';
+import GoogleAnalytics from './components/GoogleAnalytics';
 import { useInvestmentContext } from './contexts/InvestmentContext';
 import type { Investment } from './types/investment';
 import { ThemeProvider } from './contexts/ThemeContext';
@@ -119,6 +120,7 @@ function AppContent() {
       <LanguageProvider>
         <CurrencyProvider>
           <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200" role="application" aria-label="Investment Portfolio Tracker">
+        <GoogleAnalytics />
         <SpeedInsights />
         <Analytics />
         <Header

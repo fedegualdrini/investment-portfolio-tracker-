@@ -1,12 +1,15 @@
 import React from 'react';
 import { Globe } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { trackInvestmentActions } from './GoogleAnalytics';
 
 export function LanguageToggle() {
   const { language, setLanguage, t } = useLanguage();
 
   const toggleLanguage = () => {
-    setLanguage(language === 'en' ? 'es' : 'en');
+    const newLanguage = language === 'en' ? 'es' : 'en';
+    trackInvestmentActions.languageToggle(newLanguage);
+    setLanguage(newLanguage);
   };
 
   return (
