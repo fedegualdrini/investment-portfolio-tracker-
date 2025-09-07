@@ -52,6 +52,58 @@ App
     └── EditInvestmentForm
 ```
 
+## 🛠️ Utility Functions & Modular Architecture
+
+### **Utility Functions Structure**
+```
+src/utils/
+├── paymentFrequencyUtils.ts    # Bond payment frequency calculations
+├── portfolioCalculations.ts    # Portfolio summary and filtering
+├── formValidation.ts          # Centralized form validation
+└── investmentFilters.ts       # Investment filtering utilities
+```
+
+### **Shared Constants**
+```
+src/constants/
+├── investmentTypes.ts         # Investment type definitions
+└── paymentFrequencies.ts      # Payment frequency constants
+```
+
+### **Key Benefits of Modularization**
+- **Code Reusability**: Common logic shared across components
+- **Maintainability**: Centralized business logic easier to update
+- **Type Safety**: Consistent TypeScript interfaces across utilities
+- **Testing**: Isolated functions easier to unit test
+- **Performance**: Reduced code duplication and bundle size
+
+### **Utility Function Examples**
+
+#### **Payment Frequency Utils**
+```typescript
+// Calculate payments per year based on frequency
+export function getPaymentsPerYear(frequency: PaymentFrequency): number
+
+// Calculate payment amount for bonds
+export function calculatePaymentAmount(faceValue: number, annualYield: number, frequency: PaymentFrequency): number
+```
+
+#### **Portfolio Calculations**
+```typescript
+// Calculate complete portfolio summary
+export function calculatePortfolioSummary(investments: Investment[]): PortfolioSummary
+
+// Filter investments by type
+export function getBonds(investments: Investment[]): Investment[]
+export function getStocks(investments: Investment[]): Investment[]
+```
+
+#### **Form Validation**
+```typescript
+// Centralized investment form validation
+export function validateInvestmentForm(formData: InvestmentFormData, requiredPaymentField: string): ValidationErrors
+```
+
 ## 🔄 Context Architecture
 
 ### **Theme Context**

@@ -23,6 +23,8 @@ A modern, feature-rich web application for tracking and analyzing investment por
 
 ### 🤖 **AI Investment Assistant (Powered by Vercel AI Gateway)**
 - **Portfolio-Aware Chat**: AI chatbot with full access to your portfolio data
+- **Multiple Asset Addition**: Add multiple investments in a single request (e.g., "add Apple and Bitcoin")
+- **Sequential Tool Execution**: AI automatically handles complex multi-step operations
 - **Real-time Market Context**: AI has access to current market data and exchange rates
 - **Bond Payment Insights**: Detailed bond coupon payment analysis and scheduling
 - **Personalized Advice**: Data-driven investment recommendations based on your holdings
