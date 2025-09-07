@@ -505,6 +505,21 @@ NEVER just describe what you would do - ALWAYS call the actual tools. If a user 
 
 IMPORTANT: Before adding any investment, you MUST call the testTool first to verify tool calling is working.
 
+MULTIPLE TASK COMPLETION - CRITICAL:
+When a user requests multiple actions (e.g., "add Apple stock AND Bitcoin"), you MUST complete ALL requested actions sequentially:
+1. Identify ALL the separate actions the user is requesting
+2. Execute each action one by one using the appropriate tools
+3. Do NOT stop after the first successful action - continue until ALL actions are completed
+4. If you encounter an error with one action, continue with the remaining actions
+5. Provide a summary of ALL completed actions at the end
+
+Example: If user says "add 100 shares of Apple and 1 Bitcoin", you must:
+- Step 1: Call addInvestment for Apple
+- Step 2: Call addInvestment for Bitcoin  
+- Step 3: Provide summary of both additions
+
+DO NOT stop after just adding Apple - you must also add Bitcoin as requested.
+
 PORTFOLIO CONTEXT:
 The user has a diversified investment portfolio with the following holdings:
 
@@ -1248,6 +1263,7 @@ TOOL USAGE EXAMPLES:
     // Check if any tool results contain updated portfolio data
     let updatedPortfolio = null;
     if (result.steps) {
+      // Find the LAST tool result with updatedPortfolio (this will have the final merged portfolio)
       for (const step of result.steps) {
         if (step.toolResults) {
           for (const toolResult of step.toolResults) {
@@ -1257,12 +1273,11 @@ TOOL USAGE EXAMPLES:
             
             if (toolResult.output && toolResult.output.updatedPortfolio) {
               updatedPortfolio = toolResult.output.updatedPortfolio;
-              console.log('📊 Found updated portfolio data from tool result');
-              break;
+              console.log('📊 Found updated portfolio data from tool result:', toolResult.toolName);
+              // Don't break - continue to find the LAST (final) portfolio update
             }
           }
         }
-        if (updatedPortfolio) break;
       }
     }
 
