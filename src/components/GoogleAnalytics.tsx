@@ -1,5 +1,4 @@
 import { useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
 
 // Google Analytics 4 tracking ID - replace with your actual tracking ID
 const GA_TRACKING_ID = import.meta.env.VITE_GA_TRACKING_ID || 'G-XXXXXXXXXX';
@@ -148,17 +147,13 @@ export const trackInvestmentActions = {
 
 // React component for Google Analytics
 const GoogleAnalytics: React.FC = () => {
-  const location = useLocation();
-
   useEffect(() => {
     // Initialize GA on component mount
     initGA();
+    
+    // Track initial page view
+    trackPageView(window.location.pathname + window.location.search, document.title);
   }, []);
-
-  useEffect(() => {
-    // Track page views on route changes
-    trackPageView(location.pathname + location.search, document.title);
-  }, [location]);
 
   return null; // This component doesn't render anything
 };
