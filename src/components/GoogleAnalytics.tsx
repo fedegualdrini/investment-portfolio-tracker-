@@ -1,7 +1,7 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 
 // Google Analytics 4 tracking ID - replace with your actual tracking ID
-const GA_TRACKING_ID = import.meta.env.VITE_GA_TRACKING_ID || 'G-XXXXXXXXXX';
+const GA_TRACKING_ID = (import.meta as any).env.VITE_GA_TRACKING_ID || 'G-XXXXXXXXXX';
 
 declare global {
   interface Window {
