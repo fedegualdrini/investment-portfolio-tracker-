@@ -3,6 +3,9 @@ import { Save, X } from 'lucide-react';
 import type { Investment, InvestmentType, PaymentFrequency } from '../types/investment';
 import { BondAnalysisService } from '../services/bondAnalysisService';
 import { useLanguage } from '../contexts/LanguageContext';
+import { getInvestmentTypeOptions } from '../constants/investmentTypes';
+import { getPaymentFrequencyOptions } from '../constants/paymentFrequencies';
+import { validateInvestmentForm } from '../utils/formValidation';
 
 interface EditInvestmentFormProps {
   investment: Investment;
@@ -35,24 +38,8 @@ export function EditInvestmentForm({ investment, onSave, onCancel }: EditInvestm
   const [requiredPaymentField, setRequiredPaymentField] = useState<'lastPayment' | 'nextPayment' | 'none'>('none');
   const bondAnalysisService = new BondAnalysisService();
 
-  const investmentTypes: { value: InvestmentType; label: string }[] = [
-    { value: 'crypto', label: t('type.crypto') },
-    { value: 'stock', label: t('type.stock') },
-    { value: 'etf', label: t('type.etf') },
-    { value: 'bond', label: t('type.bond') },
-    { value: 'cash', label: t('type.cash') },
-    { value: 'commodity', label: t('type.commodity') },
-    { value: 'other', label: t('type.other') },
-  ];
-
-  const paymentFrequencies: { value: PaymentFrequency; label: string }[] = [
-    { value: 'monthly', label: t('frequency.monthly') },
-    { value: 'quarterly', label: t('frequency.quarterly') },
-    { value: 'semi-annual', label: t('frequency.semi.annual') },
-    { value: 'annual', label: t('frequency.annual') },
-    { value: 'zero-coupon', label: t('frequency.zero.coupon') },
-    { value: 'unknown', label: t('frequency.unknown') },
-    ];
+  const investmentTypes = getInvestmentTypeOptions(t);
+  const paymentFrequencies = getPaymentFrequencyOptions(t);
 
   // Determine required payment field based on purchase timing
   useEffect(() => {
@@ -69,62 +56,7 @@ export function EditInvestmentForm({ investment, onSave, onCancel }: EditInvestm
   }, [formData.purchaseDate, formData.maturityDate, formData.paymentFrequency, formData.type]);
 
   const validateForm = () => {
-    const newErrors: Record<string, string> = {};
-
-    if (!formData.symbol.trim()) {
-      newErrors.symbol = 'Symbol is required';
-    }
-    if (!formData.name.trim()) {
-      newErrors.name = 'Name is required';
-    }
-    if (!formData.quantity || parseFloat(formData.quantity) <= 0) {
-      newErrors.quantity = 'Quantity must be greater than 0';
-    }
-    if (!formData.purchasePrice || parseFloat(formData.purchasePrice) <= 0) {
-      newErrors.purchasePrice = 'Purchase price must be greater than 0';
-    }
-    if (!formData.purchaseDate) {
-      newErrors.purchaseDate = 'Purchase date is required';
-    }
-    if (formData.type === 'bond' && formData.fixedYield && parseFloat(formData.fixedYield) < 0) {
-      newErrors.fixedYield = 'Fixed yield cannot be negative';
-    }
-    if (formData.type === 'bond' && formData.maturityDate) {
-      const maturityDate = new Date(formData.maturityDate);
-      const purchaseDate = new Date(formData.purchaseDate);
-      if (maturityDate <= purchaseDate) {
-        newErrors.maturityDate = 'Maturity date must be after purchase date';
-      }
-    }
-    if (formData.type === 'bond' && formData.faceValue && parseFloat(formData.faceValue) <= 0) {
-      newErrors.faceValue = 'Face value must be greater than 0';
-    }
-    
-    // Validate payment date fields based on required field
-    if (formData.type === 'bond' && requiredPaymentField === 'lastPayment') {
-      if (!formData.lastPaymentDate) {
-        newErrors.lastPaymentDate = 'Last payment date is required for bonds purchased after payment cycles';
-      } else {
-        const lastPayment = new Date(formData.lastPaymentDate);
-        const purchase = new Date(formData.purchaseDate);
-        if (lastPayment < purchase) {
-          newErrors.lastPaymentDate = 'Last payment date cannot be before purchase date';
-        }
-      }
-    }
-    
-    if (formData.type === 'bond' && requiredPaymentField === 'nextPayment') {
-      if (!formData.nextPaymentDate) {
-        newErrors.nextPaymentDate = 'Next payment date is required for recently purchased bonds';
-      } else {
-        const nextPayment = new Date(formData.nextPaymentDate);
-        const purchase = new Date(formData.purchaseDate);
-        if (nextPayment <= purchase) {
-          newErrors.nextPaymentDate = 'Next payment date must be after purchase date';
-        }
-      }
-    }
-
+    const newErrors = validateInvestmentForm(formData, requiredPaymentField);
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };

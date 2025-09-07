@@ -1,6 +1,7 @@
 import { generateText, tool, stepCountIs, NoSuchToolError, InvalidToolInputError } from 'ai';
 import { z } from 'zod';
 import { config } from 'dotenv';
+import { randomUUID } from 'crypto';
 
 // Load environment variables for local development
 config({ path: '.env.local', override: true });
@@ -214,7 +215,7 @@ class PortfolioService {
 
   addInvestment(currentInvestments, newInvestmentData) {
     const newInvestment = {
-      id: crypto.randomUUID(),
+      id: randomUUID(),
       currentPrice: newInvestmentData.purchasePrice,
       lastUpdated: new Date().toISOString(),
       ...newInvestmentData,

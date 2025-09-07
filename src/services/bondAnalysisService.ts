@@ -1,4 +1,5 @@
 import type { Investment, PaymentFrequency, PaymentEvent, BondPaymentInfo } from '../types/investment';
+import { getPaymentsPerYear, getMonthsInterval, calculatePaymentAmount } from '../utils/paymentFrequencyUtils';
 
 interface BondPattern {
   patterns: RegExp[];
@@ -188,38 +189,10 @@ export class BondAnalysisService {
   private calculatePaymentDetails(investment: Investment, frequency: PaymentFrequency) {
     const faceValue = investment.faceValue || investment.purchasePrice * investment.quantity;
     const annualYield = (investment.fixedYield || 0) / 100;
-    const totalAnnualIncome = faceValue * annualYield;
     
-    let paymentsPerYear = 0;
-    let monthsInterval = 6; // Default to 6 months
-    
-    switch (frequency) {
-      case 'monthly':
-        paymentsPerYear = 12;
-        monthsInterval = 1;
-        break;
-      case 'quarterly':
-        paymentsPerYear = 4;
-        monthsInterval = 3;
-        break;
-      case 'semi-annual':
-        paymentsPerYear = 2;
-        monthsInterval = 6;
-        break;
-      case 'annual':
-        paymentsPerYear = 1;
-        monthsInterval = 12;
-        break;
-      case 'zero-coupon':
-        paymentsPerYear = 0;
-        monthsInterval = 0;
-        break;
-      default:
-        paymentsPerYear = 2; // Default to semi-annual
-        monthsInterval = 6;
-    }
-    
-    const paymentAmount = paymentsPerYear > 0 ? totalAnnualIncome / paymentsPerYear : 0;
+    const paymentsPerYear = getPaymentsPerYear(frequency);
+    const monthsInterval = getMonthsInterval(frequency);
+    const paymentAmount = calculatePaymentAmount(faceValue, annualYield, frequency);
     
     // Calculate next payment date using improved logic
     const nextPaymentDate = this.calculateNextPaymentDate(investment, frequency, monthsInterval);

@@ -1,6 +1,8 @@
 import type { Investment } from '../types/investment';
 import { PortfolioService } from './portfolioService';
 import { BondAnalysisService } from './bondAnalysisService';
+import { getBonds, calculateTotalBondValue, calculateTotalAnnualCouponIncome } from '../utils/portfolioCalculations';
+import { calculatePaymentAmount } from '../utils/paymentFrequencyUtils';
 
 export interface PerformanceAnalysis {
   totalReturn: number;
@@ -284,7 +286,7 @@ export class AnalysisService {
    * Analyze bond portfolio
    */
   analyzeBonds(investments: Investment[]): BondAnalysis {
-    const bonds = investments.filter(inv => inv.type === 'bond');
+    const bonds = getBonds(investments);
 
     if (bonds.length === 0) {
       return {
@@ -299,14 +301,8 @@ export class AnalysisService {
       };
     }
 
-    const totalBondValue = bonds.reduce((sum, inv) => 
-      sum + (inv.currentPrice || inv.purchasePrice) * inv.quantity, 0
-    );
-
-    const totalAnnualIncome = bonds.reduce((sum, inv) => {
-      const faceValue = inv.faceValue || inv.purchasePrice * inv.quantity;
-      return sum + (inv.fixedYield || 0) * faceValue / 100;
-    }, 0);
+    const totalBondValue = calculateTotalBondValue(investments);
+    const totalAnnualIncome = calculateTotalAnnualCouponIncome(investments);
 
     const averageYield = bonds.reduce((sum, inv) => sum + (inv.fixedYield || 0), 0) / bonds.length;
 
@@ -334,17 +330,7 @@ export class AnalysisService {
         
         // Use user-provided payment frequency to calculate correct payment amount
         const paymentFrequency = inv.paymentFrequency || 'semi-annual';
-        let paymentsPerYear = 2; // Default to semi-annual
-        
-        switch (paymentFrequency) {
-          case 'monthly': paymentsPerYear = 12; break;
-          case 'quarterly': paymentsPerYear = 4; break;
-          case 'semi-annual': paymentsPerYear = 2; break;
-          case 'annual': paymentsPerYear = 1; break;
-          case 'zero-coupon': paymentsPerYear = 0; break;
-        }
-        
-        const paymentAmount = paymentsPerYear > 0 ? (faceValue * annualYield) / paymentsPerYear : 0;
+        const paymentAmount = calculatePaymentAmount(faceValue, annualYield, paymentFrequency);
 
         return {
           symbol: inv.symbol,

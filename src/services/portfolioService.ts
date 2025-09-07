@@ -1,5 +1,8 @@
 import type { Investment } from '../types/investment';
 import { PriceService } from './priceService';
+import { calculatePortfolioSummary, calculateTotalBondValue, calculateTotalAnnualCouponIncome, getBonds, getStocks, getCrypto, getCash } from '../utils/portfolioCalculations';
+import { getPaymentsPerYear, calculatePaymentAmount } from '../utils/paymentFrequencyUtils';
+import { filterInvestments } from '../utils/investmentFilters';
 
 export interface PortfolioSummary {
   totalValue: number;
@@ -46,55 +49,29 @@ export class PortfolioService {
    * Calculate portfolio summary from investments
    */
   calculatePortfolioSummary(investments: Investment[]): PortfolioSummary {
-    const totalInvested = investments.reduce((sum, inv) => sum + inv.purchasePrice * inv.quantity, 0);
-    const totalValue = investments.reduce((sum, inv) => sum + (inv.currentPrice || inv.purchasePrice) * inv.quantity, 0);
-    const totalGainLoss = totalValue - totalInvested;
-    const totalGainLossPercentage = totalInvested > 0 ? (totalGainLoss / totalInvested) * 100 : 0;
-
-    return {
-      totalValue,
-      totalInvested,
-      totalGainLoss,
-      totalGainLossPercentage,
-      investmentCount: investments.length,
-      lastUpdated: new Date().toISOString()
-    };
+    return calculatePortfolioSummary(investments);
   }
 
   /**
    * Analyze portfolio composition and bond details
    */
   analyzePortfolio(investments: Investment[]): PortfolioAnalysis {
-    const bonds = investments.filter(inv => inv.type === 'bond');
-    const stocks = investments.filter(inv => inv.type === 'stock' || inv.type === 'etf');
-    const crypto = investments.filter(inv => inv.type === 'crypto');
-    const cash = investments.filter(inv => inv.type === 'cash');
+    const bonds = getBonds(investments);
+    const stocks = getStocks(investments);
+    const crypto = getCrypto(investments);
+    const cash = getCash(investments);
 
-    const totalBondValue = bonds.reduce((sum, inv) => sum + (inv.currentPrice || inv.purchasePrice) * inv.quantity, 0);
-    const totalAnnualCouponIncome = bonds.reduce((sum, inv) => {
-      const faceValue = inv.faceValue || inv.purchasePrice * inv.quantity;
-      return sum + (inv.fixedYield || 0) * faceValue / 100;
-    }, 0);
+    const totalBondValue = calculateTotalBondValue(investments);
+    const totalAnnualCouponIncome = calculateTotalAnnualCouponIncome(investments);
 
     // Generate bond payment information
     const allBondPayments = bonds.map(inv => {
       const faceValue = inv.faceValue || inv.purchasePrice * inv.quantity;
       const annualYield = (inv.fixedYield || 0) / 100;
-      const paymentAmount = faceValue * annualYield;
-
+      
       // Use user-provided payment frequency directly (trust user input)
       const paymentFrequency = inv.paymentFrequency || 'semi-annual';
-      let paymentsPerYear = 2; // Default to semi-annual
-
-      switch (paymentFrequency) {
-        case 'monthly': paymentsPerYear = 12; break;
-        case 'quarterly': paymentsPerYear = 4; break;
-        case 'semi-annual': paymentsPerYear = 2; break;
-        case 'annual': paymentsPerYear = 1; break;
-        case 'zero-coupon': paymentsPerYear = 0; break;
-      }
-
-      const perPaymentAmount = paymentsPerYear > 0 ? paymentAmount / paymentsPerYear : 0;
+      const perPaymentAmount = calculatePaymentAmount(faceValue, annualYield, paymentFrequency);
 
       return {
         symbol: inv.symbol,
@@ -235,19 +212,7 @@ export class PortfolioService {
     investments: Investment[],
     filters?: { type?: string; symbol?: string }
   ): Investment[] {
-    let filtered = [...investments];
-
-    if (filters?.type) {
-      filtered = filtered.filter(inv => inv.type === filters.type);
-    }
-
-    if (filters?.symbol) {
-      filtered = filtered.filter(inv => 
-        inv.symbol.toLowerCase().includes(filters.symbol!.toLowerCase())
-      );
-    }
-
-    return filtered;
+    return filterInvestments(investments, filters || {});
   }
 
   /**
