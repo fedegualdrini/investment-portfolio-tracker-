@@ -5,6 +5,8 @@ import { useCurrency } from '../contexts/CurrencyContext';
 import { useInvestments } from '../hooks/useInvestments';
 import { CurrencyService } from '../services/currencyService';
 import { BondAnalysisService } from '../services/bondAnalysisService';
+import { PortfolioService, type PortfolioContext } from '../services/portfolioService';
+import { ChatApiService } from '../services/chatApiService';
 import type { Investment } from '../types/investment';
 
 interface ChatPageProps {
@@ -17,16 +19,6 @@ interface Message {
   content: string;
 }
 
-interface PortfolioContext {
-  investments: Investment[];
-  totalValue: number;
-  totalInvested: number;
-  totalGainLoss: number;
-  totalGainLossPercentage: number;
-  currency: string;
-  exchangeRates: Record<string, number>;
-  lastUpdated: string | null;
-}
 
 export function ChatPage({ onBack }: ChatPageProps) {
   const { t } = useLanguage();
@@ -62,6 +54,8 @@ export function ChatPage({ onBack }: ChatPageProps) {
 
   const currencyService = useMemo(() => new CurrencyService(), []);
   const bondAnalysisService = useMemo(() => new BondAnalysisService(), []);
+  const portfolioService = useMemo(() => new PortfolioService(), []);
+  const chatApiService = useMemo(() => new ChatApiService(), []);
 
   // Build portfolio context when investments or currency changes
   useEffect(() => {
@@ -72,8 +66,6 @@ export function ChatPage({ onBack }: ChatPageProps) {
       }
 
       try {
-        const summary = calculatePortfolioSummary();
-        
         // Get exchange rates for different currencies in the portfolio
         const uniqueCurrencies = new Set<string>();
         investments.forEach(inv => {
@@ -104,108 +96,14 @@ export function ChatPage({ onBack }: ChatPageProps) {
           }
         }
 
-        // Build comprehensive investment data with all available information
-        const detailedInvestments = investments.map(inv => {
-          const currentValue = (inv.currentPrice || inv.purchasePrice) * inv.quantity;
-          const investedValue = inv.purchasePrice * inv.quantity;
-          const gainLoss = currentValue - investedValue;
-          const gainLossPercent = investedValue > 0 ? ((gainLoss / investedValue) * 100) : 0;
-          
-          return {
-            // Basic info
-            id: inv.id,
-            symbol: inv.symbol,
-            name: inv.name,
-            type: inv.type,
-            quantity: inv.quantity,
-            purchasePrice: inv.purchasePrice,
-            currentPrice: inv.currentPrice || inv.purchasePrice,
-            purchaseDate: inv.purchaseDate,
-            lastUpdated: inv.lastUpdated,
-            currency: inv.currency,
-            
-            // Calculated values
-            currentValue,
-            investedValue,
-            gainLoss,
-            gainLossPercent,
-            
-            // Bond-specific information
-            ...(inv.type === 'bond' && {
-              fixedYield: inv.fixedYield,
-              paymentFrequency: inv.paymentFrequency,
-              nextPaymentDate: inv.nextPaymentDate,
-              lastPaymentDate: inv.lastPaymentDate,
-              maturityDate: inv.maturityDate,
-              faceValue: inv.faceValue,
-              issuanceDate: inv.issuanceDate,
-              
-              // Calculate bond payment info
-              annualCouponPayment: inv.fixedYield && inv.faceValue ? 
-                (inv.faceValue * inv.quantity * inv.fixedYield / 100) : 
-                (inv.purchasePrice * inv.quantity * (inv.fixedYield || 0) / 100),
-              
-              // Payment schedule info
-              paymentSchedule: inv.paymentFrequency ? {
-                frequency: inv.paymentFrequency,
-                nextPayment: inv.nextPaymentDate,
-                lastPayment: inv.lastPaymentDate,
-                maturity: inv.maturityDate,
-                annualRate: inv.fixedYield,
-                faceValue: inv.faceValue
-              } : null
-            }),
-            
-            // Exchange rate info
-            exchangeRate: inv.exchangeRate || 1,
-            exchangeRateToUSD: exchangeRates[inv.currency || 'USD'] || 1
-          };
-        });
-
-        const context = {
-          investments: detailedInvestments,
-          totalValue: summary.totalValue,
-          totalInvested: summary.totalInvested,
-          totalGainLoss: summary.totalGainLoss,
-          totalGainLossPercentage: summary.totalGainLossPercentage,
-          currency,
-          exchangeRates,
-          lastUpdated: lastUpdate?.toISOString() || null,
-          
-          // Current date and time context
-          currentDate: new Date().toISOString(),
-          currentDateFormatted: new Date().toLocaleDateString('en-US', {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-          }),
-          currentTime: new Date().toLocaleTimeString('en-US', {
-            hour: '2-digit',
-            minute: '2-digit',
-            timeZoneName: 'short'
-          }),
-          
-          // Additional portfolio analysis
-          portfolioAnalysis: {
-            bondCount: investments.filter(inv => inv.type === 'bond').length,
-            stockCount: investments.filter(inv => inv.type === 'stock').length,
-            cryptoCount: investments.filter(inv => inv.type === 'crypto').length,
-            cashCount: investments.filter(inv => inv.type === 'cash').length,
-            
-            // Bond-specific analysis
-            totalBondValue: investments
-              .filter(inv => inv.type === 'bond')
-              .reduce((sum, inv) => sum + ((inv.currentPrice || inv.purchasePrice) * inv.quantity), 0),
-            
-            totalAnnualCouponIncome: investments
-              .filter(inv => inv.type === 'bond' && inv.fixedYield)
-              .reduce((sum, inv) => {
-                const faceValue = inv.faceValue || inv.purchasePrice;
-                return sum + (faceValue * inv.quantity * inv.fixedYield / 100);
-              }, 0),
-            
-            // All bond payments (calculated using BondAnalysisService)
+        // Use modularized portfolio service to build context
+        const context = await portfolioService.buildPortfolioContext(
+          investments,
+          currency || 'USD',
+          exchangeRates
+        );
+        
+        setPortfolioContext(context);
             allBondPayments: investments
               .filter(inv => inv.type === 'bond')
               .map(inv => {

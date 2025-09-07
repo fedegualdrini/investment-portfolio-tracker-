@@ -16,6 +16,25 @@ const CRYPTO_ID_MAP: Record<string, string> = {
   'LUNA': 'terra-luna-2',
 };
 
+export interface PriceUpdateResult {
+  symbol: string;
+  type: string;
+  oldPrice: number;
+  newPrice: number;
+  priceChange: number;
+  priceChangePercent: number;
+  success: boolean;
+  timestamp: string;
+  error?: string;
+}
+
+export interface BulkPriceUpdateResult {
+  results: PriceUpdateResult[];
+  successCount: number;
+  totalCount: number;
+  timestamp: string;
+}
+
 export class PriceService {
   private cache = new Map<string, { data: PriceData; timestamp: number }>();
   private readonly CACHE_DURATION = 60000; // 1 minute
@@ -131,5 +150,95 @@ export class PriceService {
     );
     
     return Promise.all(updatePromises);
+  }
+
+  /**
+   * Update prices for multiple investments in bulk with detailed results
+   */
+  async updateBulkPrices(investments: Investment[]): Promise<BulkPriceUpdateResult> {
+    const results: PriceUpdateResult[] = [];
+    
+    for (const investment of investments) {
+      try {
+        const oldPrice = investment.currentPrice || investment.purchasePrice;
+        const updatedInvestment = await this.updateInvestmentPrice(investment);
+        const newPrice = updatedInvestment.currentPrice || investment.purchasePrice;
+        
+        const priceChange = newPrice - oldPrice;
+        const priceChangePercent = oldPrice > 0 ? (priceChange / oldPrice) * 100 : 0;
+
+        results.push({
+          symbol: investment.symbol,
+          type: investment.type,
+          oldPrice,
+          newPrice,
+          priceChange,
+          priceChangePercent,
+          success: true,
+          timestamp: new Date().toISOString()
+        });
+      } catch (error) {
+        results.push({
+          symbol: investment.symbol,
+          type: investment.type,
+          oldPrice: investment.currentPrice || investment.purchasePrice,
+          newPrice: investment.currentPrice || investment.purchasePrice,
+          priceChange: 0,
+          priceChangePercent: 0,
+          success: false,
+          timestamp: new Date().toISOString(),
+          error: error instanceof Error ? error.message : 'Unknown error'
+        });
+      }
+    }
+
+    const successCount = results.filter(r => r.success).length;
+
+    return {
+      results,
+      successCount,
+      totalCount: investments.length,
+      timestamp: new Date().toISOString()
+    };
+  }
+
+  /**
+   * Get price for a specific symbol and type
+   */
+  async getPrice(symbol: string, type: string): Promise<number | null> {
+    switch (type) {
+      case 'crypto':
+        return await this.getCryptoPrice(symbol);
+      case 'stock':
+      case 'etf':
+        return await this.getStockPrice(symbol);
+      default:
+        return null;
+    }
+  }
+
+  /**
+   * Clear cache for a specific symbol
+   */
+  clearCacheForSymbol(symbol: string, type: string): void {
+    const cacheKey = `${type}-${symbol}`;
+    this.cache.delete(cacheKey);
+  }
+
+  /**
+   * Clear all cached prices
+   */
+  clearAllCache(): void {
+    this.cache.clear();
+  }
+
+  /**
+   * Get cache statistics
+   */
+  getCacheStats(): { size: number; keys: string[] } {
+    return {
+      size: this.cache.size,
+      keys: Array.from(this.cache.keys())
+    };
   }
 }

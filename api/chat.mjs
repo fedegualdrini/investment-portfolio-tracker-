@@ -5,6 +5,440 @@ import { config } from 'dotenv';
 // Load environment variables for local development
 config({ path: '.env.local', override: true });
 
+// Import shared services - Note: These need to be compiled to JS or we need to use a different approach
+// For now, let's implement the services directly in the chat.mjs file to avoid module resolution issues
+
+// Portfolio Service Implementation
+class PortfolioService {
+  calculatePortfolioSummary(investments) {
+    const totalInvested = investments.reduce((sum, inv) => sum + inv.purchasePrice * inv.quantity, 0);
+    const totalValue = investments.reduce((sum, inv) => sum + (inv.currentPrice || inv.purchasePrice) * inv.quantity, 0);
+    const totalGainLoss = totalValue - totalInvested;
+    const totalGainLossPercentage = totalInvested > 0 ? (totalGainLoss / totalInvested) * 100 : 0;
+
+    return {
+      totalValue,
+      totalInvested,
+      totalGainLoss,
+      totalGainLossPercentage,
+      investmentCount: investments.length,
+      lastUpdated: new Date().toISOString()
+    };
+  }
+
+  analyzePortfolio(investments) {
+    const bonds = investments.filter(inv => inv.type === 'bond');
+    const stocks = investments.filter(inv => inv.type === 'stock' || inv.type === 'etf');
+    const crypto = investments.filter(inv => inv.type === 'crypto');
+    const cash = investments.filter(inv => inv.type === 'cash');
+
+    const totalBondValue = bonds.reduce((sum, inv) => sum + (inv.currentPrice || inv.purchasePrice) * inv.quantity, 0);
+    const totalAnnualCouponIncome = bonds.reduce((sum, inv) => {
+      const faceValue = inv.faceValue || inv.purchasePrice * inv.quantity;
+      return sum + (inv.fixedYield || 0) * faceValue / 100;
+    }, 0);
+
+    // Generate bond payment information
+    const allBondPayments = bonds.map(inv => {
+      const faceValue = inv.faceValue || inv.purchasePrice * inv.quantity;
+      const annualYield = (inv.fixedYield || 0) / 100;
+      const paymentAmount = faceValue * annualYield;
+
+      // Determine payment frequency
+      let paymentFrequency = inv.paymentFrequency || 'semi-annual';
+      let paymentsPerYear = 2; // Default to semi-annual
+
+      switch (paymentFrequency) {
+        case 'monthly': paymentsPerYear = 12; break;
+        case 'quarterly': paymentsPerYear = 4; break;
+        case 'semi-annual': paymentsPerYear = 2; break;
+        case 'annual': paymentsPerYear = 1; break;
+        case 'zero-coupon': paymentsPerYear = 0; break;
+      }
+
+      const perPaymentAmount = paymentsPerYear > 0 ? paymentAmount / paymentsPerYear : 0;
+
+      return {
+        symbol: inv.symbol,
+        name: inv.name,
+        paymentAmount: perPaymentAmount,
+        paymentFrequency,
+        nextPaymentDate: inv.nextPaymentDate,
+        maturityDate: inv.maturityDate,
+        fixedYield: inv.fixedYield,
+        hasSpecificDate: !!(inv.nextPaymentDate || inv.lastPaymentDate),
+        isOverdue: inv.nextPaymentDate ? new Date(inv.nextPaymentDate) < new Date() : false,
+        relativeTiming: inv.nextPaymentDate ? this.getRelativeTiming(inv.nextPaymentDate) : undefined
+      };
+    });
+
+    const upcomingBondPayments = allBondPayments
+      .filter(payment => payment.nextPaymentDate && new Date(payment.nextPaymentDate) >= new Date())
+      .sort((a, b) => new Date(a.nextPaymentDate).getTime() - new Date(b.nextPaymentDate).getTime());
+
+    return {
+      bondCount: bonds.length,
+      stockCount: stocks.length,
+      cryptoCount: crypto.length,
+      cashCount: cash.length,
+      totalBondValue,
+      totalAnnualCouponIncome,
+      allBondPayments,
+      upcomingBondPayments
+    };
+  }
+
+  async buildPortfolioContext(investments, currency = 'USD', exchangeRates = {}) {
+    const now = new Date();
+    const summary = this.calculatePortfolioSummary(investments);
+    const analysis = this.analyzePortfolio(investments);
+
+    return {
+      currentDateFormatted: now.toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      }),
+      currentTime: now.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        timeZoneName: 'short'
+      }),
+      totalValue: summary.totalValue,
+      totalInvested: summary.totalInvested,
+      totalGainLoss: summary.totalGainLoss,
+      totalGainLossPercentage: summary.totalGainLossPercentage,
+      investments,
+      portfolioAnalysis: analysis,
+      currency,
+      exchangeRates,
+      lastUpdated: summary.lastUpdated
+    };
+  }
+
+  analyzePerformance(investments, analysisType = 'performance', timeframe = 'all time') {
+    const summary = this.calculatePortfolioSummary(investments);
+    const analysis = this.analyzePortfolio(investments);
+
+    switch (analysisType) {
+      case 'performance':
+        return {
+          analysisType,
+          timeframe,
+          timestamp: new Date().toISOString(),
+          results: {
+            totalValue: summary.totalValue,
+            totalInvested: summary.totalInvested,
+            totalGainLoss: summary.totalGainLoss,
+            totalGainLossPercentage: summary.totalGainLossPercentage,
+            bestPerformer: investments.reduce((best, inv) => {
+              const currentReturn = ((inv.currentPrice - inv.purchasePrice) / inv.purchasePrice) * 100;
+              const bestReturn = ((best.currentPrice - best.purchasePrice) / best.purchasePrice) * 100;
+              return currentReturn > bestReturn ? inv : best;
+            }),
+            worstPerformer: investments.reduce((worst, inv) => {
+              const currentReturn = ((inv.currentPrice - inv.purchasePrice) / inv.purchasePrice) * 100;
+              const worstReturn = ((worst.currentPrice - worst.purchasePrice) / worst.purchasePrice) * 100;
+              return currentReturn < worstReturn ? inv : worst;
+            })
+          }
+        };
+
+      case 'bonds':
+        return {
+          analysisType,
+          timeframe,
+          timestamp: new Date().toISOString(),
+          results: {
+            bondCount: analysis.bondCount,
+            totalBondValue: analysis.totalBondValue,
+            totalAnnualCouponIncome: analysis.totalAnnualCouponIncome,
+            upcomingPayments: analysis.upcomingBondPayments.map(payment => ({
+              symbol: payment.symbol,
+              nextPayment: payment.nextPaymentDate,
+              amount: payment.paymentAmount
+            }))
+          }
+        };
+
+      case 'overview':
+        return {
+          analysisType,
+          timeframe,
+          timestamp: new Date().toISOString(),
+          results: {
+            summary: `Portfolio overview for ${timeframe}`,
+            totalInvestments: investments.length,
+            assetAllocation: {
+              stocks: analysis.stockCount,
+              bonds: analysis.bondCount,
+              crypto: analysis.cryptoCount,
+              cash: analysis.cashCount
+            }
+          }
+        };
+
+      default:
+        return {
+          analysisType,
+          timeframe,
+          timestamp: new Date().toISOString(),
+          results: { message: 'Analysis type not implemented' }
+        };
+    }
+  }
+
+  getRelativeTiming(dateString) {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffTime = date.getTime() - now.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays < 0) {
+      return `${Math.abs(diffDays)} days overdue`;
+    } else if (diffDays === 0) {
+      return 'Today';
+    } else if (diffDays === 1) {
+      return 'Tomorrow';
+    } else if (diffDays <= 7) {
+      return `In ${diffDays} days`;
+    } else if (diffDays <= 30) {
+      const weeks = Math.ceil(diffDays / 7);
+      return `In ${weeks} week${weeks > 1 ? 's' : ''}`;
+    } else {
+      const months = Math.ceil(diffDays / 30);
+      return `In ${months} month${months > 1 ? 's' : ''}`;
+    }
+  }
+
+  addInvestment(currentInvestments, newInvestmentData) {
+    const newInvestment = {
+      id: crypto.randomUUID(),
+      currentPrice: newInvestmentData.purchasePrice,
+      lastUpdated: new Date().toISOString(),
+      ...newInvestmentData,
+    };
+    const updatedInvestments = [...currentInvestments, newInvestment];
+    const summary = this.calculatePortfolioSummary(updatedInvestments);
+    return { updatedInvestments, summary };
+  }
+
+  updateInvestment(currentInvestments, id, updates) {
+    const investmentIndex = currentInvestments.findIndex(inv => inv.id === id);
+    if (investmentIndex === -1) {
+      throw new Error(`No investment found with ID: ${id}`);
+    }
+
+    const updatedInvestment = {
+      ...currentInvestments[investmentIndex],
+      ...updates,
+      symbol: updates.symbol ? updates.symbol.toUpperCase().trim() : currentInvestments[investmentIndex].symbol,
+      name: updates.name ? updates.name.trim() : currentInvestments[investmentIndex].name,
+    };
+
+    const newInvestments = [...currentInvestments];
+    newInvestments[investmentIndex] = updatedInvestment;
+    const summary = this.calculatePortfolioSummary(newInvestments);
+    return { updatedInvestments: newInvestments, summary, updatedInvestment };
+  }
+
+  removeInvestment(currentInvestments, id) {
+    const investmentIndex = currentInvestments.findIndex(inv => inv.id === id);
+    if (investmentIndex === -1) {
+      throw new Error(`No investment found with ID: ${id}`);
+    }
+    const removedInvestment = currentInvestments[investmentIndex];
+    const updatedInvestments = currentInvestments.filter(inv => inv.id !== id);
+    const summary = this.calculatePortfolioSummary(updatedInvestments);
+    return { updatedInvestments, summary, removedInvestment };
+  }
+
+  listInvestments(currentInvestments, filters = {}) {
+    let filtered = currentInvestments;
+    if (filters.type) {
+      filtered = filtered.filter(inv => inv.type === filters.type);
+    }
+    if (filters.symbol) {
+      filtered = filtered.filter(inv => inv.symbol.toLowerCase().includes(filters.symbol.toLowerCase()));
+    }
+    return filtered;
+  }
+}
+
+// Price Service Implementation
+class PriceService {
+  constructor() {
+    this.cache = new Map();
+    this.CACHE_DURATION = 60000; // 1 minute
+  }
+
+  async getCryptoPrice(symbol) {
+    try {
+      const CRYPTO_ID_MAP = {
+        'BTC': 'bitcoin',
+        'ETH': 'ethereum',
+        'ADA': 'cardano',
+        'DOT': 'polkadot',
+        'LINK': 'chainlink',
+        'SOL': 'solana',
+        'MATIC': 'polygon',
+        'AVAX': 'avalanche-2',
+        'ATOM': 'cosmos',
+        'LUNA': 'terra-luna-2',
+      };
+
+      const coinId = CRYPTO_ID_MAP[symbol.toUpperCase()] || symbol.toLowerCase();
+      const response = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${coinId}&vs_currencies=usd&include_24hr_change=true`);
+      
+      if (!response.ok) throw new Error('Failed to fetch crypto price');
+      
+      const data = await response.json();
+      const coinData = data[coinId];
+      
+      if (!coinData) return null;
+      
+      return coinData.usd;
+    } catch (error) {
+      console.error(`Error fetching crypto price for ${symbol}:`, error);
+      return null;
+    }
+  }
+
+  async getStockPrice(symbol) {
+    try {
+      const response = await fetch(`/api/yahoo/v8/finance/chart/${symbol}?interval=1d&range=1d`);
+      if (!response.ok) throw new Error('Failed to fetch stock price');
+      
+      const data = await response.json();
+      const result = data.chart?.result?.[0];
+      return result?.meta?.regularMarketPrice || null;
+    } catch (error) {
+      console.error(`Error fetching stock price for ${symbol}:`, error);
+      return null;
+    }
+  }
+
+  calculateBondValue(investment) {
+    if (!investment.fixedYield) return investment.purchasePrice;
+    
+    const purchaseDate = new Date(investment.purchaseDate);
+    const now = new Date();
+    const yearsPassed = (now.getTime() - purchaseDate.getTime()) / (1000 * 60 * 60 * 24 * 365);
+    
+    return investment.purchasePrice * Math.pow(1 + (investment.fixedYield / 100), yearsPassed);
+  }
+
+  async updateInvestmentPrice(investment) {
+    const cacheKey = `${investment.type}-${investment.symbol}`;
+    const cached = this.cache.get(cacheKey);
+    
+    // Return cached data if still fresh
+    if (cached && Date.now() - cached.timestamp < this.CACHE_DURATION) {
+      return {
+        ...investment,
+        currentPrice: cached.data.price,
+        lastUpdated: cached.data.lastUpdated,
+      };
+    }
+
+    let price = null;
+
+    switch (investment.type) {
+      case 'crypto':
+        price = await this.getCryptoPrice(investment.symbol);
+        break;
+      case 'stock':
+      case 'etf':
+        price = await this.getStockPrice(investment.symbol);
+        break;
+      case 'bond':
+        price = this.calculateBondValue(investment);
+        break;
+      default:
+        price = investment.currentPrice || investment.purchasePrice;
+    }
+
+    const updatedInvestment = {
+      ...investment,
+      currentPrice: price || investment.currentPrice || investment.purchasePrice,
+      lastUpdated: new Date().toISOString(),
+    };
+
+    // Cache the result
+    if (price !== null) {
+      this.cache.set(cacheKey, {
+        data: {
+          symbol: investment.symbol,
+          price,
+          lastUpdated: updatedInvestment.lastUpdated,
+        },
+        timestamp: Date.now(),
+      });
+    }
+
+    return updatedInvestment;
+  }
+
+  async updateBulkPrices(investments) {
+    const results = [];
+    
+    for (const investment of investments) {
+      try {
+        const oldPrice = investment.currentPrice || investment.purchasePrice;
+        const updatedInvestment = await this.updateInvestmentPrice(investment);
+        const newPrice = updatedInvestment.currentPrice || investment.purchasePrice;
+        
+        const priceChange = newPrice - oldPrice;
+        const priceChangePercent = oldPrice > 0 ? (priceChange / oldPrice) * 100 : 0;
+
+        results.push({
+          symbol: investment.symbol,
+          type: investment.type,
+          oldPrice,
+          newPrice,
+          priceChange,
+          priceChangePercent,
+          success: true,
+          timestamp: new Date().toISOString()
+        });
+      } catch (error) {
+        results.push({
+          symbol: investment.symbol,
+          type: investment.type,
+          oldPrice: investment.currentPrice || investment.purchasePrice,
+          newPrice: investment.currentPrice || investment.purchasePrice,
+          priceChange: 0,
+          priceChangePercent: 0,
+          success: false,
+          timestamp: new Date().toISOString(),
+          error: error.message
+        });
+      }
+    }
+
+    const successCount = results.filter(r => r.success).length;
+
+    return {
+      results,
+      successCount,
+      totalCount: investments.length,
+      timestamp: new Date().toISOString()
+    };
+  }
+}
+
+// Analysis Service Implementation
+class AnalysisService {
+  constructor() {
+    this.portfolioService = new PortfolioService();
+  }
+
+  analyzePortfolio(investments) {
+    return this.portfolioService.analyzePerformance(investments);
+  }
+}
+
 export default async function handler(req, res) {
   // IMMEDIATE LOGGING - This should show up if function is called
   console.log('🔥 FUNCTION CALLED - api/chat.mjs handler started');
@@ -210,6 +644,11 @@ Example Queries You Can Handle:
 
 Always provide specific, data-driven insights based on the user's actual portfolio holdings and current market conditions.`;
 
+    // Initialize shared services
+    const portfolioService = new PortfolioService();
+    const priceService = new PriceService();
+    const analysisService = new AnalysisService();
+
     // Define tools using proper AI SDK format from documentation
     const refreshPricesTool = tool({
       description: 'Refresh prices for all investments in the portfolio. Use this when user asks to refresh, update, or get latest prices for their investments.',
@@ -233,94 +672,12 @@ Always provide specific, data-driven insights based on the user's actual portfol
             };
           }
           
-          // Use the same PriceService logic as the refresh button
-          const priceResults = [];
-          
-          for (const investment of investments) {
-            try {
-              let price = null;
-              
-              if (investment.type === 'crypto') {
-                // Use the same crypto mapping and API as PriceService
-                const CRYPTO_ID_MAP = {
-                  'BTC': 'bitcoin',
-                  'ETH': 'ethereum',
-                  'ADA': 'cardano',
-                  'DOT': 'polkadot',
-                  'LINK': 'chainlink',
-                  'SOL': 'solana',
-                  'MATIC': 'polygon',
-                  'AVAX': 'avalanche-2',
-                  'ATOM': 'cosmos',
-                  'LUNA': 'terra-luna-2',
-                };
-                
-                const coinId = CRYPTO_ID_MAP[investment.symbol.toUpperCase()] || investment.symbol.toLowerCase();
-                const response = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${coinId}&vs_currencies=usd&include_24hr_change=true`);
-                
-                if (response.ok) {
-                  const data = await response.json();
-                  const coinData = data[coinId];
-                  if (coinData) {
-                    price = coinData.usd;
-                  }
-                }
-              } else if (investment.type === 'stock' || investment.type === 'etf') {
-                // Use the same Yahoo Finance proxy as PriceService
-                try {
-                  const response = await fetch(`/api/yahoo/v8/finance/chart/${investment.symbol}?interval=1d&range=1d`);
-                  if (response.ok) {
-                    const data = await response.json();
-                    const result = data.chart?.result?.[0];
-                    price = result?.meta?.regularMarketPrice;
-                  }
-                } catch (error) {
-                  console.log('Yahoo Finance API not available in chat context, using current price');
-                  price = investment.currentPrice || investment.purchasePrice;
-                }
-              } else if (investment.type === 'bond') {
-                // Use the same bond calculation as PriceService
-                if (investment.fixedYield) {
-                  const purchaseDate = new Date(investment.purchaseDate);
-                  const now = new Date();
-                  const yearsPassed = (now.getTime() - purchaseDate.getTime()) / (1000 * 60 * 60 * 24 * 365);
-                  price = investment.purchasePrice * Math.pow(1 + (investment.fixedYield / 100), yearsPassed);
-                } else {
-                  price = investment.purchasePrice;
-                }
-              }
-              
-              const finalPrice = price || investment.currentPrice || investment.purchasePrice;
-              const oldPrice = investment.currentPrice || investment.purchasePrice;
-              const priceChange = finalPrice - oldPrice;
-              const priceChangePercent = oldPrice > 0 ? (priceChange / oldPrice) * 100 : 0;
-              
-              priceResults.push({
-                symbol: investment.symbol,
-                type: investment.type,
-                oldPrice,
-                newPrice: finalPrice,
-                priceChange,
-                priceChangePercent,
-                success: price !== null,
-                timestamp: new Date().toISOString()
-              });
-              
-            } catch (error) {
-              priceResults.push({
-                symbol: investment.symbol,
-                type: investment.type,
-                error: error.message,
-                success: false
-              });
-            }
-          }
-          
-          const successCount = priceResults.filter(r => r.success).length;
+          // Use modularized price service
+          const result = await priceService.updateBulkPrices(investments);
           
           // Update the portfolioContext with new prices
           const updatedInvestments = investments.map(investment => {
-            const priceResult = priceResults.find(result => result.symbol === investment.symbol);
+            const priceResult = result.results.find(r => r.symbol === investment.symbol);
             if (priceResult && priceResult.success) {
               return {
                 ...investment,
@@ -333,23 +690,24 @@ Always provide specific, data-driven insights based on the user's actual portfol
           
           // Update the portfolioContext object
           portfolioContext.investments = updatedInvestments;
-          portfolioContext.totalValue = updatedInvestments.reduce((sum, inv) => sum + (inv.currentPrice || inv.purchasePrice) * inv.quantity, 0);
-          portfolioContext.totalGainLoss = portfolioContext.totalValue - portfolioContext.totalInvested;
-          portfolioContext.totalGainLossPercentage = portfolioContext.totalInvested > 0 ? (portfolioContext.totalGainLoss / portfolioContext.totalInvested) * 100 : 0;
+          const summary = portfolioService.calculatePortfolioSummary(updatedInvestments);
+          portfolioContext.totalValue = summary.totalValue;
+          portfolioContext.totalGainLoss = summary.totalGainLoss;
+          portfolioContext.totalGainLossPercentage = summary.totalGainLossPercentage;
           
           return {
             success: true,
-            results: priceResults,
-            message: `Successfully refreshed prices for ${successCount} out of ${investments.length} investments`,
-            totalInvestments: investments.length,
-            successfullyRefreshed: successCount,
+            results: result.results,
+            message: `Successfully refreshed prices for ${result.successCount} out of ${result.totalCount} investments`,
+            totalInvestments: result.totalCount,
+            successfullyRefreshed: result.successCount,
             timestamp: new Date().toISOString(),
             updatedPortfolio: {
               investments: updatedInvestments,
-              totalValue: portfolioContext.totalValue,
-              totalInvested: portfolioContext.totalInvested,
-              totalGainLoss: portfolioContext.totalGainLoss,
-              totalGainLossPercentage: portfolioContext.totalGainLossPercentage
+              totalValue: summary.totalValue,
+              totalInvested: summary.totalInvested,
+              totalGainLoss: summary.totalGainLoss,
+              totalGainLossPercentage: summary.totalGainLossPercentage
             }
           };
           
@@ -379,55 +737,10 @@ Always provide specific, data-driven insights based on the user's actual portfol
         console.log('📊 Extracted analysisType:', analysisType, 'timeframe:', timeframe);
         
         try {
-          const portfolioData = portfolioContext;
-          const analysis = {
-            analysisType,
-            timeframe,
-            timestamp: new Date().toISOString(),
-            results: {}
-          };
+          const investments = portfolioContext.investments || [];
           
-          if (analysisType === 'performance') {
-            analysis.results = {
-              totalValue: portfolioData.totalValue,
-              totalInvested: portfolioData.totalInvested,
-              totalGainLoss: portfolioData.totalGainLoss,
-              totalGainLossPercentage: portfolioData.totalGainLossPercentage,
-              bestPerformer: portfolioData.investments?.reduce((best, inv) => {
-                const currentReturn = ((inv.currentPrice - inv.purchasePrice) / inv.purchasePrice) * 100;
-                const bestReturn = ((best.currentPrice - best.purchasePrice) / best.purchasePrice) * 100;
-                return currentReturn > bestReturn ? inv : best;
-              }),
-              worstPerformer: portfolioData.investments?.reduce((worst, inv) => {
-                const currentReturn = ((inv.currentPrice - inv.purchasePrice) / inv.purchasePrice) * 100;
-                const worstReturn = ((worst.currentPrice - worst.purchasePrice) / worst.purchasePrice) * 100;
-                return currentReturn < worstReturn ? inv : worst;
-              })
-            };
-          } else if (analysisType === 'bonds') {
-            const bonds = portfolioData.investments?.filter(inv => inv.type === 'bond') || [];
-            analysis.results = {
-              bondCount: bonds.length,
-              totalBondValue: bonds.reduce((sum, inv) => sum + (inv.currentPrice || inv.purchasePrice) * inv.quantity, 0),
-              totalAnnualCouponIncome: bonds.reduce((sum, inv) => sum + (inv.fixedYield || 0) * inv.quantity * (inv.faceValue || inv.purchasePrice) / 100, 0),
-              upcomingPayments: bonds.filter(inv => inv.nextPaymentDate).map(inv => ({
-                symbol: inv.symbol,
-                nextPayment: inv.nextPaymentDate,
-                amount: (inv.fixedYield || 0) * inv.quantity * (inv.faceValue || inv.purchasePrice) / 100
-              }))
-            };
-          } else if (analysisType === 'overview') {
-            analysis.results = {
-              summary: `Portfolio overview for ${timeframe}`,
-              totalInvestments: portfolioData.investments?.length || 0,
-              assetAllocation: {
-                stocks: portfolioData.investments?.filter(inv => inv.type === 'stock').length || 0,
-                bonds: portfolioData.investments?.filter(inv => inv.type === 'bond').length || 0,
-                crypto: portfolioData.investments?.filter(inv => inv.type === 'crypto').length || 0,
-                cash: portfolioData.investments?.filter(inv => inv.type === 'cash').length || 0
-              }
-            };
-          }
+          // Use modularized analysis service
+          const analysis = portfolioService.analyzePerformance(investments, analysisType, timeframe);
           
           return {
             success: true,
@@ -435,6 +748,7 @@ Always provide specific, data-driven insights based on the user's actual portfol
             message: `Portfolio analysis completed for ${analysisType} over ${timeframe}`
           };
         } catch (error) {
+          console.error('📊 Error in analyzePortfolio tool:', error);
           return {
             success: false,
             error: error.message,
@@ -474,25 +788,6 @@ Always provide specific, data-driven insights based on the user's actual portfol
             };
           }
 
-          // Create new investment
-          const newInvestment = {
-            id: crypto.randomUUID(),
-            symbol: input.symbol.toUpperCase().trim(),
-            name: input.name.trim(),
-            type: input.type,
-            quantity: input.quantity,
-            purchasePrice: input.purchasePrice,
-            purchaseDate: input.purchaseDate,
-            currentPrice: input.purchasePrice, // Initially same as purchase price
-            lastUpdated: new Date().toISOString(),
-            // Optional fields
-            ...(input.fixedYield && { fixedYield: input.fixedYield }),
-            ...(input.paymentFrequency && { paymentFrequency: input.paymentFrequency }),
-            ...(input.maturityDate && { maturityDate: input.maturityDate }),
-            ...(input.faceValue && { faceValue: input.faceValue }),
-            ...(input.currency && { currency: input.currency })
-          };
-
           // Initialize portfolio context if it doesn't exist
           if (!portfolioContext) {
             portfolioContext = {
@@ -507,25 +802,47 @@ Always provide specific, data-driven insights based on the user's actual portfol
             };
           }
 
-          // Add to portfolio context
-          portfolioContext.investments = [...(portfolioContext.investments || []), newInvestment];
-          
-          // Recalculate portfolio totals
-          portfolioContext.totalInvested = portfolioContext.investments.reduce((sum, inv) => sum + inv.purchasePrice * inv.quantity, 0);
-          portfolioContext.totalValue = portfolioContext.investments.reduce((sum, inv) => sum + (inv.currentPrice || inv.purchasePrice) * inv.quantity, 0);
-          portfolioContext.totalGainLoss = portfolioContext.totalValue - portfolioContext.totalInvested;
-          portfolioContext.totalGainLossPercentage = portfolioContext.totalInvested > 0 ? (portfolioContext.totalGainLoss / portfolioContext.totalInvested) * 100 : 0;
+          // Create new investment data
+          const newInvestmentData = {
+            symbol: input.symbol.toUpperCase().trim(),
+            name: input.name.trim(),
+            type: input.type,
+            quantity: input.quantity,
+            purchasePrice: input.purchasePrice,
+            purchaseDate: input.purchaseDate,
+            // Optional fields
+            ...(input.fixedYield && { fixedYield: input.fixedYield }),
+            ...(input.paymentFrequency && { paymentFrequency: input.paymentFrequency }),
+            ...(input.maturityDate && { maturityDate: input.maturityDate }),
+            ...(input.faceValue && { faceValue: input.faceValue }),
+            ...(input.currency && { currency: input.currency })
+          };
+
+          // Use modularized portfolio service
+          const { updatedInvestments, summary } = portfolioService.addInvestment(
+            portfolioContext.investments || [],
+            newInvestmentData
+          );
+
+          // Update portfolio context
+          portfolioContext.investments = updatedInvestments;
+          portfolioContext.totalValue = summary.totalValue;
+          portfolioContext.totalInvested = summary.totalInvested;
+          portfolioContext.totalGainLoss = summary.totalGainLoss;
+          portfolioContext.totalGainLossPercentage = summary.totalGainLossPercentage;
+
+          const newInvestment = updatedInvestments[updatedInvestments.length - 1];
 
           return {
             success: true,
             investment: newInvestment,
             message: `Successfully added ${input.quantity} shares of ${input.symbol} (${input.name}) to your portfolio`,
             updatedPortfolio: {
-              investments: portfolioContext.investments,
-              totalValue: portfolioContext.totalValue,
-              totalInvested: portfolioContext.totalInvested,
-              totalGainLoss: portfolioContext.totalGainLoss,
-              totalGainLossPercentage: portfolioContext.totalGainLossPercentage
+              investments: updatedInvestments,
+              totalValue: summary.totalValue,
+              totalInvested: summary.totalInvested,
+              totalGainLoss: summary.totalGainLoss,
+              totalGainLossPercentage: summary.totalGainLossPercentage
             }
           };
         } catch (error) {
@@ -577,19 +894,8 @@ Always provide specific, data-driven insights based on the user's actual portfol
             };
           }
           
-          // Find the investment
-          const investmentIndex = portfolioContext.investments.findIndex(inv => inv.id === id);
-          if (investmentIndex === -1) {
-            return {
-              success: false,
-              error: 'Investment not found',
-              message: `No investment found with ID: ${id}`
-            };
-          }
-
-          // Apply updates
-          const updatedInvestment = {
-            ...portfolioContext.investments[investmentIndex],
+          // Prepare updates with proper formatting
+          const formattedUpdates = {
             ...updates,
             // Ensure symbol is uppercase if provided
             ...(updates.symbol && { symbol: updates.symbol.toUpperCase().trim() }),
@@ -597,25 +903,32 @@ Always provide specific, data-driven insights based on the user's actual portfol
             ...(updates.name && { name: updates.name.trim() })
           };
 
-          // Update in portfolio context
-          portfolioContext.investments[investmentIndex] = updatedInvestment;
-          
-          // Recalculate portfolio totals
-          portfolioContext.totalInvested = portfolioContext.investments.reduce((sum, inv) => sum + inv.purchasePrice * inv.quantity, 0);
-          portfolioContext.totalValue = portfolioContext.investments.reduce((sum, inv) => sum + (inv.currentPrice || inv.purchasePrice) * inv.quantity, 0);
-          portfolioContext.totalGainLoss = portfolioContext.totalValue - portfolioContext.totalInvested;
-          portfolioContext.totalGainLossPercentage = portfolioContext.totalInvested > 0 ? (portfolioContext.totalGainLoss / portfolioContext.totalInvested) * 100 : 0;
+          // Use modularized portfolio service
+          const { updatedInvestments, summary } = portfolioService.updateInvestment(
+            portfolioContext.investments || [],
+            id,
+            formattedUpdates
+          );
+
+          // Update portfolio context
+          portfolioContext.investments = updatedInvestments;
+          portfolioContext.totalValue = summary.totalValue;
+          portfolioContext.totalInvested = summary.totalInvested;
+          portfolioContext.totalGainLoss = summary.totalGainLoss;
+          portfolioContext.totalGainLossPercentage = summary.totalGainLossPercentage;
+
+          const updatedInvestment = updatedInvestments.find(inv => inv.id === id);
 
           return {
             success: true,
             investment: updatedInvestment,
-            message: `Successfully updated investment ${updatedInvestment.symbol} (${updatedInvestment.name})`,
+            message: `Successfully updated investment ${updatedInvestment?.symbol} (${updatedInvestment?.name})`,
             updatedPortfolio: {
-              investments: portfolioContext.investments,
-              totalValue: portfolioContext.totalValue,
-              totalInvested: portfolioContext.totalInvested,
-              totalGainLoss: portfolioContext.totalGainLoss,
-              totalGainLossPercentage: portfolioContext.totalGainLossPercentage
+              investments: updatedInvestments,
+              totalValue: summary.totalValue,
+              totalInvested: summary.totalInvested,
+              totalGainLoss: summary.totalGainLoss,
+              totalGainLossPercentage: summary.totalGainLossPercentage
             }
           };
         } catch (error) {
@@ -655,37 +968,29 @@ Always provide specific, data-driven insights based on the user's actual portfol
             };
           }
           
-          // Find the investment
-          const investmentIndex = portfolioContext.investments.findIndex(inv => inv.id === id);
-          if (investmentIndex === -1) {
-            return {
-              success: false,
-              error: 'Investment not found',
-              message: `No investment found with ID: ${id}`
-            };
-          }
+          // Use modularized portfolio service
+          const { updatedInvestments, summary, removedInvestment } = portfolioService.removeInvestment(
+            portfolioContext.investments || [],
+            id
+          );
 
-          const removedInvestment = portfolioContext.investments[investmentIndex];
-          
-          // Remove from portfolio context
-          portfolioContext.investments = portfolioContext.investments.filter(inv => inv.id !== id);
-          
-          // Recalculate portfolio totals
-          portfolioContext.totalInvested = portfolioContext.investments.reduce((sum, inv) => sum + inv.purchasePrice * inv.quantity, 0);
-          portfolioContext.totalValue = portfolioContext.investments.reduce((sum, inv) => sum + (inv.currentPrice || inv.purchasePrice) * inv.quantity, 0);
-          portfolioContext.totalGainLoss = portfolioContext.totalValue - portfolioContext.totalInvested;
-          portfolioContext.totalGainLossPercentage = portfolioContext.totalInvested > 0 ? (portfolioContext.totalGainLoss / portfolioContext.totalInvested) * 100 : 0;
+          // Update portfolio context
+          portfolioContext.investments = updatedInvestments;
+          portfolioContext.totalValue = summary.totalValue;
+          portfolioContext.totalInvested = summary.totalInvested;
+          portfolioContext.totalGainLoss = summary.totalGainLoss;
+          portfolioContext.totalGainLossPercentage = summary.totalGainLossPercentage;
 
           return {
             success: true,
             removedInvestment: removedInvestment,
             message: `Successfully removed investment ${removedInvestment.symbol} (${removedInvestment.name}) from your portfolio`,
             updatedPortfolio: {
-              investments: portfolioContext.investments,
-              totalValue: portfolioContext.totalValue,
-              totalInvested: portfolioContext.totalInvested,
-              totalGainLoss: portfolioContext.totalGainLoss,
-              totalGainLossPercentage: portfolioContext.totalGainLossPercentage
+              investments: updatedInvestments,
+              totalValue: summary.totalValue,
+              totalInvested: summary.totalInvested,
+              totalGainLoss: summary.totalGainLoss,
+              totalGainLossPercentage: summary.totalGainLossPercentage
             }
           };
         } catch (error) {
@@ -724,17 +1029,11 @@ Always provide specific, data-driven insights based on the user's actual portfol
             };
           }
           
-          let filteredInvestments = portfolioContext.investments || [];
-          
-          // Apply filters
-          if (input.type) {
-            filteredInvestments = filteredInvestments.filter(inv => inv.type === input.type);
-          }
-          if (input.symbol) {
-            filteredInvestments = filteredInvestments.filter(inv => 
-              inv.symbol.toLowerCase().includes(input.symbol.toLowerCase())
-            );
-          }
+          // Use modularized portfolio service
+          const filteredInvestments = portfolioService.listInvestments(
+            portfolioContext.investments || [],
+            { type: input.type, symbol: input.symbol }
+          );
 
           return {
             success: true,

@@ -5,6 +5,8 @@ import { useCurrency } from '../contexts/CurrencyContext';
 import { useInvestmentContext } from '../contexts/InvestmentContext';
 import { CurrencyService } from '../services/currencyService';
 import { BondAnalysisService } from '../services/bondAnalysisService';
+import { PortfolioService, type PortfolioContext } from '../services/portfolioService';
+import { ChatApiService } from '../services/chatApiService';
 import type { Investment } from '../types/investment';
 
 interface Message {
@@ -13,16 +15,6 @@ interface Message {
   content: string;
 }
 
-interface PortfolioContext {
-  investments: Investment[];
-  totalValue: number;
-  totalInvested: number;
-  totalGainLoss: number;
-  totalGainLossPercentage: number;
-  currency: string;
-  exchangeRates: Record<string, number>;
-  lastUpdated: string | null;
-}
 
 export function ChatBlob() {
   const { t } = useLanguage();
@@ -64,6 +56,8 @@ export function ChatBlob() {
 
   const currencyService = useMemo(() => new CurrencyService(), []);
   const bondAnalysisService = useMemo(() => new BondAnalysisService(), []);
+  const portfolioService = useMemo(() => new PortfolioService(), []);
+  const chatApiService = useMemo(() => new ChatApiService(), []);
 
   // Build portfolio context when investments or currency changes
   useEffect(() => {
@@ -106,16 +100,12 @@ export function ChatBlob() {
           }
         }
 
-        const context = {
+        // Use modularized portfolio service to build context
+        const context = await portfolioService.buildPortfolioContext(
           investments,
-          totalValue: summary.totalValue,
-          totalInvested: summary.totalInvested,
-          totalGainLoss: summary.totalGainLoss,
-          totalGainLossPercentage: summary.totalGainLossPercentage,
-          currency: displayCurrency,
-          exchangeRates,
-          lastUpdated: lastUpdate?.toISOString() || null,
-        };
+          displayCurrency,
+          exchangeRates
+        );
         
         setPortfolioContext(context);
       } catch (error) {
@@ -124,7 +114,7 @@ export function ChatBlob() {
     };
 
     buildPortfolioContext();
-  }, [investments, displayCurrency, calculatePortfolioSummary, lastUpdate, currencyService]);
+  }, [investments, displayCurrency, lastUpdate, currencyService, portfolioService]);
 
   const sendMessage = async (messageContent: string) => {
     console.log('🎯 ChatBlob: sendMessage called with:', messageContent);
@@ -148,24 +138,11 @@ export function ChatBlob() {
       console.log('🚀 ChatBlob: Making API call to /api/chat');
       console.log('📦 ChatBlob: Portfolio context:', portfolioContext ? 'Present' : 'Missing');
       
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          messages: [...messages, userMessage].map(m => ({ role: m.role, content: m.content })),
-          portfolioContext,
-        }),
-      });
-      
-      console.log('📡 ChatBlob: API response status:', response.status);
-
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-
-      const data = await response.json();
+      // Use modularized chat API service
+      const data = await chatApiService.sendMessage(
+        [...messages, userMessage].map(m => ({ role: m.role, content: m.content })),
+        portfolioContext
+      );
       
       // Debug: Log the entire response to see what we're getting
       console.log('📈 ChatBlob: Full API response:', data);
