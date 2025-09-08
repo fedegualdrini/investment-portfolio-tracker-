@@ -29,6 +29,7 @@ export function PerformanceComparisonPage() {
   const [dateRange, setDateRange] = useState<DateRange>(getDateRangeFromPreset('1Y'));
   const [performanceData, setPerformanceData] = useState<PerformanceDataPoint[]>([]);
   const [normalizedComparison, setNormalizedComparison] = useState<NormalizedComparison | null>(null);
+  const [metrics, setMetrics] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -58,12 +59,14 @@ export function PerformanceComparisonPage() {
       
       setNormalizedComparison(result.normalizedComparison);
       setPerformanceData(result.normalizedComparison.normalizedPortfolio);
+      setMetrics(result.metrics);
 
     } catch (err) {
       console.error('❌ Error fetching performance data:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch performance data');
       setPerformanceData([]);
       setNormalizedComparison(null);
+      setMetrics(null);
     } finally {
       setLoading(false);
     }
@@ -164,8 +167,8 @@ export function PerformanceComparisonPage() {
         </h3>
         <PerformanceChart 
           data={performanceData}
-          benchmarkData={normalizedComparison?.normalizedBenchmark || []}
-          formatCurrency={formatCurrency}
+          selectedBenchmark={selectedBenchmark.name}
+          dateRange={dateRange}
         />
       </div>
 
@@ -187,9 +190,17 @@ export function PerformanceComparisonPage() {
           Performance Metrics
         </h3>
         <PerformanceMetrics 
-          data={performanceData}
-          benchmarkData={normalizedComparison?.normalizedBenchmark || []}
-          formatCurrency={formatCurrency}
+          metrics={metrics ? {
+            totalReturn: metrics.portfolioReturn,
+            annualizedReturn: metrics.portfolioReturn, // Simplified for now
+            volatility: 0, // Will be calculated from service
+            sharpeRatio: metrics.sharpeRatio,
+            maxDrawdown: metrics.maxDrawdown,
+            beta: metrics.beta,
+            alpha: metrics.alpha,
+            informationRatio: 0,
+            trackingError: 0
+          } : null}
         />
       </div>
 
