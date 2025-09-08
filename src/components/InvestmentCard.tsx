@@ -50,7 +50,7 @@ export function InvestmentCard({ investment, onRemove, onEdit }: InvestmentCardP
   return (
     <>
       <div 
-        className="brand-card-static p-4 sm:p-6 animate-fadeInUp cursor-pointer"
+        className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6 animate-fadeInUp cursor-pointer"
         onClick={() => setShowModal(true)}
         style={{ animationDelay: `${Math.random() * 0.2}s` }}
       >
