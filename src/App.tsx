@@ -193,7 +193,9 @@ function AppContent() {
 
           {/* Performance Comparison Page */}
           {showPerformanceComparison && (
-            <PerformanceComparisonPage />
+            <PerformanceComparisonPage
+              onBack={closeAllSections}
+            />
           )}
 
           {!showAddForm && !editingInvestment && !showBondAnalysis && !showPerformanceComparison && investments.length > 0 && (
