@@ -96,24 +96,24 @@ export const BENCHMARKS: Benchmark[] = [
   {
     id: 'SPY',
     name: 'S&P 500',
-    symbol: '^GSPC',
-    description: 'S&P 500 Index',
+    symbol: 'SPY',
+    description: 'SPDR S&P 500 ETF Trust',
     dataSource: 'yahoo',
     type: 'stock'
   },
   {
     id: 'QQQ',
     name: 'NASDAQ 100',
-    symbol: '^IXIC',
-    description: 'NASDAQ Composite Index',
+    symbol: 'QQQ',
+    description: 'Invesco QQQ Trust',
     dataSource: 'yahoo',
     type: 'stock'
   },
   {
     id: 'DIA',
     name: 'Dow Jones',
-    symbol: '^DJI',
-    description: 'Dow Jones Industrial Average',
+    symbol: 'DIA',
+    description: 'SPDR Dow Jones Industrial Average ETF',
     dataSource: 'yahoo',
     type: 'stock'
   },
