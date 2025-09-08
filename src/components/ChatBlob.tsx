@@ -28,6 +28,27 @@ export function ChatBlob() {
   } = useInvestmentContext();
   
   const [isOpen, setIsOpen] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const [showBubble, setShowBubble] = useState(false);
+  
+  // Handle hover with delay
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+    
+    if (isHovered) {
+      timeoutId = setTimeout(() => {
+        setShowBubble(true);
+      }, 500); // 500ms delay
+    } else {
+      setShowBubble(false);
+    }
+    
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [isHovered]);
   
   // Track chat open/close
   const handleToggleChat = (open: boolean) => {
@@ -214,14 +235,33 @@ export function ChatBlob() {
     <>
       {/* Floating Chat Button */}
       {!isOpen && (
-        <button
-          onClick={toggleChat}
-          className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 w-12 h-12 sm:w-14 sm:h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center z-50 transform hover:scale-110 active:scale-95 animate-float"
-          title={`${t('chat.title')} - ${t('chat.subtitle')}. Ask about investment strategies, portfolio analysis, bond calculations, and market insights.`}
-          aria-label={`${t('chat.title')} - ${t('chat.subtitle')}. Ask about investment strategies, portfolio analysis, bond calculations, and market insights.`}
-        >
-          <Bot className="h-5 w-5 sm:h-6 sm:w-6" />
-        </button>
+        <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50">
+          {/* Hover Message Bubble */}
+          {showBubble && (
+            <div className="absolute bottom-full right-0 mb-3 animate-fadeInUp">
+              <div className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-4 py-3 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 max-w-xs sm:max-w-sm">
+                <p className="text-sm font-medium leading-relaxed">
+                  Hi! I'm your personal AI assistant. Let me know if I can help you with your portfolio!
+                </p>
+                {/* Arrow pointing down */}
+                <div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-white dark:border-t-gray-800"></div>
+                {/* Arrow border for dark mode */}
+                <div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-gray-200 dark:border-t-gray-700 transform translate-y-0.5"></div>
+              </div>
+            </div>
+          )}
+          
+          <button
+            onClick={toggleChat}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            className="w-12 h-12 sm:w-14 sm:h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center transform hover:scale-110 active:scale-95 animate-float"
+            title={t('chat.title')}
+            aria-label={t('chat.title')}
+          >
+            <Bot className="h-5 w-5 sm:h-6 sm:w-6" />
+          </button>
+        </div>
       )}
 
       {/* Chat Blob Interface */}
