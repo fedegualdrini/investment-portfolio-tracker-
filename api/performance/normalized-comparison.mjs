@@ -29,80 +29,227 @@ export default async function handler(req, res) {
 
     console.log('✅ All required fields present');
 
-    // For now, let's return a simple response to test if the API is working
-    // We'll implement the full logic step by step
+    // Get the base URL for internal API calls
+    const baseUrl = req.headers.origin || 'http://localhost:3000';
+    console.log('Base URL:', baseUrl);
+
+    // Step 1: Get portfolio historical data
+    console.log('📊 Fetching portfolio data...');
+    const portfolioResponse = await fetch(`${baseUrl}/api/performance/portfolio-history`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        startDate,
+        endDate,
+        investments
+      }),
+    });
+
+    if (!portfolioResponse.ok) {
+      throw new Error(`Portfolio history API failed: ${portfolioResponse.status}`);
+    }
+
+    const portfolioResult = await portfolioResponse.json();
+    if (!portfolioResult.success) {
+      throw new Error(`Portfolio history API error: ${portfolioResult.error}`);
+    }
+
+    console.log('✅ Portfolio data received:', portfolioResult.data.length, 'data points');
+
+    // Step 2: Get benchmark historical data
+    console.log('📈 Fetching benchmark data...');
+    const benchmarkResponse = await fetch(`${baseUrl}/api/performance/benchmark-data`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        startDate,
+        endDate,
+        benchmarkId
+      }),
+    });
+
+    if (!benchmarkResponse.ok) {
+      throw new Error(`Benchmark data API failed: ${benchmarkResponse.status}`);
+    }
+
+    const benchmarkResult = await benchmarkResponse.json();
+    if (!benchmarkResult.success) {
+      throw new Error(`Benchmark data API error: ${benchmarkResult.error}`);
+    }
+
+    console.log('✅ Benchmark data received:', benchmarkResult.data.length, 'data points');
+
+    const portfolioData = portfolioResult.data;
+    const benchmarkData = benchmarkResult.data;
+    const benchmark = benchmarkResult.benchmark;
+
+    if (portfolioData.length === 0 || benchmarkData.length === 0) {
+      throw new Error('No data available for the selected period');
+    }
+
+    console.log('📊 Starting normalization process...');
+
+    // Step 3: Normalize the data
+    // Get starting values
+    const startingPortfolioValue = portfolioData[0].portfolioValue;
+    const startingBenchmarkPrice = benchmarkData[0].close;
+    const benchmarkShares = startingPortfolioValue / startingBenchmarkPrice;
+
+    console.log(`Starting portfolio value: ${startingPortfolioValue}`);
+    console.log(`Starting benchmark price: ${startingBenchmarkPrice}`);
+    console.log(`Benchmark shares: ${benchmarkShares}`);
+
+    // Create a map of benchmark data for quick lookup
+    const benchmarkMap = new Map();
+    benchmarkData.forEach(point => {
+      benchmarkMap.set(point.date, point);
+    });
+
+    // Create normalized benchmark data that matches portfolio dates
+    const normalizedBenchmark = [];
+    let previousBenchmarkValue = startingPortfolioValue;
+
+    for (let i = 0; i < portfolioData.length; i++) {
+      const portfolioPoint = portfolioData[i];
+      const date = portfolioPoint.date;
+      
+      // Find benchmark data for this date
+      let benchmarkPoint = benchmarkMap.get(date);
+      
+      // If no exact match, find the closest available date
+      if (!benchmarkPoint) {
+        const availableDates = Array.from(benchmarkMap.keys()).sort();
+        const targetDate = new Date(date);
+        
+        // Find the closest date (within 7 days)
+        let closestDate = null;
+        let minDiff = Infinity;
+        
+        for (const availableDate of availableDates) {
+          const diff = Math.abs(new Date(availableDate).getTime() - targetDate.getTime());
+          if (diff < minDiff && diff <= 7 * 24 * 60 * 60 * 1000) { // 7 days
+            minDiff = diff;
+            closestDate = availableDate;
+          }
+        }
+        
+        if (closestDate) {
+          benchmarkPoint = benchmarkMap.get(closestDate);
+        }
+      }
+
+      if (!benchmarkPoint) {
+        console.warn(`No benchmark data found for date ${date}, using previous value`);
+        // Use previous benchmark value if no data available
+        const benchmarkValue = previousBenchmarkValue;
+        const benchmarkReturn = 0;
+        
+        normalizedBenchmark.push({
+          date,
+          portfolioValue: portfolioPoint.portfolioValue,
+          benchmarkValue,
+          portfolioReturn: portfolioPoint.portfolioReturn,
+          benchmarkReturn,
+          cumulativePortfolioReturn: portfolioPoint.cumulativePortfolioReturn,
+          cumulativeBenchmarkReturn: i === 0 ? 0 : 
+            (benchmarkValue - normalizedBenchmark[0].benchmarkValue) / normalizedBenchmark[0].benchmarkValue
+        });
+        
+        continue;
+      }
+
+      // Calculate normalized benchmark value
+      const benchmarkValue = benchmarkShares * benchmarkPoint.close;
+      const benchmarkReturn = i === 0 ? 0 : 
+        (benchmarkValue - previousBenchmarkValue) / previousBenchmarkValue;
+
+      normalizedBenchmark.push({
+        date,
+        portfolioValue: portfolioPoint.portfolioValue,
+        benchmarkValue,
+        portfolioReturn: portfolioPoint.portfolioReturn,
+        benchmarkReturn,
+        cumulativePortfolioReturn: portfolioPoint.cumulativePortfolioReturn,
+        cumulativeBenchmarkReturn: i === 0 ? 0 : 
+          (benchmarkValue - normalizedBenchmark[0].benchmarkValue) / normalizedBenchmark[0].benchmarkValue
+      });
+
+      previousBenchmarkValue = benchmarkValue;
+    }
+
+    console.log('✅ Normalization complete');
+
+    // Step 4: Calculate performance metrics
+    const endingPortfolioValue = portfolioData[portfolioData.length - 1].portfolioValue;
+    const endingBenchmarkValue = normalizedBenchmark[normalizedBenchmark.length - 1].benchmarkValue;
     
-    const mockNormalizedComparison = {
-      normalizedPortfolio: [
-        {
-          date: startDate,
-          portfolioValue: 10000,
-          benchmarkValue: 10000,
-          portfolioReturn: 0,
-          benchmarkReturn: 0,
-          cumulativePortfolioReturn: 0,
-          cumulativeBenchmarkReturn: 0
-        },
-        {
-          date: endDate,
-          portfolioValue: 11000,
-          benchmarkValue: 10500,
-          portfolioReturn: 0.1,
-          benchmarkReturn: 0.05,
-          cumulativePortfolioReturn: 0.1,
-          cumulativeBenchmarkReturn: 0.05
-        }
-      ],
-      normalizedBenchmark: [
-        {
-          date: startDate,
-          portfolioValue: 10000,
-          benchmarkValue: 10000,
-          portfolioReturn: 0,
-          benchmarkReturn: 0,
-          cumulativePortfolioReturn: 0,
-          cumulativeBenchmarkReturn: 0
-        },
-        {
-          date: endDate,
-          portfolioValue: 11000,
-          benchmarkValue: 10500,
-          portfolioReturn: 0.1,
-          benchmarkReturn: 0.05,
-          cumulativePortfolioReturn: 0.1,
-          cumulativeBenchmarkReturn: 0.05
-        }
-      ],
-      startingValue: 10000,
-      benchmarkShares: 100
+    const portfolioReturn = (endingPortfolioValue - startingPortfolioValue) / startingPortfolioValue;
+    const benchmarkReturn = (endingBenchmarkValue - startingPortfolioValue) / startingPortfolioValue;
+    const alpha = portfolioReturn - benchmarkReturn;
+
+    // Calculate additional metrics
+    const portfolioReturns = portfolioData.slice(1).map((point, index) => 
+      (point.portfolioValue - portfolioData[index].portfolioValue) / portfolioData[index].portfolioValue
+    );
+    
+    const benchmarkReturns = normalizedBenchmark.slice(1).map((point, index) => 
+      (point.benchmarkValue - normalizedBenchmark[index].benchmarkValue) / normalizedBenchmark[index].benchmarkValue
+    );
+
+    // Calculate volatility (annualized)
+    const avgPortfolioReturn = portfolioReturns.reduce((sum, ret) => sum + ret, 0) / portfolioReturns.length;
+    const portfolioVariance = portfolioReturns.reduce((sum, ret) => sum + Math.pow(ret - avgPortfolioReturn, 2), 0) / portfolioReturns.length;
+    const portfolioVolatility = Math.sqrt(portfolioVariance) * Math.sqrt(252); // Annualized
+
+    // Calculate Sharpe ratio (simplified)
+    const riskFreeRate = 0.02; // 2% risk-free rate
+    const sharpeRatio = portfolioVolatility > 0 ? (avgPortfolioReturn - riskFreeRate) / portfolioVolatility : 0;
+
+    // Calculate maximum drawdown
+    let maxDrawdown = 0;
+    let peak = startingPortfolioValue;
+    
+    for (const point of portfolioData) {
+      if (point.portfolioValue > peak) {
+        peak = point.portfolioValue;
+      }
+      const drawdown = (peak - point.portfolioValue) / peak;
+      if (drawdown > maxDrawdown) {
+        maxDrawdown = drawdown;
+      }
+    }
+
+    const metrics = {
+      portfolioReturn,
+      benchmarkReturn,
+      alpha,
+      beta: 1, // Simplified for now
+      sharpeRatio,
+      maxDrawdown
     };
 
-    const mockMetrics = {
-      portfolioReturn: 0.1,
-      benchmarkReturn: 0.05,
-      alpha: 0.05,
-      beta: 1,
-      sharpeRatio: 0.5,
-      maxDrawdown: 0.02
+    const normalizedComparison = {
+      normalizedPortfolio: portfolioData,
+      normalizedBenchmark,
+      startingValue: startingPortfolioValue,
+      benchmarkShares
     };
 
-    const mockBenchmark = {
-      id: benchmarkId,
-      name: 'S&P 500',
-      symbol: 'SPY',
-      description: 'SPDR S&P 500 ETF Trust',
-      dataSource: 'yahoo',
-      type: 'stock'
-    };
-
-    console.log('✅ Returning mock data for testing');
+    console.log('✅ All calculations complete');
+    console.log('Portfolio return:', (portfolioReturn * 100).toFixed(2) + '%');
+    console.log('Benchmark return:', (benchmarkReturn * 100).toFixed(2) + '%');
+    console.log('Alpha:', (alpha * 100).toFixed(2) + '%');
 
     res.status(200).json({
       success: true,
       data: {
-        normalizedComparison: mockNormalizedComparison,
-        metrics: mockMetrics,
-        benchmark: mockBenchmark
+        normalizedComparison,
+        metrics,
+        benchmark
       }
     });
 
