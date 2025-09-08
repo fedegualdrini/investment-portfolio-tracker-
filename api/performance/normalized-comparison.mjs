@@ -29,7 +29,7 @@ export default async function handler(req, res) {
 
     console.log('✅ All required fields present');
 
-    // Define benchmarks directly
+    // Define benchmarks directly (no imports needed)
     const BENCHMARKS = [
       { id: 'SPY', name: 'S&P 500', symbol: 'SPY', description: 'SPDR S&P 500 ETF Trust', dataSource: 'yahoo', type: 'stock' },
       { id: 'QQQ', name: 'NASDAQ 100', symbol: 'QQQ', description: 'Invesco QQQ Trust', dataSource: 'yahoo', type: 'stock' },
@@ -46,37 +46,66 @@ export default async function handler(req, res) {
 
     console.log('✅ Benchmark found:', benchmark.name);
 
-    // Import the services we need directly
-    const { createHistoricalDataService } = await import('../../src/services/historicalDataService.js');
-    const { PerformanceComparisonService } = await import('../../src/services/performanceComparisonService.js');
+    // Get the base URL for internal API calls
+    const baseUrl = req.headers.origin || 'http://localhost:3000';
+    console.log('Base URL:', baseUrl);
 
-    console.log('✅ Services imported successfully');
+    // Step 1: Get portfolio historical data using existing working API
+    console.log('📊 Fetching portfolio data from existing API...');
+    const portfolioResponse = await fetch(`${baseUrl}/api/performance/portfolio-history`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        startDate,
+        endDate,
+        investments
+      }),
+    });
 
-    // Create services
-    const historicalDataService = createHistoricalDataService();
-    const performanceService = new PerformanceComparisonService(historicalDataService);
+    if (!portfolioResponse.ok) {
+      const errorText = await portfolioResponse.text();
+      console.error('Portfolio API error:', errorText);
+      throw new Error(`Portfolio history API failed: ${portfolioResponse.status} - ${errorText}`);
+    }
 
-    console.log('✅ Services created');
+    const portfolioResult = await portfolioResponse.json();
+    if (!portfolioResult.success) {
+      throw new Error(`Portfolio history API error: ${portfolioResult.error}`);
+    }
 
-    // Get portfolio historical data directly
-    console.log('📊 Fetching portfolio data...');
-    const portfolioData = await performanceService.getPortfolioHistoricalData(
-      investments,
-      startDate,
-      endDate
-    );
+    console.log('✅ Portfolio data received:', portfolioResult.data.length, 'data points');
 
-    console.log('✅ Portfolio data received:', portfolioData.length, 'data points');
+    // Step 2: Get benchmark historical data using existing working API
+    console.log('📈 Fetching benchmark data from existing API...');
+    const benchmarkResponse = await fetch(`${baseUrl}/api/performance/benchmark-data`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        startDate,
+        endDate,
+        benchmarkId
+      }),
+    });
 
-    // Get benchmark historical data directly
-    console.log('📈 Fetching benchmark data...');
-    const benchmarkData = await performanceService.getBenchmarkHistoricalData(
-      benchmark,
-      startDate,
-      endDate
-    );
+    if (!benchmarkResponse.ok) {
+      const errorText = await benchmarkResponse.text();
+      console.error('Benchmark API error:', errorText);
+      throw new Error(`Benchmark data API failed: ${benchmarkResponse.status} - ${errorText}`);
+    }
 
-    console.log('✅ Benchmark data received:', benchmarkData.length, 'data points');
+    const benchmarkResult = await benchmarkResponse.json();
+    if (!benchmarkResult.success) {
+      throw new Error(`Benchmark data API error: ${benchmarkResult.error}`);
+    }
+
+    console.log('✅ Benchmark data received:', benchmarkResult.data.length, 'data points');
+
+    const portfolioData = portfolioResult.data;
+    const benchmarkData = benchmarkResult.data;
 
     if (portfolioData.length === 0 || benchmarkData.length === 0) {
       throw new Error('No data available for the selected period');
@@ -84,7 +113,7 @@ export default async function handler(req, res) {
 
     console.log('📊 Starting normalization process...');
 
-    // Normalize the data
+    // Step 3: Normalize the data to start at the same dollar amount
     const startingPortfolioValue = portfolioData[0].portfolioValue;
     const startingBenchmarkPrice = benchmarkData[0].close;
     const benchmarkShares = startingPortfolioValue / startingBenchmarkPrice;
@@ -110,12 +139,11 @@ export default async function handler(req, res) {
       // Find benchmark data for this date
       let benchmarkPoint = benchmarkMap.get(date);
       
-      // If no exact match, find the closest available date
+      // If no exact match, find the closest available date (within 7 days)
       if (!benchmarkPoint) {
         const availableDates = Array.from(benchmarkMap.keys()).sort();
         const targetDate = new Date(date);
         
-        // Find the closest date (within 7 days)
         let closestDate = null;
         let minDiff = Infinity;
         
@@ -173,7 +201,7 @@ export default async function handler(req, res) {
 
     console.log('✅ Normalization complete');
 
-    // Calculate performance metrics
+    // Step 4: Calculate performance metrics
     const endingPortfolioValue = portfolioData[portfolioData.length - 1].portfolioValue;
     const endingBenchmarkValue = normalizedBenchmark[normalizedBenchmark.length - 1].benchmarkValue;
     
