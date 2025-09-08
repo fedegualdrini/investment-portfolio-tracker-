@@ -1,5 +1,5 @@
-import { BENCHMARKS } from '../../src/types/performance.js';
 import { createHistoricalDataService } from '../../src/services/historicalDataService.js';
+import { BENCHMARKS } from '../../src/types/performance.js';
 
 export default async function handler(req, res) {
   // Set CORS headers
@@ -12,29 +12,32 @@ export default async function handler(req, res) {
     return;
   }
 
-  if (req.method !== 'GET') {
+  if (req.method !== 'POST') {
     return res.status(405).json({ success: false, error: 'Method not allowed' });
   }
 
   try {
-    const { benchmarkId, startDate, endDate } = req.query;
+    const { startDate, endDate, benchmarkId } = req.body;
 
-    if (!benchmarkId || !startDate || !endDate) {
+    if (!startDate || !endDate || !benchmarkId) {
       return res.status(400).json({ 
         success: false, 
-        error: 'Missing required query parameters: benchmarkId, startDate, endDate' 
+        error: 'Missing required fields: startDate, endDate, benchmarkId' 
       });
     }
 
+    // Find the benchmark
     const benchmark = BENCHMARKS.find(b => b.id === benchmarkId);
     if (!benchmark) {
-      return res.status(400).json({ 
-        success: false, 
-        error: `Invalid benchmark ID: ${benchmarkId}` 
+      return res.status(400).json({
+        success: false,
+        error: `Benchmark with id ${benchmarkId} not found`
       });
     }
 
     const historicalDataService = createHistoricalDataService();
+
+    // Get benchmark historical data with gap filling
     const data = await historicalDataService.getHistoricalData(
       benchmark.symbol,
       startDate,
@@ -42,12 +45,17 @@ export default async function handler(req, res) {
       benchmark.dataSource
     );
 
-    res.status(200).json({ success: true, data });
+    res.status(200).json({
+      success: true,
+      data: data,
+      benchmark: benchmark
+    });
+
   } catch (error) {
     console.error('Error in benchmark-data API:', error);
-    res.status(500).json({ 
-      success: false, 
-      error: error.message || 'Internal server error' 
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Internal server error'
     });
   }
 }

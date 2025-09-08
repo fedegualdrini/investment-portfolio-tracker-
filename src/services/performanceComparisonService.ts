@@ -7,6 +7,8 @@ import {
 import { PortfolioValueCalculator, PerformanceMetricsCalculator } from '../utils/performanceCalculations';
 import { getDateRangeFromPreset, getLastTradingDay } from '../utils/dateUtils';
 import { HistoricalDataService } from './historicalDataService';
+import { PortfolioNormalizationService, NormalizedComparison } from './portfolioNormalizationService';
+import { DataGapFiller } from './dataGapFiller';
 
 export class PerformanceComparisonService {
   private cache: Map<string, any> = new Map();
@@ -21,12 +23,13 @@ export class PerformanceComparisonService {
     investments: any[],
     startDate: string,
     endDate: string
-  ): Promise<Map<string, HistoricalPriceData[]>> {
-    const cacheKey = `portfolio_${startDate}_${endDate}_${investments.length}`;
+  ): Promise<PerformanceDataPoint[]> {
+    const cacheKey = `portfolio_${JSON.stringify(investments)}_${startDate}_${endDate}`;
     const cached = this.getCachedData(cacheKey);
     if (cached) return cached;
 
     try {
+      // Get historical data for all investments
       const symbols = investments.map(inv => inv.symbol);
       const historicalData = await this.historicalDataService.getBatchHistoricalData(
         symbols,
@@ -34,11 +37,20 @@ export class PerformanceComparisonService {
         endDate
       );
 
-      this.setCachedData(cacheKey, historicalData);
-      return historicalData;
+      // Calculate portfolio values over time
+      const portfolioTimeSeries = PortfolioValueCalculator.generatePortfolioTimeSeries(
+        investments,
+        startDate,
+        endDate,
+        historicalData
+      );
+
+      this.setCachedData(cacheKey, portfolioTimeSeries);
+      return portfolioTimeSeries;
+
     } catch (error) {
-      console.error('Error fetching portfolio historical data:', error);
-      return new Map<string, HistoricalPriceData[]>();
+      console.error('Error getting portfolio historical data:', error);
+      throw error;
     }
   }
 
@@ -47,7 +59,7 @@ export class PerformanceComparisonService {
     startDate: string,
     endDate: string
   ): Promise<HistoricalPriceData[]> {
-    const cacheKey = `benchmark_${benchmark.id}_${startDate}_${endDate}`;
+    const cacheKey = `benchmark_${benchmark.symbol}_${startDate}_${endDate}`;
     const cached = this.getCachedData(cacheKey);
     if (cached) return cached;
 
@@ -55,154 +67,151 @@ export class PerformanceComparisonService {
       const data = await this.historicalDataService.getHistoricalData(
         benchmark.symbol,
         startDate,
-        endDate,
-        benchmark.dataSource
+        endDate
       );
 
       this.setCachedData(cacheKey, data);
       return data;
+
     } catch (error) {
-      console.error(`Error fetching benchmark data for ${benchmark.name}:`, error);
-      return [];
+      console.error(`Error getting benchmark data for ${benchmark.symbol}:`, error);
+      throw error;
     }
   }
 
-  async getPerformanceComparison(
-    investments: any[],
-    benchmark: Benchmark,
+  async getInvestmentHistoricalData(
+    symbol: string,
     startDate: string,
     endDate: string
-  ): Promise<PerformanceDataPoint[]> {
-    const cacheKey = `comparison_${benchmark.id}_${startDate}_${endDate}_${investments.length}`;
+  ): Promise<HistoricalPriceData[]> {
+    const cacheKey = `investment_${symbol}_${startDate}_${endDate}`;
     const cached = this.getCachedData(cacheKey);
     if (cached) return cached;
 
     try {
-      // Fetch portfolio historical data
-      const portfolioHistoricalData = await this.getPortfolioHistoricalData(
-        investments,
+      const data = await this.historicalDataService.getHistoricalData(
+        symbol,
         startDate,
         endDate
       );
 
-      // Fetch benchmark historical data
-      const benchmarkHistoricalData = await this.getBenchmarkHistoricalData(
+      this.setCachedData(cacheKey, data);
+      return data;
+
+    } catch (error) {
+      console.error(`Error getting investment data for ${symbol}:`, error);
+      throw error;
+    }
+  }
+
+  async getNormalizedComparison(
+    investments: any[],
+    benchmark: Benchmark,
+    startDate: string,
+    endDate: string
+  ): Promise<NormalizedComparison> {
+    const cacheKey = `normalized_${JSON.stringify(investments)}_${benchmark.symbol}_${startDate}_${endDate}`;
+    const cached = this.getCachedData(cacheKey);
+    if (cached) return cached;
+
+    try {
+      // Get portfolio and benchmark data
+      const [portfolioData, benchmarkData] = await Promise.all([
+        this.getPortfolioHistoricalData(investments, startDate, endDate),
+        this.getBenchmarkHistoricalData(benchmark, startDate, endDate)
+      ]);
+
+      // Fill gaps in both datasets to ensure consistent date ranges
+      const portfolioDataMap = new Map<string, HistoricalPriceData[]>();
+      investments.forEach(inv => {
+        const symbolData = portfolioData.map(point => ({
+          date: point.date,
+          open: 0, // We don't have individual asset OHLC in portfolio data
+          high: 0,
+          low: 0,
+          close: 0, // This will be calculated from portfolio value
+          volume: 0,
+          adjustedClose: 0
+        }));
+        portfolioDataMap.set(inv.symbol, symbolData);
+      });
+
+      const { portfolioData: filledPortfolioData, benchmarkData: filledBenchmarkData } = 
+        DataGapFiller.fillDataGapsForComparison(portfolioDataMap, benchmarkData, startDate, endDate);
+
+      // Normalize the comparison
+      const normalizedComparison = PortfolioNormalizationService.normalizeComparison(
+        portfolioData,
+        filledBenchmarkData
+      );
+
+      this.setCachedData(cacheKey, normalizedComparison);
+      return normalizedComparison;
+
+    } catch (error) {
+      console.error('Error getting normalized comparison:', error);
+      throw error;
+    }
+  }
+
+  async getPerformanceMetrics(
+    investments: any[],
+    benchmark: Benchmark,
+    startDate: string,
+    endDate: string
+  ): Promise<any> {
+    try {
+      const normalizedComparison = await this.getNormalizedComparison(
+        investments,
         benchmark,
         startDate,
         endDate
       );
 
-      // Generate portfolio time series
-      const portfolioTimeSeries = PortfolioValueCalculator.generatePortfolioTimeSeries(
-        investments,
-        startDate,
-        endDate,
-        portfolioHistoricalData
-      );
+      return PortfolioNormalizationService.calculateNormalizedMetrics(normalizedComparison);
 
-      // Combine with benchmark data
-      const comparisonData = this.combinePortfolioAndBenchmarkData(
-        portfolioTimeSeries,
-        benchmarkHistoricalData
-      );
-
-      this.setCachedData(cacheKey, comparisonData);
-      return comparisonData;
     } catch (error) {
-      console.error('Error generating performance comparison:', error);
-      return [];
+      console.error('Error calculating performance metrics:', error);
+      throw error;
     }
   }
 
-  private combinePortfolioAndBenchmarkData(
-    portfolioData: PerformanceDataPoint[],
-    benchmarkData: HistoricalPriceData[]
-  ): PerformanceDataPoint[] {
-    const benchmarkMap = new Map<string, HistoricalPriceData>();
-    benchmarkData.forEach(point => {
-      benchmarkMap.set(point.date, point);
-    });
-
-    return portfolioData.map(portfolioPoint => {
-      const benchmarkPoint = benchmarkMap.get(portfolioPoint.date);
-      
-      if (benchmarkPoint) {
-        const benchmarkValue = benchmarkPoint.close;
-        const benchmarkReturn = portfolioPoint.benchmarkValue > 0 
-          ? (benchmarkValue - portfolioPoint.benchmarkValue) / portfolioPoint.benchmarkValue 
-          : 0;
-
-        return {
-          ...portfolioPoint,
-          benchmarkValue,
-          benchmarkReturn,
-          cumulativeBenchmarkReturn: portfolioData[0] ? 
-            (benchmarkValue - benchmarkMap.get(portfolioData[0].date)?.close || benchmarkValue) / (benchmarkMap.get(portfolioData[0].date)?.close || benchmarkValue) 
-            : 0
-        };
-      }
-
-      return portfolioPoint;
-    });
-  }
-
-  async getInvestmentHistoricalData(
-    investment: any,
+  async getCombinedPortfolioAndBenchmarkData(
+    investments: any[],
+    benchmark: Benchmark,
     startDate: string,
     endDate: string
-  ): Promise<HistoricalPriceData[]> {
-    const cacheKey = `investment_${investment.symbol}_${startDate}_${endDate}`;
-    const cached = this.getCachedData(cacheKey);
-    if (cached) return cached;
-
+  ): Promise<{
+    portfolioData: PerformanceDataPoint[];
+    benchmarkData: PerformanceDataPoint[];
+    normalizedComparison: NormalizedComparison;
+  }> {
     try {
-      const dataSource = investment.type === 'crypto' ? 'coingecko' : 'yahoo';
-      const data = await this.historicalDataService.getHistoricalData(
-        investment.symbol,
+      const normalizedComparison = await this.getNormalizedComparison(
+        investments,
+        benchmark,
         startDate,
-        endDate,
-        dataSource
+        endDate
       );
 
-      this.setCachedData(cacheKey, data);
-      return data;
+      return {
+        portfolioData: normalizedComparison.normalizedPortfolio,
+        benchmarkData: normalizedComparison.normalizedBenchmark,
+        normalizedComparison
+      };
+
     } catch (error) {
-      console.error(`Error fetching data for ${investment.symbol}:`, error);
-      return [];
+      console.error('Error getting combined data:', error);
+      throw error;
     }
   }
 
-  calculatePortfolioValueAtDate(
-    investments: any[],
-    date: string,
-    historicalData: Map<string, HistoricalPriceData[]>
-  ): number {
-    return PortfolioValueCalculator.calculatePortfolioValueAtDate(
-      investments,
-      date,
-      historicalData
-    );
-  }
-
-  generatePerformanceComparison(
-    portfolioData: PerformanceDataPoint[],
-    benchmarkData: PerformanceDataPoint[]
-  ): PerformanceDataPoint[] {
-    // This method combines portfolio and benchmark data
-    // Implementation depends on specific requirements
-    return portfolioData;
-  }
-
-  getAvailableBenchmarks(): Benchmark[] {
+  async getAvailableBenchmarks(): Promise<Benchmark[]> {
     return BENCHMARKS;
   }
 
-  getBenchmarkById(id: string): Benchmark | undefined {
-    return BENCHMARKS.find(benchmark => benchmark.id === id);
-  }
-
-  clearCache(): void {
-    this.cache.clear();
+  async getBenchmarkById(id: string): Promise<Benchmark | null> {
+    return BENCHMARKS.find(b => b.id === id) || null;
   }
 
   private getCachedData(key: string): any {
@@ -219,9 +228,12 @@ export class PerformanceComparisonService {
       timestamp: Date.now()
     });
   }
+
+  clearCache(): void {
+    this.cache.clear();
+  }
 }
 
-// Factory function to create service instance
 export function createPerformanceComparisonService(
   historicalDataService: HistoricalDataService,
   portfolioService: any = {}

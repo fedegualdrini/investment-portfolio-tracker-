@@ -1,4 +1,5 @@
 import { HistoricalPriceData } from '../types/performance';
+import { DataGapFiller } from './dataGapFiller';
 
 const COINGECKO_API = 'https://api.coingecko.com/api/v3';
 
@@ -89,8 +90,11 @@ export class CoinGeckoHistoricalService {
         });
       }
 
-      this.setCachedData(cacheKey, historicalData);
-      return historicalData;
+      // Fill gaps in data (though crypto trades 24/7, there might be API gaps)
+      const filledData = DataGapFiller.fillDataGaps(historicalData, startDate, endDate);
+
+      this.setCachedData(cacheKey, filledData);
+      return filledData;
 
     } catch (error) {
       console.error(`Error fetching CoinGecko historical data for ${symbol}:`, error);

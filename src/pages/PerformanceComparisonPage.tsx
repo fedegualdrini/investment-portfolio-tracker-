@@ -19,6 +19,7 @@ import { ErrorAlert } from '../components/ErrorAlert';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { createPerformanceComparisonService } from '../services/performanceComparisonService';
 import { createHistoricalDataService } from '../services/historicalDataService';
+import { PortfolioNormalizationService, NormalizedComparison } from '../services/portfolioNormalizationService';
 
 export function PerformanceComparisonPage() {
   const { investments } = useInvestments();
@@ -29,28 +30,22 @@ export function PerformanceComparisonPage() {
   const [selectedBenchmark, setSelectedBenchmark] = useState<Benchmark>(BENCHMARKS[0]);
   const [dateRange, setDateRange] = useState<DateRange>(getDateRangeFromPreset('1Y'));
   const [performanceData, setPerformanceData] = useState<PerformanceDataPoint[]>([]);
+  const [normalizedComparison, setNormalizedComparison] = useState<NormalizedComparison | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Services
   const historicalDataService = useMemo(() => createHistoricalDataService(), []);
-  const performanceService = useMemo(() => 
-    createPerformanceComparisonService(historicalDataService), 
+  const performanceService = useMemo(() =>
+    createPerformanceComparisonService(historicalDataService),
     [historicalDataService]
   );
 
-  // Memoized calculations
-  const metrics = useMemo(() => 
-    performanceData.length > 0 
-      ? PerformanceMetricsCalculator.calculateAllMetrics(performanceData) 
-      : null, 
-    [performanceData]
-  );
-
-  // Data fetching
+  // Data fetching with normalized comparison
   const fetchPerformanceData = useCallback(async () => {
     if (investments.length === 0) {
       setPerformanceData([]);
+      setNormalizedComparison(null);
       return;
     }
 
@@ -58,20 +53,43 @@ export function PerformanceComparisonPage() {
     setError(null);
 
     try {
-      const data = await performanceService.getPerformanceComparison(
-        investments,
-        selectedBenchmark,
-        dateRange.start,
-        dateRange.end
-      );
-      setPerformanceData(data);
+      // Get normalized comparison data
+      const response = await fetch('/api/performance/normalized-comparison', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          investments,
+          benchmarkId: selectedBenchmark.id,
+          startDate: dateRange.start,
+          endDate: dateRange.end,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to fetch performance data');
+      }
+
+      const { normalizedComparison: comparison, metrics } = result.data;
+      
+      setNormalizedComparison(comparison);
+      setPerformanceData(comparison.normalizedPortfolio);
+
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch performance data');
       setPerformanceData([]);
+      setNormalizedComparison(null);
     } finally {
       setLoading(false);
     }
-  }, [investments, selectedBenchmark, dateRange, performanceService]);
+  }, [investments, selectedBenchmark, dateRange]);
 
   // Effects
   useEffect(() => {
@@ -102,54 +120,127 @@ export function PerformanceComparisonPage() {
     );
   }
 
+  // Handle loading state
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex justify-center items-center min-h-[400px]">
+          <LoadingSpinner />
+        </div>
+      </div>
+    );
+  }
+
+  // Handle error state
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <ErrorAlert 
+          message={error}
+          onRetry={fetchPerformanceData}
+        />
+      </div>
+    );
+  }
+
+  // Handle no data state
+  if (performanceData.length === 0) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-8">
+          <div className="text-center">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
+              No Performance Data Available
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
+              Unable to fetch performance data for the selected time period. Please try a different date range.
+            </p>
+            <button
+              onClick={fetchPerformanceData}
+              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="container mx-auto px-4 py-8 space-y-6">
+    <div className="container mx-auto px-4 py-8 space-y-8">
       {/* Header */}
       <PerformanceHeader
         selectedBenchmark={selectedBenchmark}
         onBenchmarkChange={setSelectedBenchmark}
         dateRange={dateRange}
         onDateRangeChange={setDateRange}
-        onRefresh={fetchPerformanceData}
-        loading={loading}
+        availableBenchmarks={BENCHMARKS}
+        dateRangePresets={DATE_RANGE_PRESETS}
       />
 
-      {/* Error handling */}
-      {error && (
-        <ErrorAlert message={error} onRetry={fetchPerformanceData} />
-      )}
+      {/* Performance Chart */}
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+          Portfolio vs Benchmark Performance
+        </h3>
+        <PerformanceChart 
+          data={performanceData}
+          benchmarkData={normalizedComparison?.normalizedBenchmark || []}
+          formatCurrency={formatCurrency}
+        />
+      </div>
 
-      {/* Main content */}
-      {!loading && performanceData.length > 0 && (
-        <>
-          {/* Performance metrics cards */}
-          <PerformanceMetrics metrics={metrics} />
+      {/* Cumulative Returns Chart */}
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+          Cumulative Returns
+        </h3>
+        <CumulativeReturnsChart 
+          data={performanceData}
+          benchmarkData={normalizedComparison?.normalizedBenchmark || []}
+          formatCurrency={formatCurrency}
+        />
+      </div>
 
-          {/* Main comparison chart */}
-          <PerformanceChart
-            data={performanceData}
-            selectedBenchmark={selectedBenchmark.name}
-            dateRange={dateRange}
-          />
+      {/* Performance Metrics */}
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+          Performance Metrics
+        </h3>
+        <PerformanceMetrics 
+          data={performanceData}
+          benchmarkData={normalizedComparison?.normalizedBenchmark || []}
+          formatCurrency={formatCurrency}
+        />
+      </div>
 
-          {/* Cumulative returns chart */}
-          <CumulativeReturnsChart data={performanceData} />
-        </>
-      )}
-
-      {/* Loading state */}
-      {loading && <LoadingSpinner />}
-
-      {/* No data state */}
-      {!loading && performanceData.length === 0 && !error && (
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-8">
-          <div className="text-center">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
-              No Performance Data
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400">
-              No performance data available for the selected period. Try adjusting the date range.
-            </p>
+      {/* Normalization Info */}
+      {normalizedComparison && (
+        <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800 p-6">
+          <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-4">
+            Comparison Details
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <div>
+              <span className="font-medium text-blue-800 dark:text-blue-200">Starting Value:</span>
+              <span className="ml-2 text-blue-700 dark:text-blue-300">
+                {formatCurrency(normalizedComparison.startingValue)}
+              </span>
+            </div>
+            <div>
+              <span className="font-medium text-blue-800 dark:text-blue-200">Benchmark Shares:</span>
+              <span className="ml-2 text-blue-700 dark:text-blue-300">
+                {normalizedComparison.benchmarkShares.toFixed(6)}
+              </span>
+            </div>
+            <div className="md:col-span-2">
+              <p className="text-blue-700 dark:text-blue-300">
+                Both portfolios start at the same dollar amount ({formatCurrency(normalizedComparison.startingValue)}) 
+                to ensure a fair performance comparison. This shows the true relative performance 
+                of your portfolio against the benchmark.
+              </p>
+            </div>
           </div>
         </div>
       )}

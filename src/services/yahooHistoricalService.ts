@@ -1,4 +1,5 @@
 import { HistoricalPriceData } from '../types/performance';
+import { DataGapFiller } from './dataGapFiller';
 
 export interface YahooHistoricalResponse {
   chart: {
@@ -105,8 +106,11 @@ export class YahooHistoricalService {
         });
       }
 
-      this.setCachedData(cacheKey, historicalData);
-      return historicalData;
+      // Fill gaps in data (weekends, holidays)
+      const filledData = DataGapFiller.fillDataGaps(historicalData, startDate, endDate);
+
+      this.setCachedData(cacheKey, filledData);
+      return filledData;
 
     } catch (error) {
       console.error(`Error fetching Yahoo historical data for ${symbol}:`, error);
