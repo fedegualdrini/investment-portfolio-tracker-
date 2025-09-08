@@ -1,43 +1,5 @@
 import { BENCHMARKS } from '../../src/types/performance.js';
-
-// Mock services for API endpoints
-const mockYahooService = {
-  getHistoricalData: async (symbol, startDate, endDate) => {
-    return generateMockHistoricalData(startDate, endDate);
-  }
-};
-
-const mockCoinGeckoService = {
-  getHistoricalData: async (symbol, startDate, endDate) => {
-    return generateMockHistoricalData(startDate, endDate);
-  }
-};
-
-// Mock data generator
-function generateMockHistoricalData(startDate, endDate) {
-  const data = [];
-  const start = new Date(startDate);
-  const end = new Date(endDate);
-  const days = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
-  
-  let basePrice = 100;
-  for (let i = 0; i < days; i++) {
-    const date = new Date(start.getTime() + i * 24 * 60 * 60 * 1000);
-    const change = (Math.random() - 0.5) * 0.03; // ±1.5% daily change for benchmarks
-    basePrice *= (1 + change);
-    
-    data.push({
-      date: date.toISOString().split('T')[0],
-      open: basePrice * 0.99,
-      high: basePrice * 1.01,
-      low: basePrice * 0.99,
-      close: basePrice,
-      volume: Math.floor(Math.random() * 10000000) + 1000000
-    });
-  }
-  
-  return data;
-}
+import { createHistoricalDataService } from '../../src/services/historicalDataService.js';
 
 export default async function handler(req, res) {
   // Set CORS headers
@@ -72,21 +34,13 @@ export default async function handler(req, res) {
       });
     }
 
-    let data = [];
-    
-    if (benchmark.dataSource === 'yahoo') {
-      data = await mockYahooService.getHistoricalData(
-        benchmark.symbol,
-        startDate,
-        endDate
-      );
-    } else if (benchmark.dataSource === 'coingecko') {
-      data = await mockCoinGeckoService.getHistoricalData(
-        benchmark.symbol,
-        startDate,
-        endDate
-      );
-    }
+    const historicalDataService = createHistoricalDataService();
+    const data = await historicalDataService.getHistoricalData(
+      benchmark.symbol,
+      startDate,
+      endDate,
+      benchmark.dataSource
+    );
 
     res.status(200).json({ success: true, data });
   } catch (error) {

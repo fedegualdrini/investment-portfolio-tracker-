@@ -18,64 +18,7 @@ import { PerformanceMetrics } from '../components/PerformanceMetrics';
 import { ErrorAlert } from '../components/ErrorAlert';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { createPerformanceComparisonService } from '../services/performanceComparisonService';
-
-// Mock services - these would be replaced with actual service instances
-const mockYahooService = {
-  getBatchHistoricalData: async (symbols: string[], startDate: string, endDate: string) => {
-    // Mock implementation - replace with actual Yahoo Finance API calls
-    const mockData = new Map();
-    symbols.forEach(symbol => {
-      mockData.set(symbol, generateMockHistoricalData(startDate, endDate));
-    });
-    return mockData;
-  },
-  getHistoricalData: async (symbol: string, startDate: string, endDate: string) => {
-    return generateMockHistoricalData(startDate, endDate);
-  }
-};
-
-const mockCoinGeckoService = {
-  getBatchHistoricalData: async (symbols: string[], startDate: string, endDate: string) => {
-    const mockData = new Map();
-    symbols.forEach(symbol => {
-      mockData.set(symbol, generateMockHistoricalData(startDate, endDate));
-    });
-    return mockData;
-  },
-  getHistoricalData: async (symbol: string, startDate: string, endDate: string) => {
-    return generateMockHistoricalData(startDate, endDate);
-  }
-};
-
-const mockPortfolioService = {
-  // Mock portfolio service methods
-};
-
-// Mock data generator for development
-function generateMockHistoricalData(startDate: string, endDate: string) {
-  const data = [];
-  const start = new Date(startDate);
-  const end = new Date(endDate);
-  const days = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
-  
-  let basePrice = 100;
-  for (let i = 0; i < days; i++) {
-    const date = new Date(start.getTime() + i * 24 * 60 * 60 * 1000);
-    const change = (Math.random() - 0.5) * 0.05; // ±2.5% daily change
-    basePrice *= (1 + change);
-    
-    data.push({
-      date: date.toISOString().split('T')[0],
-      open: basePrice * 0.99,
-      high: basePrice * 1.02,
-      low: basePrice * 0.98,
-      close: basePrice,
-      volume: Math.floor(Math.random() * 1000000) + 100000
-    });
-  }
-  
-  return data;
-}
+import { createHistoricalDataService } from '../services/historicalDataService';
 
 export function PerformanceComparisonPage() {
   const { investments } = useInvestments();
@@ -90,9 +33,10 @@ export function PerformanceComparisonPage() {
   const [error, setError] = useState<string | null>(null);
 
   // Services
+  const historicalDataService = useMemo(() => createHistoricalDataService(), []);
   const performanceService = useMemo(() => 
-    createPerformanceComparisonService(mockYahooService, mockCoinGeckoService, mockPortfolioService), 
-    []
+    createPerformanceComparisonService(historicalDataService), 
+    [historicalDataService]
   );
 
   // Memoized calculations

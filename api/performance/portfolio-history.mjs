@@ -1,60 +1,5 @@
 import { PerformanceComparisonService } from '../../src/services/performanceComparisonService.js';
-
-// Mock services for API endpoints
-const mockYahooService = {
-  getBatchHistoricalData: async (symbols, startDate, endDate) => {
-    // Mock implementation - replace with actual Yahoo Finance API calls
-    const mockData = new Map();
-    symbols.forEach(symbol => {
-      mockData.set(symbol, generateMockHistoricalData(startDate, endDate));
-    });
-    return mockData;
-  },
-  getHistoricalData: async (symbol, startDate, endDate) => {
-    return generateMockHistoricalData(startDate, endDate);
-  }
-};
-
-const mockCoinGeckoService = {
-  getBatchHistoricalData: async (symbols, startDate, endDate) => {
-    const mockData = new Map();
-    symbols.forEach(symbol => {
-      mockData.set(symbol, generateMockHistoricalData(startDate, endDate));
-    });
-    return mockData;
-  },
-  getHistoricalData: async (symbol, startDate, endDate) => {
-    return generateMockHistoricalData(startDate, endDate);
-  }
-};
-
-const mockPortfolioService = {};
-
-// Mock data generator
-function generateMockHistoricalData(startDate, endDate) {
-  const data = [];
-  const start = new Date(startDate);
-  const end = new Date(endDate);
-  const days = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
-  
-  let basePrice = 100;
-  for (let i = 0; i < days; i++) {
-    const date = new Date(start.getTime() + i * 24 * 60 * 60 * 1000);
-    const change = (Math.random() - 0.5) * 0.05; // ±2.5% daily change
-    basePrice *= (1 + change);
-    
-    data.push({
-      date: date.toISOString().split('T')[0],
-      open: basePrice * 0.99,
-      high: basePrice * 1.02,
-      low: basePrice * 0.98,
-      close: basePrice,
-      volume: Math.floor(Math.random() * 1000000) + 100000
-    });
-  }
-  
-  return data;
-}
+import { createHistoricalDataService } from '../../src/services/historicalDataService.js';
 
 export default async function handler(req, res) {
   // Set CORS headers
@@ -81,11 +26,8 @@ export default async function handler(req, res) {
       });
     }
 
-    const performanceService = new PerformanceComparisonService(
-      mockYahooService,
-      mockCoinGeckoService,
-      mockPortfolioService
-    );
+    const historicalDataService = createHistoricalDataService();
+    const performanceService = new PerformanceComparisonService(historicalDataService);
 
     const data = await performanceService.getPortfolioHistoricalData(
       investments,

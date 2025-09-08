@@ -6,15 +6,15 @@ import {
 } from '../types/performance';
 import { PortfolioValueCalculator, PerformanceMetricsCalculator } from '../utils/performanceCalculations';
 import { getDateRangeFromPreset, getLastTradingDay } from '../utils/dateUtils';
+import { HistoricalDataService } from './historicalDataService';
 
 export class PerformanceComparisonService {
   private cache: Map<string, any> = new Map();
   private cacheExpiry = 1000 * 60 * 60; // 1 hour
 
   constructor(
-    private yahooService: any,
-    private coinGeckoService: any,
-    private portfolioService: any
+    private historicalDataService: HistoricalDataService,
+    private portfolioService: any = {}
   ) {}
 
   async getPortfolioHistoricalData(
@@ -26,54 +26,20 @@ export class PerformanceComparisonService {
     const cached = this.getCachedData(cacheKey);
     if (cached) return cached;
 
-    const historicalData = new Map<string, HistoricalPriceData[]>();
+    try {
+      const symbols = investments.map(inv => inv.symbol);
+      const historicalData = await this.historicalDataService.getBatchHistoricalData(
+        symbols,
+        startDate,
+        endDate
+      );
 
-    // Group investments by data source
-    const yahooSymbols: string[] = [];
-    const coinGeckoSymbols: string[] = [];
-
-    investments.forEach(investment => {
-      if (investment.type === 'crypto') {
-        coinGeckoSymbols.push(investment.symbol);
-      } else {
-        yahooSymbols.push(investment.symbol);
-      }
-    });
-
-    // Fetch Yahoo Finance data
-    if (yahooSymbols.length > 0) {
-      try {
-        const yahooData = await this.yahooService.getBatchHistoricalData(
-          yahooSymbols,
-          startDate,
-          endDate
-        );
-        yahooData.forEach((data: HistoricalPriceData[], symbol: string) => {
-          historicalData.set(symbol, data);
-        });
-      } catch (error) {
-        console.error('Error fetching Yahoo Finance data:', error);
-      }
+      this.setCachedData(cacheKey, historicalData);
+      return historicalData;
+    } catch (error) {
+      console.error('Error fetching portfolio historical data:', error);
+      return new Map<string, HistoricalPriceData[]>();
     }
-
-    // Fetch CoinGecko data
-    if (coinGeckoSymbols.length > 0) {
-      try {
-        const coinGeckoData = await this.coinGeckoService.getBatchHistoricalData(
-          coinGeckoSymbols,
-          startDate,
-          endDate
-        );
-        coinGeckoData.forEach((data: HistoricalPriceData[], symbol: string) => {
-          historicalData.set(symbol, data);
-        });
-      } catch (error) {
-        console.error('Error fetching CoinGecko data:', error);
-      }
-    }
-
-    this.setCachedData(cacheKey, historicalData);
-    return historicalData;
   }
 
   async getBenchmarkHistoricalData(
@@ -85,30 +51,20 @@ export class PerformanceComparisonService {
     const cached = this.getCachedData(cacheKey);
     if (cached) return cached;
 
-    let data: HistoricalPriceData[] = [];
-
     try {
-      if (benchmark.dataSource === 'yahoo') {
-        data = await this.yahooService.getHistoricalData(
-          benchmark.symbol,
-          startDate,
-          endDate
-        );
-      } else if (benchmark.dataSource === 'coingecko') {
-        data = await this.coinGeckoService.getHistoricalData(
-          benchmark.symbol,
-          startDate,
-          endDate
-        );
-      }
+      const data = await this.historicalDataService.getHistoricalData(
+        benchmark.symbol,
+        startDate,
+        endDate,
+        benchmark.dataSource
+      );
+
+      this.setCachedData(cacheKey, data);
+      return data;
     } catch (error) {
       console.error(`Error fetching benchmark data for ${benchmark.name}:`, error);
-      // Return empty array on error
-      data = [];
+      return [];
     }
-
-    this.setCachedData(cacheKey, data);
-    return data;
   }
 
   async getPerformanceComparison(
@@ -199,28 +155,21 @@ export class PerformanceComparisonService {
     const cached = this.getCachedData(cacheKey);
     if (cached) return cached;
 
-    let data: HistoricalPriceData[] = [];
-
     try {
-      if (investment.type === 'crypto') {
-        data = await this.coinGeckoService.getHistoricalData(
-          investment.symbol,
-          startDate,
-          endDate
-        );
-      } else {
-        data = await this.yahooService.getHistoricalData(
-          investment.symbol,
-          startDate,
-          endDate
-        );
-      }
+      const dataSource = investment.type === 'crypto' ? 'coingecko' : 'yahoo';
+      const data = await this.historicalDataService.getHistoricalData(
+        investment.symbol,
+        startDate,
+        endDate,
+        dataSource
+      );
+
+      this.setCachedData(cacheKey, data);
+      return data;
     } catch (error) {
       console.error(`Error fetching data for ${investment.symbol}:`, error);
+      return [];
     }
-
-    this.setCachedData(cacheKey, data);
-    return data;
   }
 
   calculatePortfolioValueAtDate(
@@ -274,9 +223,8 @@ export class PerformanceComparisonService {
 
 // Factory function to create service instance
 export function createPerformanceComparisonService(
-  yahooService: any,
-  coinGeckoService: any,
-  portfolioService: any
+  historicalDataService: HistoricalDataService,
+  portfolioService: any = {}
 ): PerformanceComparisonService {
-  return new PerformanceComparisonService(yahooService, coinGeckoService, portfolioService);
+  return new PerformanceComparisonService(historicalDataService, portfolioService);
 }
