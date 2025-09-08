@@ -127,6 +127,13 @@ export const trackInvestmentActions = {
     });
   },
   
+  performanceComparison: () => {
+    trackEvent('performance_comparison', {
+      event_category: 'analysis',
+      event_label: 'benchmark_comparison',
+    });
+  },
+  
   currencyChange: (fromCurrency: string, toCurrency: string) => {
     trackEvent('currency_change', {
       event_category: 'settings',

@@ -7,6 +7,7 @@ import { AddInvestmentForm } from './components/AddInvestmentForm';
 import { EditInvestmentForm } from './components/EditInvestmentForm';
 import { PortfolioStats } from './components/PortfolioStats';
 import { BondAnalysisPage } from './pages/BondAnalysisPage';
+import { PerformanceComparisonPage } from './pages/PerformanceComparisonPage';
 import { ChatBlob } from './components/ChatBlob';
 import GoogleAnalytics from './components/GoogleAnalytics';
 import { useInvestmentContext } from './contexts/InvestmentContext';
@@ -21,16 +22,18 @@ function AppContent() {
   const [editingInvestment, setEditingInvestment] = useState<string | null>(null);
 
   const [showBondAnalysis, setShowBondAnalysis] = useState(false);
+  const [showPerformanceComparison, setShowPerformanceComparison] = useState(false);
 
   // Helper function to close all sections and return to home
   const closeAllSections = () => {
     setShowAddForm(false);
     setEditingInvestment(null);
     setShowBondAnalysis(false);
+    setShowPerformanceComparison(false);
   };
 
   // Helper function to open a specific section (closes others)
-  const openSection = (section: 'addForm' | 'editForm' | 'bondAnalysis') => {
+  const openSection = (section: 'addForm' | 'editForm' | 'bondAnalysis' | 'performanceComparison') => {
     closeAllSections();
     switch (section) {
       case 'addForm':
@@ -41,6 +44,9 @@ function AppContent() {
         break;
       case 'bondAnalysis':
         setShowBondAnalysis(true);
+        break;
+      case 'performanceComparison':
+        setShowPerformanceComparison(true);
         break;
     }
   };
@@ -129,6 +135,7 @@ function AppContent() {
           onImport={handleImport}
           onUpdatePrices={updatePrices}
           onBondAnalysis={() => openSection('bondAnalysis')}
+          onPerformanceComparison={() => openSection('performanceComparison')}
           isLoading={isLoading}
         />
 
@@ -153,7 +160,7 @@ function AppContent() {
           </div>
         ) : null}
 
-          {!showAddForm && !editingInvestment && !showBondAnalysis && (
+          {!showAddForm && !editingInvestment && !showBondAnalysis && !showPerformanceComparison && (
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
               <div className="lg:col-span-3">
                 <Dashboard
@@ -184,7 +191,12 @@ function AppContent() {
             />
           )}
 
-          {!showAddForm && !editingInvestment && !showBondAnalysis && investments.length > 0 && (
+          {/* Performance Comparison Page */}
+          {showPerformanceComparison && (
+            <PerformanceComparisonPage />
+          )}
+
+          {!showAddForm && !editingInvestment && !showBondAnalysis && !showPerformanceComparison && investments.length > 0 && (
             <div className="mt-4 sm:mt-8 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6 transition-colors duration-200">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100">Quick Actions</h2>

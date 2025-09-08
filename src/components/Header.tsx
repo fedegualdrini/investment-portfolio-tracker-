@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { TrendingUp, Plus, Download, Upload, RefreshCw, MessageCircle } from 'lucide-react';
+import { TrendingUp, Plus, Download, Upload, RefreshCw, MessageCircle, BarChart3 } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
 import { useLanguage } from '../contexts/LanguageContext';
 import { LanguageToggle } from './LanguageToggle';
@@ -13,6 +13,7 @@ interface HeaderProps {
   onImport: () => void;
   onUpdatePrices: () => void;
   onBondAnalysis: () => void;
+  onPerformanceComparison: () => void;
   isLoading: boolean;
 }
 
@@ -22,6 +23,7 @@ export function Header({
   onImport, 
   onUpdatePrices, 
   onBondAnalysis,
+  onPerformanceComparison,
   isLoading 
 }: HeaderProps) {
   const { t } = useLanguage();
@@ -53,6 +55,21 @@ export function Header({
               <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5" />
               <span className="max-w-0 overflow-hidden group-hover:max-w-xs transition-all duration-500 whitespace-nowrap text-sm sm:text-base" aria-hidden="true">
                 {t('bond.analysis.button')}
+              </span>
+            </button>
+
+            <button
+              onClick={() => {
+                trackInvestmentActions.performanceComparison();
+                onPerformanceComparison();
+              }}
+              className="group flex items-center space-x-1 sm:space-x-2 px-2 sm:px-3 py-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-all duration-500 hover:pr-3 sm:hover:pr-4 interactive-hover-subtle"
+              title="Performance Comparison"
+              aria-label="Performance Comparison"
+            >
+              <BarChart3 className="h-4 w-4 sm:h-5 sm:w-5" />
+              <span className="max-w-0 overflow-hidden group-hover:max-w-xs transition-all duration-500 whitespace-nowrap text-sm sm:text-base" aria-hidden="true">
+                Performance
               </span>
             </button>
 
