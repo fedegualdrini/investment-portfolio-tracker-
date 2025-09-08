@@ -18,24 +18,28 @@ export const initGA = () => {
     return;
   }
 
-  // Create script tag for gtag
-  const script = document.createElement('script');
-  script.async = true;
-  script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_TRACKING_ID}`;
-  document.head.appendChild(script);
-
-  // Initialize dataLayer and gtag
+  // Initialize dataLayer first
   window.dataLayer = window.dataLayer || [];
   function gtag(...args: any[]) {
     window.dataLayer.push(args);
   }
   window.gtag = gtag;
 
-  gtag('js', new Date());
-  gtag('config', GA_TRACKING_ID, {
-    page_title: document.title,
-    page_location: window.location.href,
-  });
+  // Create script tag for gtag
+  const script = document.createElement('script');
+  script.async = true;
+  script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_TRACKING_ID}`;
+  
+  // Wait for script to load before configuring
+  script.onload = () => {
+    gtag('js', new Date());
+    gtag('config', GA_TRACKING_ID, {
+      page_title: document.title,
+      page_location: window.location.href,
+    });
+  };
+  
+  document.head.appendChild(script);
 };
 
 // Track page views
