@@ -50,7 +50,7 @@ export function InvestmentCard({ investment, onRemove, onEdit }: InvestmentCardP
   return (
     <>
       <div 
-        className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6 animate-fadeInUp cursor-pointer"
+        className="brand-card-interactive p-4 sm:p-6 animate-fadeInUp"
         onClick={() => setShowModal(true)}
         style={{ animationDelay: `${Math.random() * 0.2}s` }}
       >
@@ -203,7 +203,7 @@ export function InvestmentCard({ investment, onRemove, onEdit }: InvestmentCardP
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
-            <div className="sticky top-0 brand-card px-8 py-6 border-b border-gray-200 dark:border-gray-700 rounded-t-2xl">
+            <div className="sticky top-0 brand-card-static px-8 py-6 border-b border-gray-200 dark:border-gray-700 rounded-t-2xl">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
                   <div className="p-3 rounded-xl bg-purple-100 dark:bg-purple-900/30">
