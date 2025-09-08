@@ -197,8 +197,17 @@ export class NormalizedComparisonService {
       previousBenchmarkValue = benchmarkValue;
     }
 
+    // Create combined data points for the chart
+    const combinedData: PerformanceDataPoint[] = portfolioData.map((portfolioPoint, index) => ({
+      ...portfolioPoint,
+      benchmarkValue: normalizedBenchmark[index]?.benchmarkValue || 0
+    }));
+
+    console.log('📊 Combined data sample:', combinedData.slice(0, 3));
+    console.log('📊 Benchmark values sample:', combinedData.slice(0, 3).map(d => d.benchmarkValue));
+
     return {
-      normalizedPortfolio: portfolioData,
+      normalizedPortfolio: combinedData,
       normalizedBenchmark,
       startingValue: startingPortfolioValue,
       benchmarkShares
