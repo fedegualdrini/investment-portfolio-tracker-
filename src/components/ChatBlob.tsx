@@ -239,8 +239,8 @@ export function ChatBlob() {
           {/* Hover Message Bubble */}
           {showBubble && (
             <div className="absolute bottom-full right-0 mb-3 animate-fadeInUp">
-              <div className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-4 py-3 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 max-w-xs sm:max-w-sm">
-                <p className="text-sm font-medium leading-relaxed">
+              <div className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-4 py-3 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 w-64 sm:w-72">
+                <p className="text-sm font-medium leading-snug">
                   Hi! I'm your personal AI assistant. Let me know if I can help you with your portfolio!
                 </p>
                 {/* Arrow pointing down */}
