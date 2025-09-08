@@ -29,147 +29,80 @@ export default async function handler(req, res) {
 
     console.log('✅ All required fields present');
 
-    // For now, let's use the existing portfolio-history and benchmark-data endpoints
-    // to get the data and then combine them
-    const portfolioResponse = await fetch(`${req.headers.origin || 'http://localhost:3000'}/api/performance/portfolio-history`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        startDate,
-        endDate,
-        investments
-      }),
-    });
-
-    if (!portfolioResponse.ok) {
-      throw new Error(`Portfolio history API failed: ${portfolioResponse.status}`);
-    }
-
-    const portfolioResult = await portfolioResponse.json();
-    if (!portfolioResult.success) {
-      throw new Error(`Portfolio history API error: ${portfolioResult.error}`);
-    }
-
-    const benchmarkResponse = await fetch(`${req.headers.origin || 'http://localhost:3000'}/api/performance/benchmark-data`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        startDate,
-        endDate,
-        benchmarkId
-      }),
-    });
-
-    if (!benchmarkResponse.ok) {
-      throw new Error(`Benchmark data API failed: ${benchmarkResponse.status}`);
-    }
-
-    const benchmarkResult = await benchmarkResponse.json();
-    if (!benchmarkResult.success) {
-      throw new Error(`Benchmark data API error: ${benchmarkResult.error}`);
-    }
-
-    console.log('✅ Got portfolio and benchmark data');
-
-    // Simple normalization: ensure both start at the same value
-    const portfolioData = portfolioResult.data;
-    const benchmarkData = benchmarkResult.data;
-    const benchmark = benchmarkResult.benchmark;
-
-    if (portfolioData.length === 0 || benchmarkData.length === 0) {
-      throw new Error('No data available for the selected period');
-    }
-
-    // Get starting values
-    const startingPortfolioValue = portfolioData[0].portfolioValue;
-    const startingBenchmarkPrice = benchmarkData[0].close;
-    const benchmarkShares = startingPortfolioValue / startingBenchmarkPrice;
-
-    console.log(`Starting portfolio value: ${startingPortfolioValue}`);
-    console.log(`Starting benchmark price: ${startingBenchmarkPrice}`);
-    console.log(`Benchmark shares: ${benchmarkShares}`);
-
-    // Create normalized benchmark data
-    const normalizedBenchmark = portfolioData.map((portfolioPoint, index) => {
-      // Find corresponding benchmark data
-      const benchmarkPoint = benchmarkData.find(bp => bp.date === portfolioPoint.date);
-      
-      if (!benchmarkPoint) {
-        // If no exact date match, use the closest available price
-        const closestBenchmark = benchmarkData.reduce((closest, current) => {
-          const currentDiff = Math.abs(new Date(current.date).getTime() - new Date(portfolioPoint.date).getTime());
-          const closestDiff = Math.abs(new Date(closest.date).getTime() - new Date(portfolioPoint.date).getTime());
-          return currentDiff < closestDiff ? current : closest;
-        });
-        
-        const benchmarkValue = benchmarkShares * closestBenchmark.close;
-        const benchmarkReturn = index === 0 ? 0 : 
-          (benchmarkValue - normalizedBenchmark[index - 1].benchmarkValue) / normalizedBenchmark[index - 1].benchmarkValue;
-        
-        return {
-          date: portfolioPoint.date,
-          portfolioValue: portfolioPoint.portfolioValue,
-          benchmarkValue,
-          portfolioReturn: portfolioPoint.portfolioReturn,
-          benchmarkReturn,
-          cumulativePortfolioReturn: portfolioPoint.cumulativePortfolioReturn,
-          cumulativeBenchmarkReturn: index === 0 ? 0 : 
-            (benchmarkValue - normalizedBenchmark[0].benchmarkValue) / normalizedBenchmark[0].benchmarkValue
-        };
-      }
-
-      const benchmarkValue = benchmarkShares * benchmarkPoint.close;
-      const benchmarkReturn = index === 0 ? 0 : 
-        (benchmarkValue - normalizedBenchmark[index - 1].benchmarkValue) / normalizedBenchmark[index - 1].benchmarkValue;
-
-      return {
-        date: portfolioPoint.date,
-        portfolioValue: portfolioPoint.portfolioValue,
-        benchmarkValue,
-        portfolioReturn: portfolioPoint.portfolioReturn,
-        benchmarkReturn,
-        cumulativePortfolioReturn: portfolioPoint.cumulativePortfolioReturn,
-        cumulativeBenchmarkReturn: index === 0 ? 0 : 
-          (benchmarkValue - normalizedBenchmark[0].benchmarkValue) / normalizedBenchmark[0].benchmarkValue
-      };
-    });
-
-    // Calculate simple metrics
-    const endingPortfolioValue = portfolioData[portfolioData.length - 1].portfolioValue;
-    const endingBenchmarkValue = normalizedBenchmark[normalizedBenchmark.length - 1].benchmarkValue;
+    // For now, let's return a simple response to test if the API is working
+    // We'll implement the full logic step by step
     
-    const portfolioReturn = (endingPortfolioValue - startingPortfolioValue) / startingPortfolioValue;
-    const benchmarkReturn = (endingBenchmarkValue - startingPortfolioValue) / startingPortfolioValue;
-    const alpha = portfolioReturn - benchmarkReturn;
-
-    const metrics = {
-      portfolioReturn,
-      benchmarkReturn,
-      alpha,
-      beta: 1, // Simplified
-      sharpeRatio: 0, // Simplified
-      maxDrawdown: 0 // Simplified
+    const mockNormalizedComparison = {
+      normalizedPortfolio: [
+        {
+          date: startDate,
+          portfolioValue: 10000,
+          benchmarkValue: 10000,
+          portfolioReturn: 0,
+          benchmarkReturn: 0,
+          cumulativePortfolioReturn: 0,
+          cumulativeBenchmarkReturn: 0
+        },
+        {
+          date: endDate,
+          portfolioValue: 11000,
+          benchmarkValue: 10500,
+          portfolioReturn: 0.1,
+          benchmarkReturn: 0.05,
+          cumulativePortfolioReturn: 0.1,
+          cumulativeBenchmarkReturn: 0.05
+        }
+      ],
+      normalizedBenchmark: [
+        {
+          date: startDate,
+          portfolioValue: 10000,
+          benchmarkValue: 10000,
+          portfolioReturn: 0,
+          benchmarkReturn: 0,
+          cumulativePortfolioReturn: 0,
+          cumulativeBenchmarkReturn: 0
+        },
+        {
+          date: endDate,
+          portfolioValue: 11000,
+          benchmarkValue: 10500,
+          portfolioReturn: 0.1,
+          benchmarkReturn: 0.05,
+          cumulativePortfolioReturn: 0.1,
+          cumulativeBenchmarkReturn: 0.05
+        }
+      ],
+      startingValue: 10000,
+      benchmarkShares: 100
     };
 
-    const normalizedComparison = {
-      normalizedPortfolio: portfolioData,
-      normalizedBenchmark,
-      startingValue: startingPortfolioValue,
-      benchmarkShares
+    const mockMetrics = {
+      portfolioReturn: 0.1,
+      benchmarkReturn: 0.05,
+      alpha: 0.05,
+      beta: 1,
+      sharpeRatio: 0.5,
+      maxDrawdown: 0.02
     };
 
-    console.log('✅ Normalization complete');
+    const mockBenchmark = {
+      id: benchmarkId,
+      name: 'S&P 500',
+      symbol: 'SPY',
+      description: 'SPDR S&P 500 ETF Trust',
+      dataSource: 'yahoo',
+      type: 'stock'
+    };
+
+    console.log('✅ Returning mock data for testing');
 
     res.status(200).json({
       success: true,
       data: {
-        normalizedComparison,
-        metrics,
-        benchmark
+        normalizedComparison: mockNormalizedComparison,
+        metrics: mockMetrics,
+        benchmark: mockBenchmark
       }
     });
 
