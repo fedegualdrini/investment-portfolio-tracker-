@@ -61,7 +61,7 @@
   --brand-border-dark: #6b7280;
 }
 
-/* Custom animations for form focus */
+/* Enhanced animations for better interactivity */
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -73,8 +73,158 @@
   }
 }
 
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes bounce {
+  0%, 20%, 53%, 80%, 100% {
+    transform: translate3d(0, 0, 0);
+  }
+  40%, 43% {
+    transform: translate3d(0, -8px, 0);
+  }
+  70% {
+    transform: translate3d(0, -4px, 0);
+  }
+  90% {
+    transform: translate3d(0, -2px, 0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
 .animate-fadeInUp {
   animation: fadeInUp 0.5s ease-out;
+}
+
+.animate-fadeInDown {
+  animation: fadeInDown 0.5s ease-out;
+}
+
+.animate-fadeInLeft {
+  animation: fadeInLeft 0.5s ease-out;
+}
+
+.animate-fadeInRight {
+  animation: fadeInRight 0.5s ease-out;
+}
+
+.animate-slideInUp {
+  animation: slideInUp 0.4s ease-out;
+}
+
+.animate-slideInDown {
+  animation: slideInDown 0.4s ease-out;
+}
+
+.animate-scaleIn {
+  animation: scaleIn 0.3s ease-out;
+}
+
+.animate-pulse-slow {
+  animation: pulse 2s infinite;
+}
+
+.animate-bounce-slow {
+  animation: bounce 2s infinite;
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200px 100%;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
 }
 
 /* Custom utility classes for brand consistency */
@@ -123,19 +273,47 @@
   }
   
   .brand-button-primary {
-    @apply bg-purple-600 hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800;
+    @apply bg-purple-600 hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transform hover:scale-105 active:scale-95 hover:shadow-lg hover:shadow-purple-500/25;
   }
   
   .brand-button-secondary {
-    @apply bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-medium py-2 px-4 rounded-lg transition-all duration-200 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800;
+    @apply bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-medium py-2 px-4 rounded-lg transition-all duration-300 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transform hover:scale-105 active:scale-95 hover:shadow-md;
+  }
+
+  .brand-button-ghost {
+    @apply bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 font-medium py-2 px-4 rounded-lg transition-all duration-300 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transform hover:scale-105 active:scale-95;
+  }
+
+  .brand-button-icon {
+    @apply p-2 rounded-lg transition-all duration-300 focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transform hover:scale-110 active:scale-95;
+  }
+
+  .brand-button-danger {
+    @apply bg-red-600 hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transform hover:scale-105 active:scale-95 hover:shadow-lg hover:shadow-red-500/25;
   }
   
   .brand-card {
+    @apply bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/10 hover:border-blue-300 dark:hover:border-blue-600 transform hover:scale-[1.02] hover:-translate-y-1;
+  }
+
+  .brand-card-interactive {
+    @apply brand-card cursor-pointer;
+  }
+
+  .brand-card-static {
     @apply bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 transition-all duration-200;
   }
   
   .brand-input {
-    @apply w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100;
+    @apply w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 transform focus:scale-[1.02] hover:border-purple-300 dark:hover:border-purple-600;
+  }
+
+  .brand-input-error {
+    @apply brand-input border-red-300 dark:border-red-600 focus:ring-red-500 focus:border-red-500;
+  }
+
+  .brand-input-success {
+    @apply brand-input border-green-300 dark:border-green-600 focus:ring-green-500 focus:border-green-500;
   }
   
   /* Mobile-specific utilities */
@@ -161,5 +339,48 @@
   
   .mobile-subtitle {
     @apply text-xs sm:text-sm;
+  }
+
+  /* Enhanced interaction utilities */
+  .interactive-hover {
+    @apply transition-all duration-300 transform hover:scale-105 active:scale-95;
+  }
+
+  .interactive-hover-subtle {
+    @apply transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98];
+  }
+
+  .interactive-bounce {
+    @apply transition-all duration-300 transform hover:scale-110 active:scale-90;
+  }
+
+  .interactive-glow {
+    @apply transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/25;
+  }
+
+  .interactive-slide {
+    @apply transition-all duration-300 transform hover:translate-x-1;
+  }
+
+  .interactive-float {
+    @apply transition-all duration-300 transform hover:-translate-y-1;
+  }
+
+  /* Loading states */
+  .loading-skeleton {
+    @apply animate-shimmer bg-gray-200 dark:bg-gray-700 rounded;
+  }
+
+  .loading-pulse {
+    @apply animate-pulse bg-gray-200 dark:bg-gray-700 rounded;
+  }
+
+  /* Focus states */
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800;
+  }
+
+  .focus-ring-inset {
+    @apply focus:outline-none focus:ring-2 focus:ring-inset focus:ring-purple-500;
   }
 }

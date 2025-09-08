@@ -369,10 +369,11 @@ What specific aspect of investing would you like to discuss?`,
             </div>
           )}
           
-          {messages.map((message) => (
+          {messages.map((message, index) => (
             <div
               key={message.id}
-              className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+              className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'} animate-fadeInUp`}
+              style={{ animationDelay: `${index * 0.1}s` }}
             >
               <div className={`flex max-w-[85%] sm:max-w-xs lg:max-w-2xl ${message.role === 'user' ? 'flex-row-reverse' : 'flex-row'} space-x-2`}>
                 <div className={`flex-shrink-0 ${message.role === 'user' ? 'ml-2' : 'mr-2'}`}>
@@ -402,10 +403,10 @@ What specific aspect of investing would you like to discuss?`,
           ))}
           
           {isLoading && (
-            <div className="flex justify-start">
+            <div className="flex justify-start animate-fadeInUp">
               <div className="flex max-w-[85%] sm:max-w-xs lg:max-w-2xl space-x-2">
                 <div className="flex-shrink-0 mr-2">
-                  <div className="w-8 h-8 rounded-full flex items-center justify-center bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 animate-pulse">
                     <Bot className="h-4 w-4" />
                   </div>
                 </div>

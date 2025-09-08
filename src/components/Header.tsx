@@ -46,7 +46,7 @@ export function Header({
                 trackInvestmentActions.bondAnalysis();
                 onBondAnalysis();
               }}
-              className="group flex items-center space-x-1 sm:space-x-2 px-2 sm:px-3 py-2 bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-all duration-500 hover:pr-3 sm:hover:pr-4"
+              className="group flex items-center space-x-1 sm:space-x-2 px-2 sm:px-3 py-2 bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-all duration-500 hover:pr-3 sm:hover:pr-4 interactive-hover-subtle"
               title="Bond Analysis"
               aria-label="Bond Analysis"
             >
@@ -63,7 +63,7 @@ export function Header({
                 onUpdatePrices();
               }}
               disabled={isLoading}
-              className={`p-2 rounded-lg transition-colors ${
+              className={`brand-button-icon ${
                 isLoading
                   ? 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 cursor-not-allowed'
                   : 'bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'
@@ -76,7 +76,7 @@ export function Header({
 
             <button
               onClick={onImport}
-              className="p-2 bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+              className="brand-button-icon bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600"
               title={t('import.portfolio')}
               aria-label={t('import.portfolio')}
             >
@@ -85,7 +85,7 @@ export function Header({
 
             <button
               onClick={onExport}
-              className="p-2 bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+              className="brand-button-icon bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600"
               title={t('export.portfolio')}
               aria-label={t('export.portfolio')}
             >

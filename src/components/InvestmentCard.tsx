@@ -50,8 +50,9 @@ export function InvestmentCard({ investment, onRemove, onEdit }: InvestmentCardP
   return (
     <>
       <div 
-        className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6 hover:shadow-md hover:shadow-blue-500/20 hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-300 hover:scale-[1.02] cursor-pointer"
+        className="brand-card-interactive p-4 sm:p-6 animate-fadeInUp"
         onClick={() => setShowModal(true)}
+        style={{ animationDelay: `${Math.random() * 0.2}s` }}
       >
       <div className="flex items-start justify-between mb-3 sm:mb-4">
         <div className="min-w-0 flex-1">
@@ -69,7 +70,7 @@ export function InvestmentCard({ investment, onRemove, onEdit }: InvestmentCardP
               e.stopPropagation();
               onEdit();
             }}
-            className="p-2 text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors duration-200"
+            className="brand-button-icon text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20"
             title={t('edit')}
             aria-label={t('edit')}
           >
@@ -81,7 +82,7 @@ export function InvestmentCard({ investment, onRemove, onEdit }: InvestmentCardP
                 e.stopPropagation();
                 setShowChart(true);
               }}
-              className="p-2 text-gray-400 dark:text-gray-500 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors duration-200"
+              className="brand-button-icon text-gray-400 dark:text-gray-500 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20"
               title={t('view.chart')}
               aria-label={t('view.chart')}
             >
@@ -93,7 +94,7 @@ export function InvestmentCard({ investment, onRemove, onEdit }: InvestmentCardP
               e.stopPropagation();
               onRemove();
             }}
-            className="p-2 text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200"
+            className="brand-button-icon text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
             title={t('remove')}
             aria-label={t('remove')}
           >
@@ -194,11 +195,11 @@ export function InvestmentCard({ investment, onRemove, onEdit }: InvestmentCardP
       {/* Investment Detail Modal */}
       {showModal && (
         <div 
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fadeIn"
           onClick={() => setShowModal(false)}
         >
           <div 
-            className="relative w-full max-w-4xl max-h-[90vh] overflow-auto brand-card rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700"
+            className="relative w-full max-w-4xl max-h-[90vh] overflow-auto brand-card rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 animate-scaleIn"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
@@ -220,7 +221,7 @@ export function InvestmentCard({ investment, onRemove, onEdit }: InvestmentCardP
                 </div>
                 <button
                   onClick={() => setShowModal(false)}
-                  className="p-3 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-colors"
+                  className="brand-button-icon text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

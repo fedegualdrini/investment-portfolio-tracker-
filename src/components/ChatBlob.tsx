@@ -216,7 +216,7 @@ export function ChatBlob() {
       {!isOpen && (
         <button
           onClick={toggleChat}
-          className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 w-12 h-12 sm:w-14 sm:h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center z-50"
+          className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 w-12 h-12 sm:w-14 sm:h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center z-50 transform hover:scale-110 active:scale-95 animate-float"
           title={t('chat.title')}
           aria-label={t('chat.title')}
         >
@@ -226,7 +226,7 @@ export function ChatBlob() {
 
       {/* Chat Blob Interface */}
       {isOpen && (
-        <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 w-[calc(100vw-2rem)] sm:w-96 max-w-sm h-[calc(100vh-8rem)] sm:h-[500px] max-h-[600px] bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 flex flex-col z-50 transition-all duration-300">
+        <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 w-[calc(100vw-2rem)] sm:w-96 max-w-sm h-[calc(100vh-8rem)] sm:h-[500px] max-h-[600px] bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 flex flex-col z-50 transition-all duration-300 animate-slideInUp">
           {/* Chat Header */}
           <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 rounded-t-xl bg-white dark:bg-gray-800">
             <div className="flex items-center space-x-2">

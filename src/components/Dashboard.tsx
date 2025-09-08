@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { TrendingUp, TrendingDown, DollarSign, RefreshCw } from 'lucide-react';
 import type { Investment, PortfolioSummary } from '../types/investment';
 import { InvestmentCard } from './InvestmentCard';
+import { LoadingCard } from './LoadingSpinner';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useCurrency } from '../contexts/CurrencyContext';
 
@@ -107,7 +108,7 @@ export function Dashboard({
               <button
                 onClick={onUpdatePrices}
                 disabled={isLoading}
-                className={`p-2 rounded-lg transition-colors ${
+                className={`brand-button-icon ${
                   isLoading
                     ? 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 cursor-not-allowed'
                     : 'bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 hover:bg-purple-100 dark:hover:bg-purple-900/30'
@@ -128,14 +129,21 @@ export function Dashboard({
 
       {/* Investments Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
-        {investments.map((investment) => (
-          <InvestmentCard
-            key={investment.id}
-            investment={investment}
-            onRemove={() => onRemoveInvestment(investment.id)}
-            onEdit={() => onEditInvestment(investment.id)}
-          />
-        ))}
+        {isLoading && investments.length === 0 ? (
+          // Show loading cards when initially loading
+          Array.from({ length: 3 }).map((_, index) => (
+            <LoadingCard key={`loading-${index}`} />
+          ))
+        ) : (
+          investments.map((investment) => (
+            <InvestmentCard
+              key={investment.id}
+              investment={investment}
+              onRemove={() => onRemoveInvestment(investment.id)}
+              onEdit={() => onEditInvestment(investment.id)}
+            />
+          ))
+        )}
       </div>
     </div>
   );

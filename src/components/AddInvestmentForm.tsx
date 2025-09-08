@@ -132,12 +132,12 @@ export function AddInvestmentForm({ onAdd, onCancel }: AddInvestmentFormProps) {
   };
 
   return (
-    <div className="brand-card p-6 pt-8">
+    <div className="brand-card p-6 pt-8 animate-fadeInUp">
       <div className="flex items-center justify-between mb-6">
         <h2 className="brand-heading-md">{t('add.investment')}</h2>
         <button
           onClick={onCancel}
-          className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
+          className="brand-button-icon text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
         >
           <X className="h-5 w-5" />
         </button>
@@ -168,7 +168,7 @@ export function AddInvestmentForm({ onAdd, onCancel }: AddInvestmentFormProps) {
             <select
               value={formData.type}
               onChange={handleChange('type')}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              className="brand-input"
             >
               {investmentTypes.map((type) => (
                 <option key={type.value} value={type.value}>
@@ -187,8 +187,8 @@ export function AddInvestmentForm({ onAdd, onCancel }: AddInvestmentFormProps) {
             type="text"
             value={formData.name}
             onChange={handleChange('name')}
-            className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 ${
-              errors.name ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
+            className={`brand-input ${
+              errors.name ? 'border-red-300 dark:border-red-600 focus:ring-red-500' : ''
             }`}
                           placeholder={t('placeholder.name')}
           />
@@ -205,8 +205,8 @@ export function AddInvestmentForm({ onAdd, onCancel }: AddInvestmentFormProps) {
               step="any"
               value={formData.quantity}
               onChange={handleChange('quantity')}
-              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 ${
-                errors.quantity ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
+              className={`brand-input ${
+                errors.quantity ? 'border-red-300 dark:border-red-600 focus:ring-red-500' : ''
               }`}
               placeholder={t('placeholder.quantity')}
             />
@@ -222,8 +222,8 @@ export function AddInvestmentForm({ onAdd, onCancel }: AddInvestmentFormProps) {
               step="any"
               value={formData.purchasePrice}
               onChange={handleChange('purchasePrice')}
-              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 ${
-                errors.purchasePrice ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
+              className={`brand-input ${
+                errors.purchasePrice ? 'border-red-300 dark:border-red-600 focus:ring-red-500' : ''
               }`}
               placeholder={t('placeholder.price')}
             />
@@ -240,7 +240,7 @@ export function AddInvestmentForm({ onAdd, onCancel }: AddInvestmentFormProps) {
             <select
               value={formData.currency}
               onChange={handleChange('currency')}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              className="brand-input"
             >
               <option value="USD">{t('currency.usd')}</option>
               <option value="EUR">{t('currency.eur')}</option>
@@ -270,8 +270,8 @@ export function AddInvestmentForm({ onAdd, onCancel }: AddInvestmentFormProps) {
               type="date"
               value={formData.purchaseDate}
               onChange={handleChange('purchaseDate')}
-              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 ${
-                errors.purchaseDate ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
+              className={`brand-input ${
+                errors.purchaseDate ? 'border-red-300 dark:border-red-600 focus:ring-red-500' : ''
               }`}
             />
             {errors.purchaseDate && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.purchaseDate}</p>}
@@ -287,8 +287,8 @@ export function AddInvestmentForm({ onAdd, onCancel }: AddInvestmentFormProps) {
                 step="0.01"
                 value={formData.fixedYield}
                 onChange={handleChange('fixedYield')}
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 ${
-                  errors.fixedYield ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
+                className={`brand-input ${
+                  errors.fixedYield ? 'border-red-300 dark:border-red-600 focus:ring-red-500' : ''
                 }`}
                 placeholder="e.g., 3.5"
               />
@@ -333,7 +333,7 @@ export function AddInvestmentForm({ onAdd, onCancel }: AddInvestmentFormProps) {
                 <select
                   value={formData.paymentFrequency}
                   onChange={handleChange('paymentFrequency')}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                  className="brand-input"
                 >
                   {paymentFrequencies.map((freq) => (
                     <option key={freq.value} value={freq.value}>
@@ -360,8 +360,8 @@ export function AddInvestmentForm({ onAdd, onCancel }: AddInvestmentFormProps) {
                   type="date"
                   value={formData.maturityDate}
                   onChange={handleChange('maturityDate')}
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 ${
-                    errors.maturityDate ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
+                  className={`brand-input ${
+                    errors.maturityDate ? 'border-red-300 dark:border-red-600 focus:ring-red-500' : ''
                   }`}
                 />
                 {errors.maturityDate && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.maturityDate}</p>}
@@ -377,8 +377,8 @@ export function AddInvestmentForm({ onAdd, onCancel }: AddInvestmentFormProps) {
                 step="0.01"
                 value={formData.faceValue}
                 onChange={handleChange('faceValue')}
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 ${
-                  errors.faceValue ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
+                className={`brand-input ${
+                  errors.faceValue ? 'border-red-300 dark:border-red-600 focus:ring-red-500' : ''
                 }`}
                 placeholder="Leave blank to use purchase price × quantity"
               />
@@ -398,8 +398,8 @@ export function AddInvestmentForm({ onAdd, onCancel }: AddInvestmentFormProps) {
                   type="date"
                   value={formData.lastPaymentDate}
                   onChange={handleChange('lastPaymentDate')}
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 ${
-                    errors.lastPaymentDate ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
+                  className={`brand-input ${
+                    errors.lastPaymentDate ? 'border-red-300 dark:border-red-600 focus:ring-red-500' : ''
                   }`}
                 />
                 {errors.lastPaymentDate && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.lastPaymentDate}</p>}
@@ -418,8 +418,8 @@ export function AddInvestmentForm({ onAdd, onCancel }: AddInvestmentFormProps) {
                   type="date"
                   value={formData.nextPaymentDate}
                   onChange={handleChange('nextPaymentDate')}
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 ${
-                    errors.nextPaymentDate ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
+                  className={`brand-input ${
+                    errors.nextPaymentDate ? 'border-red-300 dark:border-red-600 focus:ring-red-500' : ''
                   }`}
                 />
                 {errors.nextPaymentDate && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.nextPaymentDate}</p>}
