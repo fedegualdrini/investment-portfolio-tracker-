@@ -17,9 +17,7 @@ import { CumulativeReturnsChart } from '../components/CumulativeReturnsChart';
 import { PerformanceMetrics } from '../components/PerformanceMetrics';
 import { ErrorAlert } from '../components/ErrorAlert';
 import { LoadingSpinner } from '../components/LoadingSpinner';
-import { createPerformanceComparisonService } from '../services/performanceComparisonService';
-import { createHistoricalDataService } from '../services/historicalDataService';
-import { PortfolioNormalizationService, NormalizedComparison } from '../services/portfolioNormalizationService';
+import { normalizedComparisonService, NormalizedComparison } from '../services/normalizedComparisonService';
 
 export function PerformanceComparisonPage() {
   const { investments } = useInvestments();
@@ -34,14 +32,7 @@ export function PerformanceComparisonPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Services
-  const historicalDataService = useMemo(() => createHistoricalDataService(), []);
-  const performanceService = useMemo(() =>
-    createPerformanceComparisonService(historicalDataService),
-    [historicalDataService]
-  );
-
-  // Data fetching with normalized comparison
+  // Data fetching with normalized comparison using the global service
   const fetchPerformanceData = useCallback(async () => {
     if (investments.length === 0) {
       setPerformanceData([]);
@@ -53,36 +44,23 @@ export function PerformanceComparisonPage() {
     setError(null);
 
     try {
-      // Get normalized comparison data
-      const response = await fetch('/api/performance/normalized-comparison', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          investments,
-          benchmarkId: selectedBenchmark.id,
-          startDate: dateRange.start,
-          endDate: dateRange.end,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const result = await response.json();
+      console.log('🔥 Fetching performance data using NormalizedComparisonService');
       
-      if (!result.success) {
-        throw new Error(result.error || 'Failed to fetch performance data');
-      }
+      // Use the global service directly - no API calls needed!
+      const result = await normalizedComparisonService.getNormalizedComparison(
+        investments,
+        selectedBenchmark.id,
+        dateRange.start,
+        dateRange.end
+      );
 
-      const { normalizedComparison: comparison, metrics } = result.data;
+      console.log('✅ Performance data received:', result);
       
-      setNormalizedComparison(comparison);
-      setPerformanceData(comparison.normalizedPortfolio);
+      setNormalizedComparison(result.normalizedComparison);
+      setPerformanceData(result.normalizedComparison.normalizedPortfolio);
 
     } catch (err) {
+      console.error('❌ Error fetching performance data:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch performance data');
       setPerformanceData([]);
       setNormalizedComparison(null);
