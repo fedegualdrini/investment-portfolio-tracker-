@@ -29,6 +29,23 @@ export default async function handler(req, res) {
 
     console.log('✅ All required fields present');
 
+    // Define benchmarks directly to avoid import issues
+    const BENCHMARKS = [
+      { id: 'SPY', name: 'S&P 500', symbol: 'SPY', description: 'SPDR S&P 500 ETF Trust', dataSource: 'yahoo', type: 'stock' },
+      { id: 'QQQ', name: 'NASDAQ 100', symbol: 'QQQ', description: 'Invesco QQQ Trust', dataSource: 'yahoo', type: 'stock' },
+      { id: 'DIA', name: 'Dow Jones', symbol: 'DIA', description: 'SPDR Dow Jones Industrial Average ETF', dataSource: 'yahoo', type: 'stock' },
+      { id: 'BTC', name: 'Bitcoin', symbol: 'BTC', description: 'Bitcoin', dataSource: 'coingecko', type: 'crypto' },
+      { id: 'ETH', name: 'Ethereum', symbol: 'ETH', description: 'Ethereum', dataSource: 'coingecko', type: 'crypto' }
+    ];
+
+    // Find the benchmark
+    const benchmark = BENCHMARKS.find(b => b.id === benchmarkId);
+    if (!benchmark) {
+      throw new Error(`Benchmark with id ${benchmarkId} not found`);
+    }
+
+    console.log('✅ Benchmark found:', benchmark.name);
+
     // Get the base URL for internal API calls
     const baseUrl = req.headers.origin || 'http://localhost:3000';
     console.log('Base URL:', baseUrl);
@@ -48,7 +65,9 @@ export default async function handler(req, res) {
     });
 
     if (!portfolioResponse.ok) {
-      throw new Error(`Portfolio history API failed: ${portfolioResponse.status}`);
+      const errorText = await portfolioResponse.text();
+      console.error('Portfolio API error:', errorText);
+      throw new Error(`Portfolio history API failed: ${portfolioResponse.status} - ${errorText}`);
     }
 
     const portfolioResult = await portfolioResponse.json();
@@ -73,7 +92,9 @@ export default async function handler(req, res) {
     });
 
     if (!benchmarkResponse.ok) {
-      throw new Error(`Benchmark data API failed: ${benchmarkResponse.status}`);
+      const errorText = await benchmarkResponse.text();
+      console.error('Benchmark API error:', errorText);
+      throw new Error(`Benchmark data API failed: ${benchmarkResponse.status} - ${errorText}`);
     }
 
     const benchmarkResult = await benchmarkResponse.json();
@@ -85,7 +106,6 @@ export default async function handler(req, res) {
 
     const portfolioData = portfolioResult.data;
     const benchmarkData = benchmarkResult.data;
-    const benchmark = benchmarkResult.benchmark;
 
     if (portfolioData.length === 0 || benchmarkData.length === 0) {
       throw new Error('No data available for the selected period');
@@ -93,8 +113,7 @@ export default async function handler(req, res) {
 
     console.log('📊 Starting normalization process...');
 
-    // Step 3: Normalize the data
-    // Get starting values
+    // Normalize the data
     const startingPortfolioValue = portfolioData[0].portfolioValue;
     const startingBenchmarkPrice = benchmarkData[0].close;
     const benchmarkShares = startingPortfolioValue / startingBenchmarkPrice;
@@ -183,7 +202,7 @@ export default async function handler(req, res) {
 
     console.log('✅ Normalization complete');
 
-    // Step 4: Calculate performance metrics
+    // Calculate performance metrics
     const endingPortfolioValue = portfolioData[portfolioData.length - 1].portfolioValue;
     const endingBenchmarkValue = normalizedBenchmark[normalizedBenchmark.length - 1].benchmarkValue;
     
