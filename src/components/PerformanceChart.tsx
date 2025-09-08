@@ -13,7 +13,7 @@ import {
 import { PerformanceChartProps } from '../types/performance';
 import { useCurrency } from '../contexts/CurrencyContext';
 import { useLanguage } from '../contexts/LanguageContext';
-import { formatDate, formatCurrency } from '../utils/performanceCalculations';
+import { formatDate } from '../utils/performanceCalculations';
 
 // Custom tooltip component
 const CustomTooltip = ({ active, payload, label }: any) => {
