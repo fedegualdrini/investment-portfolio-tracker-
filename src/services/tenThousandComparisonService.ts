@@ -109,9 +109,15 @@ export class TenThousandComparisonService {
       investmentAmountInDisplayCurrency
     );
 
-    // Step 6: Calculate final metrics
-    const finalPortfolioValue = portfolioPerformance[portfolioPerformance.length - 1]?.portfolioValue || investmentAmountInDisplayCurrency;
-    const finalBenchmarkValue = benchmarkPerformance[benchmarkPerformance.length - 1]?.benchmarkValue || investmentAmountInDisplayCurrency;
+    // Step 6: Combine portfolio and benchmark data for chart display
+    const combinedPerformance = this.combinePortfolioAndBenchmarkData(
+      portfolioPerformance,
+      benchmarkPerformance
+    );
+
+    // Step 7: Calculate final metrics using combined data
+    const finalPortfolioValue = combinedPerformance[combinedPerformance.length - 1]?.portfolioValue || investmentAmountInDisplayCurrency;
+    const finalBenchmarkValue = combinedPerformance[combinedPerformance.length - 1]?.benchmarkValue || investmentAmountInDisplayCurrency;
 
     const portfolioReturn = (finalPortfolioValue - investmentAmountInDisplayCurrency) / investmentAmountInDisplayCurrency;
     const benchmarkReturn = (finalBenchmarkValue - investmentAmountInDisplayCurrency) / investmentAmountInDisplayCurrency;
@@ -126,8 +132,8 @@ export class TenThousandComparisonService {
     console.log(`  - Alpha: ${(alpha * 100).toFixed(2)}%`);
 
     return {
-      portfolioPerformance,
-      benchmarkPerformance,
+      portfolioPerformance: combinedPerformance, // Combined data for chart
+      benchmarkPerformance, // Keep separate for any additional processing
       investedAmount: investmentAmountInDisplayCurrency,
       allocations,
       finalPortfolioValue,
@@ -329,6 +335,107 @@ export class TenThousandComparisonService {
 
     console.log(`📊 Calculated portfolio performance for ${performance.length} dates`);
     return performance;
+  }
+
+  /**
+   * Combine portfolio and benchmark performance data for chart display.
+   * This ensures both datasets have matching dates and proper benchmark values.
+   *
+   * @param portfolioData - Portfolio performance data
+   * @param benchmarkData - Benchmark performance data
+   * @returns Array of combined PerformanceDataPoint objects
+   */
+  private combinePortfolioAndBenchmarkData(
+    portfolioData: PerformanceDataPoint[],
+    benchmarkData: PerformanceDataPoint[]
+  ): PerformanceDataPoint[] {
+
+    if (portfolioData.length === 0) return [];
+    if (benchmarkData.length === 0) {
+      // If no benchmark data, return portfolio data with benchmark values set to initial investment
+      const initialValue = portfolioData[0].portfolioValue;
+      return portfolioData.map(point => ({
+        ...point,
+        benchmarkValue: initialValue,
+        benchmarkReturn: 0,
+        cumulativeBenchmarkReturn: 0
+      }));
+    }
+
+    // Create a map of benchmark data by date for quick lookup
+    const benchmarkMap = new Map<string, PerformanceDataPoint>();
+    benchmarkData.forEach(point => {
+      benchmarkMap.set(point.date, point);
+    });
+
+    // Combine data by matching dates
+    const combined: PerformanceDataPoint[] = [];
+
+    for (const portfolioPoint of portfolioData) {
+      const benchmarkPoint = benchmarkMap.get(portfolioPoint.date);
+
+      if (benchmarkPoint) {
+        // Perfect date match
+        combined.push({
+          ...portfolioPoint,
+          benchmarkValue: benchmarkPoint.benchmarkValue,
+          benchmarkReturn: benchmarkPoint.benchmarkReturn,
+          cumulativeBenchmarkReturn: benchmarkPoint.cumulativeBenchmarkReturn
+        });
+      } else {
+        // No exact match - use closest available benchmark data
+        const closestBenchmark = this.findClosestBenchmarkData(benchmarkMap, portfolioPoint.date);
+        if (closestBenchmark) {
+          combined.push({
+            ...portfolioPoint,
+            benchmarkValue: closestBenchmark.benchmarkValue,
+            benchmarkReturn: closestBenchmark.benchmarkReturn,
+            cumulativeBenchmarkReturn: closestBenchmark.cumulativeBenchmarkReturn
+          });
+        } else {
+          // No benchmark data available for this date - use initial investment value
+          const initialValue = portfolioData[0].portfolioValue;
+          combined.push({
+            ...portfolioPoint,
+            benchmarkValue: initialValue,
+            benchmarkReturn: 0,
+            cumulativeBenchmarkReturn: 0
+          });
+        }
+      }
+    }
+
+    console.log(`📊 Combined ${combined.length} data points for chart display`);
+    return combined;
+  }
+
+  /**
+   * Find the closest benchmark data point to a target date.
+   *
+   * @param benchmarkMap - Map of benchmark data by date
+   * @param targetDate - Target date to find closest match for
+   * @returns Closest PerformanceDataPoint or null
+   */
+  private findClosestBenchmarkData(
+    benchmarkMap: Map<string, PerformanceDataPoint>,
+    targetDate: string
+  ): PerformanceDataPoint | null {
+
+    const targetTime = new Date(targetDate).getTime();
+    let closestPoint: PerformanceDataPoint | null = null;
+    let smallestDifference = Infinity;
+
+    for (const point of benchmarkMap.values()) {
+      const pointTime = new Date(point.date).getTime();
+      const timeDifference = Math.abs(pointTime - targetTime);
+
+      if (timeDifference < smallestDifference && timeDifference <= 7 * 24 * 60 * 60 * 1000) { // 7 days
+        smallestDifference = timeDifference;
+        closestPoint = point;
+      }
+    }
+
+    return closestPoint;
   }
 
   /**

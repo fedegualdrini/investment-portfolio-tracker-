@@ -61,15 +61,21 @@ export function PerformanceChart({ data, selectedBenchmark, dateRange }: Perform
   const chartData = React.useMemo(() => {
     if (data.length === 0) return [];
 
-    // Get the initial investment amount (first data point portfolio value)
-    const initialInvestment = data[0].portfolioValue;
+    // Get the initial investment amounts for both portfolio and benchmark
+    const initialPortfolioValue = data[0].portfolioValue;
+    const initialBenchmarkValue = data[0].benchmarkValue;
 
     return data.map(point => ({
       ...point,
       date: formatDate(point.date),
       // Convert to percentage growth: (current - initial) / initial * 100
-      portfolioGrowth: ((point.portfolioValue - initialInvestment) / initialInvestment) * 100,
-      benchmarkGrowth: ((point.benchmarkValue - initialInvestment) / initialInvestment) * 100,
+      // Each uses its own initial value for accurate percentage calculation
+      portfolioGrowth: initialPortfolioValue > 0
+        ? ((point.portfolioValue - initialPortfolioValue) / initialPortfolioValue) * 100
+        : 0,
+      benchmarkGrowth: initialBenchmarkValue > 0
+        ? ((point.benchmarkValue - initialBenchmarkValue) / initialBenchmarkValue) * 100
+        : 0,
       // Keep original values for tooltip
       portfolioValue: point.portfolioValue,
       benchmarkValue: point.benchmarkValue
