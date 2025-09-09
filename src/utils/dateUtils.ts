@@ -1,4 +1,4 @@
-import { DateRange, DATE_RANGE_PRESETS } from '../types/performance';
+import { DateRange, DATE_RANGE_PRESETS, DateRangePreset } from '../types/performance';
 
 export function getDateRangeFromPreset(preset: string): DateRange {
   const now = new Date();
@@ -44,7 +44,7 @@ export function getDateRangeFromPreset(preset: string): DateRange {
   }
 }
 
-export function getPresetFromDateRange(dateRange: DateRange): string {
+export function getPresetFromDateRange(dateRange: DateRange): DateRangePreset {
   const now = new Date();
   const start = new Date(dateRange.start);
   const end = new Date(dateRange.end);

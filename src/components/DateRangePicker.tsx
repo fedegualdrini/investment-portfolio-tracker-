@@ -8,11 +8,16 @@ export function DateRangePicker({ dateRange, onDateRangeChange }: DateRangePicke
 
   // Initialize selectedPreset based on the actual dateRange prop
   const [selectedPreset, setSelectedPreset] = React.useState<DateRangePreset>(() => {
-    return getPresetFromDateRange(dateRange);
+    console.log('🔧 [DateRangePicker] Initializing selectedPreset for dateRange:', dateRange);
+    const preset = getPresetFromDateRange(dateRange) as DateRangePreset;
+    console.log('🔧 [DateRangePicker] Calculated preset:', preset);
+    return preset;
   });
 
   React.useEffect(() => {
-    const preset = getPresetFromDateRange(dateRange);
+    console.log('🔧 [DateRangePicker] useEffect triggered with dateRange:', dateRange);
+    const preset = getPresetFromDateRange(dateRange) as DateRangePreset;
+    console.log('🔧 [DateRangePicker] Setting selectedPreset to:', preset);
     setSelectedPreset(preset);
   }, [dateRange]);
 
