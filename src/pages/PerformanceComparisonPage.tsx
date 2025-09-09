@@ -36,17 +36,16 @@ export function PerformanceComparisonPage({ onBack }: PerformanceComparisonPageP
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Debug date range changes
+  // ✅ FIXED: Remove stale closure dependencies
   const handleDateRangeChange = useCallback((newDateRange: DateRange) => {
-    console.log('📅 [DEBUG] Date range changed from:', dateRange, 'to:', newDateRange);
+    console.log('📅 [DEBUG] Date range changed to:', newDateRange);
     setDateRange(newDateRange);
-  }, [dateRange]);
+  }, []); // Empty dependencies - function never recreates
 
-  // Debug benchmark changes
   const handleBenchmarkChange = useCallback((newBenchmark: Benchmark) => {
-    console.log('📊 [DEBUG] Benchmark changed from:', selectedBenchmark.id, 'to:', newBenchmark.id);
+    console.log('📊 [DEBUG] Benchmark changed to:', newBenchmark.id);
     setSelectedBenchmark(newBenchmark);
-  }, [selectedBenchmark]);
+  }, []); // Empty dependencies - function never recreates
 
   /**
    * Fetch performance data using the 10k comparison service.

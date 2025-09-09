@@ -81,43 +81,52 @@ export class TenThousandComparisonService {
 
     console.log(`💰 Investment Amount in Display Currency: ${investmentAmountInDisplayCurrency} ${displayCurrency}`);
 
-    // Step 2: Calculate portfolio allocations and invested amounts
-    const allocations = this.calculatePortfolioAllocations(
-      investments,
-      investmentAmountInDisplayCurrency
-    );
-
-    console.log('📊 Portfolio Allocations:');
-    allocations.forEach(allocation => {
-      console.log(`  - ${allocation.investment.symbol}: ${allocation.allocation * 100}% (${allocation.investedAmount} ${displayCurrency})`);
+    // Step 2: Calculate current portfolio allocations (percentages only)
+    const currentAllocations = this.calculateCurrentPortfolioAllocations(investments);
+    
+    console.log('📊 Current Portfolio Allocations:');
+    currentAllocations.forEach(allocation => {
+      console.log(`  - ${allocation.investment.symbol}: ${(allocation.allocation * 100).toFixed(2)}% allocation`);
     });
 
     // Step 3: Fetch historical data for all investments and benchmark
     // STRICT RULE: Uses historicalDataService which enforces strict data source separation
-    console.log(`[TEN THOUSAND SERVICE] Using strict data source separation for ${allocations.length} investments + ${benchmarkId} benchmark`);
-    const portfolioData = await this.fetchPortfolioHistoricalData(allocations, startDate, endDate);
+    console.log(`[TEN THOUSAND SERVICE] Using strict data source separation for ${currentAllocations.length} investments + ${benchmarkId} benchmark`);
+    const portfolioData = await this.fetchPortfolioHistoricalData(currentAllocations, startDate, endDate);
     const benchmarkData = await this.fetchBenchmarkHistoricalData(benchmarkId, startDate, endDate);
 
-    // Step 4: Calculate portfolio value over time
-    const portfolioPerformance = this.calculatePortfolioPerformance(
+    // Step 4: Calculate final allocations using STARTING PRICES (like benchmark calculation)
+    const allocationsWithStartingPrices = this.calculateAllocationsWithStartingPrices(
+      currentAllocations,
       portfolioData,
-      allocations,
       investmentAmountInDisplayCurrency
     );
 
-    // Step 5: Calculate benchmark performance (normalized to same investment amount)
+    console.log('📊 Final Portfolio Allocations with Starting Prices:');
+    allocationsWithStartingPrices.forEach(allocation => {
+      console.log(`  - ${allocation.investment.symbol}: ${(allocation.allocation * 100).toFixed(2)}% (${allocation.investedAmount.toFixed(2)} ${displayCurrency}) -> ${allocation.quantity.toFixed(6)} shares`);
+    });
+
+    // Step 5: Calculate portfolio value over time
+    const portfolioPerformance = this.calculatePortfolioPerformance(
+      portfolioData,
+      allocationsWithStartingPrices,
+      investmentAmountInDisplayCurrency
+    );
+
+    // Step 6: Calculate benchmark performance (normalized to same investment amount)
     const benchmarkPerformance = this.calculateBenchmarkPerformance(
       benchmarkData,
       investmentAmountInDisplayCurrency
     );
 
-    // Step 6: Combine portfolio and benchmark data for chart display
+    // Step 7: Combine portfolio and benchmark data for chart display
     const combinedPerformance = this.combinePortfolioAndBenchmarkData(
       portfolioPerformance,
       benchmarkPerformance
     );
 
-    // Step 7: Calculate final metrics using combined data
+    // Step 8: Calculate final metrics using combined data
     const finalPortfolioValue = combinedPerformance[combinedPerformance.length - 1]?.portfolioValue || investmentAmountInDisplayCurrency;
     const finalBenchmarkValue = combinedPerformance[combinedPerformance.length - 1]?.benchmarkValue || investmentAmountInDisplayCurrency;
 
@@ -137,7 +146,7 @@ export class TenThousandComparisonService {
       portfolioPerformance: combinedPerformance, // Combined data for chart
       benchmarkPerformance, // Keep separate for any additional processing
       investedAmount: investmentAmountInDisplayCurrency,
-      allocations,
+      allocations: allocationsWithStartingPrices,
       finalPortfolioValue,
       finalBenchmarkValue,
       portfolioReturn,
@@ -147,18 +156,14 @@ export class TenThousandComparisonService {
   }
 
   /**
-   * Calculate how much of the total investment amount goes to each investment
-   * based on their percentage allocation in the current portfolio.
+   * Calculate current portfolio allocation percentages based on current values.
+   * This determines what percentage each investment represents in the portfolio.
    *
    * @param investments - Array of user's investment holdings
-   * @param totalInvestmentAmount - Total amount to invest
-   * @returns Array of InvestmentAllocation objects
+   * @returns Array of allocations with percentages only
    */
-  private calculatePortfolioAllocations(
-    investments: any[],
-    totalInvestmentAmount: number
-  ): InvestmentAllocation[] {
-
+  private calculateCurrentPortfolioAllocations(investments: any[]): Partial<InvestmentAllocation>[] {
+    
     // Step 1: Calculate total current portfolio value
     let totalPortfolioValue = 0;
     for (const investment of investments) {
@@ -169,21 +174,58 @@ export class TenThousandComparisonService {
     console.log(`📊 Total Current Portfolio Value: ${totalPortfolioValue}`);
 
     // Step 2: Calculate allocation percentage for each investment
-    const allocations: InvestmentAllocation[] = [];
+    const allocations: Partial<InvestmentAllocation>[] = [];
     for (const investment of investments) {
       const currentPrice = investment.currentPrice || investment.purchasePrice;
       const investmentValue = currentPrice * investment.quantity;
       const allocation = investmentValue / totalPortfolioValue;
 
-      // Calculate how much of the 10k should go to this investment
-      const investedAmount = totalInvestmentAmount * allocation;
-
-      // Calculate quantity to buy at current price
-      const quantity = investedAmount / currentPrice;
-
       allocations.push({
         investment,
-        allocation,
+        allocation
+      });
+    }
+
+    return allocations;
+  }
+
+  /**
+   * Calculate final allocations using starting prices from historical data.
+   * This mirrors the benchmark calculation approach.
+   *
+   * @param currentAllocations - Current portfolio allocations (percentages)
+   * @param portfolioData - Historical data for all investments
+   * @param totalInvestmentAmount - Total amount to invest
+   * @returns Array of complete InvestmentAllocation objects
+   */
+  private calculateAllocationsWithStartingPrices(
+    currentAllocations: Partial<InvestmentAllocation>[],
+    portfolioData: Map<string, HistoricalPriceData[]>,
+    totalInvestmentAmount: number
+  ): InvestmentAllocation[] {
+
+    const allocations: InvestmentAllocation[] = [];
+
+    for (const currentAllocation of currentAllocations) {
+      const symbol = currentAllocation.investment!.symbol;
+      const historicalData = portfolioData.get(symbol) || [];
+      
+      // Get starting price (first day of historical data) - THIS IS THE KEY FIX
+      const startingPrice = historicalData.length > 0 
+        ? historicalData[0].close 
+        : (currentAllocation.investment!.currentPrice || currentAllocation.investment!.purchasePrice);
+
+      console.log(`💰 ${symbol} starting price: ${startingPrice}`);
+
+      // Calculate how much of the 10k should go to this investment
+      const investedAmount = totalInvestmentAmount * currentAllocation.allocation!;
+
+      // Calculate quantity to buy at STARTING price (not current price)
+      const quantity = investedAmount / startingPrice;
+
+      allocations.push({
+        investment: currentAllocation.investment!,
+        allocation: currentAllocation.allocation!,
         investedAmount,
         quantity
       });
@@ -196,13 +238,13 @@ export class TenThousandComparisonService {
    * Fetch historical data for all investments in the portfolio.
    * This gets the price history for each investment over the specified time period.
    *
-   * @param allocations - Investment allocations with quantities
+   * @param allocations - Investment allocations (partial, just need investment objects)
    * @param startDate - Start date for historical data
    * @param endDate - End date for historical data
    * @returns Promise<Map<string, HistoricalPriceData[]>> - Map of symbol to historical data
    */
   private async fetchPortfolioHistoricalData(
-    allocations: InvestmentAllocation[],
+    allocations: Partial<InvestmentAllocation>[],
     startDate: string,
     endDate: string
   ): Promise<Map<string, HistoricalPriceData[]>> {
@@ -210,7 +252,7 @@ export class TenThousandComparisonService {
     const portfolioData = new Map<string, HistoricalPriceData[]>();
 
     for (const allocation of allocations) {
-      const symbol = allocation.investment.symbol;
+      const symbol = allocation.investment!.symbol;
       console.log(`📈 Fetching historical data for ${symbol}...`);
 
       try {
@@ -218,7 +260,7 @@ export class TenThousandComparisonService {
           symbol,
           startDate,
           endDate,
-          allocation.investment.dataSource || 'yahoo'
+          allocation.investment!.dataSource || 'yahoo'
         );
 
         portfolioData.set(symbol, historicalData);
@@ -272,7 +314,7 @@ export class TenThousandComparisonService {
    * at the start of the period and held until each point in time.
    *
    * @param portfolioData - Historical data for all investments
-   * @param allocations - How much was invested in each investment
+   * @param allocations - How much was invested in each investment (with starting price quantities)
    * @param totalInvestmentAmount - Total amount invested
    * @returns Array of PerformanceDataPoint objects
    */
