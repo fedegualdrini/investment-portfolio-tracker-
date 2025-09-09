@@ -93,6 +93,8 @@ export class TenThousandComparisonService {
     });
 
     // Step 3: Fetch historical data for all investments and benchmark
+    // STRICT RULE: Uses historicalDataService which enforces strict data source separation
+    console.log(`[TEN THOUSAND SERVICE] Using strict data source separation for ${allocations.length} investments + ${benchmarkId} benchmark`);
     const portfolioData = await this.fetchPortfolioHistoricalData(allocations, startDate, endDate);
     const benchmarkData = await this.fetchBenchmarkHistoricalData(benchmarkId, startDate, endDate);
 
