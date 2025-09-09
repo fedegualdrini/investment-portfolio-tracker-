@@ -36,6 +36,18 @@ export function PerformanceComparisonPage({ onBack }: PerformanceComparisonPageP
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Debug date range changes
+  const handleDateRangeChange = useCallback((newDateRange: DateRange) => {
+    console.log('📅 [DEBUG] Date range changed from:', dateRange, 'to:', newDateRange);
+    setDateRange(newDateRange);
+  }, [dateRange]);
+
+  // Debug benchmark changes
+  const handleBenchmarkChange = useCallback((newBenchmark: Benchmark) => {
+    console.log('📊 [DEBUG] Benchmark changed from:', selectedBenchmark.id, 'to:', newBenchmark.id);
+    setSelectedBenchmark(newBenchmark);
+  }, [selectedBenchmark]);
+
   /**
    * Fetch performance data using the 10k comparison service.
    * This simulates investing 10k USD (or equivalent in display currency) at the start of the period,
@@ -51,12 +63,15 @@ export function PerformanceComparisonPage({ onBack }: PerformanceComparisonPageP
     setError(null);
 
     try {
-      console.log('🔥 Fetching 10k performance comparison data');
+      console.log('🔥 [DEBUG] Fetching 10k performance comparison data');
+      console.log('🔥 [DEBUG] Date range:', dateRange.start, 'to', dateRange.end);
+      console.log('🔥 [DEBUG] Benchmark:', selectedBenchmark.id);
+      console.log('🔥 [DEBUG] Investments count:', investments.length);
 
       // Step 1: Get current USD to display currency rate
       const usdToDisplayCurrencyRate = displayCurrency === 'USD' ? 1 : await getCurrentARSRate();
 
-      console.log(`💱 Current rate: 1 USD = ${usdToDisplayCurrencyRate} ${displayCurrency}`);
+      console.log(`💱 [DEBUG] Current rate: 1 USD = ${usdToDisplayCurrencyRate} ${displayCurrency}`);
 
       // Step 2: Fetch performance data using the new 10k service
       const result = await tenThousandComparisonService.getTenThousandComparison(
@@ -69,12 +84,15 @@ export function PerformanceComparisonPage({ onBack }: PerformanceComparisonPageP
         usdToDisplayCurrencyRate
       );
 
-      console.log('✅ 10k comparison data received:', result);
+      console.log('✅ [DEBUG] 10k comparison data received');
+      console.log('✅ [DEBUG] Portfolio return:', result.portfolioReturn);
+      console.log('✅ [DEBUG] Benchmark return:', result.benchmarkReturn);
+      console.log('✅ [DEBUG] Alpha:', result.alpha);
 
       setComparison(result);
 
     } catch (err) {
-      console.error('❌ Error fetching 10k performance data:', err);
+      console.error('❌ [DEBUG] Error fetching 10k performance data:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch performance data');
       setComparison(null);
     } finally {
@@ -82,10 +100,13 @@ export function PerformanceComparisonPage({ onBack }: PerformanceComparisonPageP
     }
   }, [investments, selectedBenchmark, dateRange, displayCurrency, getCurrentARSRate]);
 
-  // Effects
+  // Effects - Trigger data fetch when dependencies change
   useEffect(() => {
+    console.log('🔄 [DEBUG] useEffect triggered - fetching data');
+    console.log('🔄 [DEBUG] Current dateRange:', dateRange);
+    console.log('🔄 [DEBUG] Current benchmark:', selectedBenchmark.id);
     fetchPerformanceData();
-  }, [fetchPerformanceData]);
+  }, [investments, selectedBenchmark, dateRange, displayCurrency]);
 
   // Handle empty portfolio
   if (investments.length === 0) {
@@ -255,9 +276,9 @@ export function PerformanceComparisonPage({ onBack }: PerformanceComparisonPageP
           {/* Performance Header Controls */}
           <PerformanceHeader
             selectedBenchmark={selectedBenchmark}
-            onBenchmarkChange={setSelectedBenchmark}
+            onBenchmarkChange={handleBenchmarkChange}
             dateRange={dateRange}
-            onDateRangeChange={setDateRange}
+            onDateRangeChange={handleDateRangeChange}
             onRefresh={fetchPerformanceData}
             loading={loading}
           />

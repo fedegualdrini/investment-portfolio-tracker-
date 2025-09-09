@@ -5,7 +5,11 @@ import { getDateRangeFromPreset, getPresetFromDateRange } from '../utils/dateUti
 
 export function DateRangePicker({ dateRange, onDateRangeChange }: DateRangePickerProps) {
   const [isOpen, setIsOpen] = React.useState(false);
-  const [selectedPreset, setSelectedPreset] = React.useState<DateRangePreset>('1Y');
+
+  // Initialize selectedPreset based on the actual dateRange prop
+  const [selectedPreset, setSelectedPreset] = React.useState<DateRangePreset>(() => {
+    return getPresetFromDateRange(dateRange);
+  });
 
   React.useEffect(() => {
     const preset = getPresetFromDateRange(dateRange);
