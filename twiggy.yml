@@ -1,0 +1,23 @@
+# Twiggy Configuration
+# Real-time directory structure for Cursor AI
+
+# Output format: xml (better for LLMs) or tree (human-readable)
+format: xml
+
+# Sync with .gitignore to automatically ignore files
+sync_gitignore: true
+
+# Custom ignore patterns (in addition to .gitignore)
+custom_ignores:
+  - "node_modules"
+  - "dist"
+  - "build"
+  - ".next"
+  - "coverage"
+  - ".nyc_output"
+  - "*.log"
+  - ".DS_Store"
+  - "Thumbs.db"
+
+# Output file location
+output_file: ".cursor/rules/file-structure.mdc"

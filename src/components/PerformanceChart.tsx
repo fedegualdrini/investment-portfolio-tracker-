@@ -18,27 +18,35 @@ import { formatDate } from '../utils/performanceCalculations';
 // Custom tooltip component
 const CustomTooltip = ({ active, payload, label }: any) => {
   const { formatCurrency: formatCurrencyContext } = useCurrency();
-  
+
   if (active && payload && payload.length) {
     return (
       <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-4">
         <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
           {formatDate(label)}
         </p>
-        {payload.map((entry: any, index: number) => (
-          <div key={index} className="flex items-center space-x-2 mb-1">
-            <div
-              className="w-3 h-3 rounded-full"
-              style={{ backgroundColor: entry.color }}
-            />
-            <span className="text-sm text-gray-600 dark:text-gray-400">
-              {entry.name}:
-            </span>
-            <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-              {formatCurrencyContext(entry.value)}
-            </span>
-          </div>
-        ))}
+        {payload.map((entry: any, index: number) => {
+          // For percentage growth data keys, show as percentage
+          const isPercentageData = entry.dataKey?.includes('Growth');
+          const displayValue = isPercentageData
+            ? `${entry.value.toFixed(2)}%`
+            : formatCurrencyContext(entry.payload[entry.dataKey.replace('Growth', 'Value')]);
+
+          return (
+            <div key={index} className="flex items-center space-x-2 mb-1">
+              <div
+                className="w-3 h-3 rounded-full"
+                style={{ backgroundColor: entry.color }}
+              />
+              <span className="text-sm text-gray-600 dark:text-gray-400">
+                {entry.name}:
+              </span>
+              <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                {displayValue}
+              </span>
+            </div>
+          );
+        })}
       </div>
     );
   }
@@ -49,14 +57,24 @@ export function PerformanceChart({ data, selectedBenchmark, dateRange }: Perform
   const { formatCurrency: formatCurrencyContext } = useCurrency();
   const { t } = useLanguage();
 
-  const chartData = React.useMemo(() => 
-    data.map(point => ({
+  // Convert absolute values to percentage growth from initial investment
+  const chartData = React.useMemo(() => {
+    if (data.length === 0) return [];
+
+    // Get the initial investment amount (first data point portfolio value)
+    const initialInvestment = data[0].portfolioValue;
+
+    return data.map(point => ({
       ...point,
       date: formatDate(point.date),
+      // Convert to percentage growth: (current - initial) / initial * 100
+      portfolioGrowth: ((point.portfolioValue - initialInvestment) / initialInvestment) * 100,
+      benchmarkGrowth: ((point.benchmarkValue - initialInvestment) / initialInvestment) * 100,
+      // Keep original values for tooltip
       portfolioValue: point.portfolioValue,
       benchmarkValue: point.benchmarkValue
-    })), [data]
-  );
+    }));
+  }, [data]);
 
   if (chartData.length === 0) {
     return (
@@ -95,29 +113,29 @@ export function PerformanceChart({ data, selectedBenchmark, dateRange }: Perform
             tick={{ fontSize: 12 }}
             tickLine={{ stroke: '#666' }}
           />
-          <YAxis 
+          <YAxis
             stroke="#666"
             tick={{ fontSize: 12 }}
             tickLine={{ stroke: '#666' }}
-            tickFormatter={(value) => formatCurrencyContext(value)}
+            tickFormatter={(value) => `${value.toFixed(1)}%`}
           />
           <Tooltip 
             content={<CustomTooltip />}
           />
           <Legend />
-          <Line 
-            type="monotone" 
-            dataKey="portfolioValue" 
-            stroke="#8884d8" 
+          <Line
+            type="monotone"
+            dataKey="portfolioGrowth"
+            stroke="#8884d8"
             strokeWidth={2}
             name="Portfolio"
             dot={false}
             activeDot={{ r: 4, stroke: '#8884d8', strokeWidth: 2 }}
           />
-          <Line 
-            type="monotone" 
-            dataKey="benchmarkValue" 
-            stroke="#82ca9d" 
+          <Line
+            type="monotone"
+            dataKey="benchmarkGrowth"
+            stroke="#82ca9d"
             strokeWidth={2}
             name={selectedBenchmark}
             dot={false}

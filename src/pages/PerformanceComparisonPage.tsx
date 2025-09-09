@@ -1,24 +1,24 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, TrendingUp, TrendingDown } from 'lucide-react';
 import { useInvestments } from '../hooks/useInvestments';
 import { useCurrency } from '../contexts/CurrencyContext';
 import { useLanguage } from '../contexts/LanguageContext';
-import { 
-  PerformanceDataPoint, 
-  Benchmark, 
-  DateRange, 
+import {
+  PerformanceDataPoint,
+  Benchmark,
+  DateRange,
   BENCHMARKS,
-  DATE_RANGE_PRESETS 
+  DATE_RANGE_PRESETS
 } from '../types/performance';
-import { PerformanceMetricsCalculator } from '../utils/performanceCalculations';
 import { getDateRangeFromPreset } from '../utils/dateUtils';
 import { PerformanceHeader } from '../components/PerformanceHeader';
 import { PerformanceChart } from '../components/PerformanceChart';
-import { CumulativeReturnsChart } from '../components/CumulativeReturnsChart';
-import { PerformanceMetrics } from '../components/PerformanceMetrics';
 import { ErrorAlert } from '../components/ErrorAlert';
 import { LoadingSpinner } from '../components/LoadingSpinner';
-import { normalizedComparisonService, NormalizedComparison } from '../services/normalizedComparisonService';
+import {
+  tenThousandComparisonService,
+  TenThousandComparison
+} from '../services/tenThousandComparisonService';
 
 interface PerformanceComparisonPageProps {
   onBack: () => void;
@@ -26,23 +26,24 @@ interface PerformanceComparisonPageProps {
 
 export function PerformanceComparisonPage({ onBack }: PerformanceComparisonPageProps) {
   const { investments } = useInvestments();
-  const { formatCurrency } = useCurrency();
+  const { formatCurrency, displayCurrency, convertForDisplay, getCurrentARSRate } = useCurrency();
   const { t } = useLanguage();
 
   // State management
   const [selectedBenchmark, setSelectedBenchmark] = useState<Benchmark>(BENCHMARKS[0]);
   const [dateRange, setDateRange] = useState<DateRange>(getDateRangeFromPreset('1Y'));
-  const [performanceData, setPerformanceData] = useState<PerformanceDataPoint[]>([]);
-  const [normalizedComparison, setNormalizedComparison] = useState<NormalizedComparison | null>(null);
-  const [metrics, setMetrics] = useState<any>(null);
+  const [comparison, setComparison] = useState<TenThousandComparison | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Data fetching with normalized comparison using the global service
+  /**
+   * Fetch performance data using the 10k comparison service.
+   * This simulates investing 10k USD (or equivalent in display currency) at the start of the period,
+   * distributed according to portfolio allocation percentages.
+   */
   const fetchPerformanceData = useCallback(async () => {
     if (investments.length === 0) {
-      setPerformanceData([]);
-      setNormalizedComparison(null);
+      setComparison(null);
       return;
     }
 
@@ -50,32 +51,36 @@ export function PerformanceComparisonPage({ onBack }: PerformanceComparisonPageP
     setError(null);
 
     try {
-      console.log('🔥 Fetching performance data using NormalizedComparisonService');
-      
-      // Use the global service directly - no API calls needed!
-      const result = await normalizedComparisonService.getNormalizedComparison(
+      console.log('🔥 Fetching 10k performance comparison data');
+
+      // Step 1: Get current USD to display currency rate
+      const usdToDisplayCurrencyRate = displayCurrency === 'USD' ? 1 : await getCurrentARSRate();
+
+      console.log(`💱 Current rate: 1 USD = ${usdToDisplayCurrencyRate} ${displayCurrency}`);
+
+      // Step 2: Fetch performance data using the new 10k service
+      const result = await tenThousandComparisonService.getTenThousandComparison(
         investments,
         selectedBenchmark.id,
         dateRange.start,
-        dateRange.end
+        dateRange.end,
+        10000, // 10k investment
+        displayCurrency,
+        usdToDisplayCurrencyRate
       );
 
-      console.log('✅ Performance data received:', result);
-      
-      setNormalizedComparison(result.normalizedComparison);
-      setPerformanceData(result.normalizedComparison.normalizedPortfolio);
-      setMetrics(result.metrics);
+      console.log('✅ 10k comparison data received:', result);
+
+      setComparison(result);
 
     } catch (err) {
-      console.error('❌ Error fetching performance data:', err);
+      console.error('❌ Error fetching 10k performance data:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch performance data');
-      setPerformanceData([]);
-      setNormalizedComparison(null);
-      setMetrics(null);
+      setComparison(null);
     } finally {
       setLoading(false);
     }
-  }, [investments, selectedBenchmark, dateRange]);
+  }, [investments, selectedBenchmark, dateRange, displayCurrency, getCurrentARSRate]);
 
   // Effects
   useEffect(() => {
@@ -178,7 +183,7 @@ export function PerformanceComparisonPage({ onBack }: PerformanceComparisonPageP
   }
 
   // Handle no data state
-  if (performanceData.length === 0) {
+  if (!comparison || comparison.portfolioPerformance.length === 0) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
         <div className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
@@ -192,7 +197,9 @@ export function PerformanceComparisonPage({ onBack }: PerformanceComparisonPageP
             </button>
             <div className="min-w-0 flex-1">
               <h1 className="mobile-title brand-heading">Performance Comparison</h1>
-              <p className="mobile-subtitle brand-subtext">Compare your portfolio performance against market benchmarks</p>
+              <p className="mobile-subtitle brand-subtext">
+                Compare 10k {displayCurrency} investment performance against {selectedBenchmark.name}
+              </p>
             </div>
           </div>
 
@@ -238,7 +245,9 @@ export function PerformanceComparisonPage({ onBack }: PerformanceComparisonPageP
           </button>
           <div className="min-w-0 flex-1">
             <h1 className="mobile-title brand-heading">Performance Comparison</h1>
-            <p className="mobile-subtitle brand-subtext">Compare your portfolio performance against market benchmarks</p>
+            <p className="mobile-subtitle brand-subtext">
+              Compare 10k {displayCurrency} investment performance against {selectedBenchmark.name}
+            </p>
           </div>
         </div>
 
@@ -249,83 +258,145 @@ export function PerformanceComparisonPage({ onBack }: PerformanceComparisonPageP
             onBenchmarkChange={setSelectedBenchmark}
             dateRange={dateRange}
             onDateRangeChange={setDateRange}
-            availableBenchmarks={BENCHMARKS}
-            dateRangePresets={DATE_RANGE_PRESETS}
+            onRefresh={fetchPerformanceData}
+            loading={loading}
           />
 
-      {/* Performance Chart */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-          Portfolio vs Benchmark Performance
-        </h3>
-        <PerformanceChart 
-          data={performanceData}
-          selectedBenchmark={selectedBenchmark.name}
-          dateRange={dateRange}
-        />
-      </div>
+          {/* Performance Chart */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+              Percentage Growth: Portfolio vs {selectedBenchmark.name}
+            </h3>
+            <PerformanceChart
+              data={comparison.portfolioPerformance}
+              selectedBenchmark={selectedBenchmark.name}
+              dateRange={dateRange}
+            />
+          </div>
 
-      {/* Cumulative Returns Chart */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-          Cumulative Returns
-        </h3>
-        <CumulativeReturnsChart 
-          data={performanceData}
-          benchmarkData={normalizedComparison?.normalizedBenchmark || []}
-          formatCurrency={formatCurrency}
-        />
-      </div>
-
-      {/* Performance Metrics */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-          Performance Metrics
-        </h3>
-        <PerformanceMetrics 
-          metrics={metrics ? {
-            totalReturn: metrics.portfolioReturn,
-            annualizedReturn: metrics.portfolioReturn, // Simplified for now
-            volatility: 0, // Will be calculated from service
-            sharpeRatio: metrics.sharpeRatio,
-            maxDrawdown: metrics.maxDrawdown,
-            beta: metrics.beta,
-            alpha: metrics.alpha,
-            informationRatio: 0,
-            trackingError: 0
-          } : null}
-        />
-      </div>
-
-          {/* Normalization Info */}
-          {normalizedComparison && (
-            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800 p-6">
-              <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-4">
-                Comparison Details
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+          {/* Key Performance Metrics */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Investment Amount */}
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+              <div className="flex items-center justify-between">
                 <div>
-                  <span className="font-medium text-blue-800 dark:text-blue-200">Starting Value:</span>
-                  <span className="ml-2 text-blue-700 dark:text-blue-300">
-                    {formatCurrency(normalizedComparison.startingValue)}
-                  </span>
-                </div>
-                <div>
-                  <span className="font-medium text-blue-800 dark:text-blue-200">Benchmark Shares:</span>
-                  <span className="ml-2 text-blue-700 dark:text-blue-300">
-                    {normalizedComparison.benchmarkShares.toFixed(6)}
-                  </span>
-                </div>
-                <div className="md:col-span-2">
-                  <p className="text-blue-700 dark:text-blue-300">
-                    Both portfolios start at the same dollar amount ({formatCurrency(normalizedComparison.startingValue)}) 
-                    to ensure a fair performance comparison. This shows the true relative performance 
-                    of your portfolio against the benchmark.
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Investment Amount</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                    {formatCurrency(comparison.investedAmount)}
                   </p>
+                </div>
+                <div className="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                  <TrendingUp className="h-6 w-6 text-purple-600 dark:text-purple-400" />
                 </div>
               </div>
             </div>
-          )}
+
+            {/* Portfolio Return */}
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Portfolio Return</p>
+                  <p className={`text-2xl font-bold ${comparison.portfolioReturn >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {(comparison.portfolioReturn * 100).toFixed(2)}%
+                  </p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Final Value: {formatCurrency(comparison.finalPortfolioValue)}
+                  </p>
+                </div>
+                <div className={`p-3 rounded-lg ${comparison.portfolioReturn >= 0 ? 'bg-green-50 dark:bg-green-900/20' : 'bg-red-50 dark:bg-red-900/20'}`}>
+                  {comparison.portfolioReturn >= 0 ? (
+                    <TrendingUp className="h-6 w-6 text-green-600 dark:text-green-400" />
+                  ) : (
+                    <TrendingDown className="h-6 w-6 text-red-600 dark:text-red-400" />
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Benchmark Return */}
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Benchmark Return</p>
+                  <p className={`text-2xl font-bold ${comparison.benchmarkReturn >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {(comparison.benchmarkReturn * 100).toFixed(2)}%
+                  </p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Final Value: {formatCurrency(comparison.finalBenchmarkValue)}
+                  </p>
+                </div>
+                <div className={`p-3 rounded-lg ${comparison.benchmarkReturn >= 0 ? 'bg-green-50 dark:bg-green-900/20' : 'bg-red-50 dark:bg-red-900/20'}`}>
+                  {comparison.benchmarkReturn >= 0 ? (
+                    <TrendingUp className="h-6 w-6 text-green-600 dark:text-green-400" />
+                  ) : (
+                    <TrendingDown className="h-6 w-6 text-red-600 dark:text-red-400" />
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Alpha (Portfolio vs Benchmark) */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                  Alpha (Portfolio Outperformance)
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                  How much your portfolio outperformed the benchmark over this period
+                </p>
+                <p className={`text-3xl font-bold ${comparison.alpha >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  {(comparison.alpha * 100).toFixed(2)}%
+                </p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                  {comparison.alpha >= 0
+                    ? `Your portfolio outperformed ${selectedBenchmark.name} by ${(comparison.alpha * 100).toFixed(2)}%`
+                    : `Your portfolio underperformed ${selectedBenchmark.name} by ${Math.abs(comparison.alpha * 100).toFixed(2)}%`
+                  }
+                </p>
+              </div>
+              <div className={`p-4 rounded-lg ${comparison.alpha >= 0 ? 'bg-green-50 dark:bg-green-900/20' : 'bg-red-50 dark:bg-red-900/20'}`}>
+                {comparison.alpha >= 0 ? (
+                  <TrendingUp className="h-8 w-8 text-green-600 dark:text-green-400" />
+                ) : (
+                  <TrendingDown className="h-8 w-8 text-red-600 dark:text-red-400" />
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Portfolio Allocation Breakdown */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+              Portfolio Allocation & Investment Breakdown
+            </h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+              How the {formatCurrency(comparison.investedAmount)} was distributed across your portfolio
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {comparison.allocations.map((allocation, index) => (
+                <div key={index} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                  <div>
+                    <p className="font-medium text-gray-900 dark:text-gray-100">
+                      {allocation.investment.symbol.toUpperCase()}
+                    </p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      {allocation.investment.name}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-medium text-gray-900 dark:text-gray-100">
+                      {(allocation.allocation * 100).toFixed(1)}%
+                    </p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      {formatCurrency(allocation.investedAmount)}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </div>
