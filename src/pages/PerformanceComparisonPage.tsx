@@ -161,8 +161,8 @@ export function PerformanceComparisonPage({ onBack }: PerformanceComparisonPageP
               <ArrowLeft className="h-5 w-5" />
             </button>
             <div className="min-w-0 flex-1">
-              <h1 className="mobile-title brand-heading">Performance Comparison</h1>
-              <p className="mobile-subtitle brand-subtext">Compare your portfolio performance against market benchmarks</p>
+              <h1 className="mobile-title brand-heading">{t('performance.comparison')}</h1>
+              <p className="mobile-subtitle brand-subtext">{t('performance.comparison.subtitle')}</p>
             </div>
           </div>
 
@@ -188,8 +188,8 @@ export function PerformanceComparisonPage({ onBack }: PerformanceComparisonPageP
               <ArrowLeft className="h-5 w-5" />
             </button>
             <div className="min-w-0 flex-1">
-              <h1 className="mobile-title brand-heading">Performance Comparison</h1>
-              <p className="mobile-subtitle brand-subtext">Compare your portfolio performance against market benchmarks</p>
+              <h1 className="mobile-title brand-heading">{t('performance.comparison')}</h1>
+              <p className="mobile-subtitle brand-subtext">{t('performance.comparison.subtitle')}</p>
             </div>
           </div>
 
@@ -264,9 +264,9 @@ export function PerformanceComparisonPage({ onBack }: PerformanceComparisonPageP
             <ArrowLeft className="h-5 w-5" />
           </button>
           <div className="min-w-0 flex-1">
-            <h1 className="mobile-title brand-heading">Performance Comparison</h1>
+            <h1 className="mobile-title brand-heading">{t('performance.comparison')}</h1>
             <p className="mobile-subtitle brand-subtext">
-              Compare 10k {displayCurrency} investment performance against {selectedBenchmark.name}
+              {t('performance.comparison.10k.subtitle', { currency: displayCurrency, benchmark: selectedBenchmark.name })}
             </p>
           </div>
         </div>
@@ -285,7 +285,7 @@ export function PerformanceComparisonPage({ onBack }: PerformanceComparisonPageP
           {/* Performance Chart */}
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-              Percentage Growth: Portfolio vs {selectedBenchmark.name}
+              {t('percentage.growth', { benchmark: selectedBenchmark.name })}
             </h3>
             <PerformanceChart
               data={comparison.portfolioPerformance}
@@ -300,7 +300,7 @@ export function PerformanceComparisonPage({ onBack }: PerformanceComparisonPageP
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Investment Amount</p>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('investment.amount')}</p>
                   <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                     {formatCurrency(comparison.investedAmount)}
                   </p>
@@ -315,12 +315,12 @@ export function PerformanceComparisonPage({ onBack }: PerformanceComparisonPageP
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Portfolio Return</p>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('portfolio.return')}</p>
                   <p className={`text-2xl font-bold ${comparison.portfolioReturn >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                     {(comparison.portfolioReturn * 100).toFixed(2)}%
                   </p>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Final Value: {formatCurrency(comparison.finalPortfolioValue)}
+                    {t('final.value')}: {formatCurrency(comparison.finalPortfolioValue)}
                   </p>
                 </div>
                 <div className={`p-3 rounded-lg ${comparison.portfolioReturn >= 0 ? 'bg-green-50 dark:bg-green-900/20' : 'bg-red-50 dark:bg-red-900/20'}`}>
@@ -337,12 +337,12 @@ export function PerformanceComparisonPage({ onBack }: PerformanceComparisonPageP
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Benchmark Return</p>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('benchmark.return')}</p>
                   <p className={`text-2xl font-bold ${comparison.benchmarkReturn >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                     {(comparison.benchmarkReturn * 100).toFixed(2)}%
                   </p>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Final Value: {formatCurrency(comparison.finalBenchmarkValue)}
+                    {t('final.value')}: {formatCurrency(comparison.finalBenchmarkValue)}
                   </p>
                 </div>
                 <div className={`p-3 rounded-lg ${comparison.benchmarkReturn >= 0 ? 'bg-green-50 dark:bg-green-900/20' : 'bg-red-50 dark:bg-red-900/20'}`}>
@@ -361,18 +361,18 @@ export function PerformanceComparisonPage({ onBack }: PerformanceComparisonPageP
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                  Alpha (Portfolio Outperformance)
+                  {t('alpha.title')}
                 </h3>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                  How much your portfolio outperformed the benchmark over this period
+                  {t('alpha.subtitle')}
                 </p>
                 <p className={`text-3xl font-bold ${comparison.alpha >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                   {(comparison.alpha * 100).toFixed(2)}%
                 </p>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
                   {comparison.alpha >= 0
-                    ? `Your portfolio outperformed ${selectedBenchmark.name} by ${(comparison.alpha * 100).toFixed(2)}%`
-                    : `Your portfolio underperformed ${selectedBenchmark.name} by ${Math.abs(comparison.alpha * 100).toFixed(2)}%`
+                    ? t('outperformed.by', { benchmark: selectedBenchmark.name, percentage: (comparison.alpha * 100).toFixed(2) })
+                    : t('underperformed.by', { benchmark: selectedBenchmark.name, percentage: Math.abs(comparison.alpha * 100).toFixed(2) })
                   }
                 </p>
               </div>
@@ -389,10 +389,10 @@ export function PerformanceComparisonPage({ onBack }: PerformanceComparisonPageP
           {/* Portfolio Allocation Breakdown */}
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-              Portfolio Allocation & Investment Breakdown
+              {t('portfolio.allocation.title')}
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
-              How the {formatCurrency(comparison.investedAmount)} was distributed across your portfolio
+              {t('portfolio.allocation.subtitle', { amount: formatCurrency(comparison.investedAmount) })}
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {comparison.allocations.map((allocation, index) => (

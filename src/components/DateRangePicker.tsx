@@ -2,8 +2,10 @@ import React from 'react';
 import { Calendar, ChevronDown } from 'lucide-react';
 import { DateRangePickerProps, DATE_RANGE_PRESETS, DateRangePreset } from '../types/performance';
 import { getDateRangeFromPreset, getPresetFromDateRange } from '../utils/dateUtils';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export function DateRangePicker({ dateRange, onDateRangeChange }: DateRangePickerProps) {
+  const { t } = useLanguage();
   const [isOpen, setIsOpen] = React.useState(false);
 
   // Initialize selectedPreset based on the actual dateRange prop
@@ -36,7 +38,7 @@ export function DateRangePicker({ dateRange, onDateRangeChange }: DateRangePicke
   return (
     <div className="relative">
       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-        Time Period
+        {t('time.period')}
       </label>
       
       {/* Preset buttons */}
@@ -60,7 +62,7 @@ export function DateRangePicker({ dateRange, onDateRangeChange }: DateRangePicke
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">
-            Start Date
+            {t('start.date')}
           </label>
           <input
             type="date"
@@ -71,7 +73,7 @@ export function DateRangePicker({ dateRange, onDateRangeChange }: DateRangePicke
         </div>
         <div>
           <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">
-            End Date
+            {t('end.date')}
           </label>
           <input
             type="date"

@@ -49,8 +49,8 @@ export function Header({
                 onBondAnalysis();
               }}
               className="group flex items-center space-x-1 sm:space-x-2 px-2 sm:px-3 py-2 bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-all duration-500 hover:pr-3 sm:hover:pr-4 interactive-hover-subtle"
-              title="Bond Analysis"
-              aria-label="Bond Analysis"
+              title={t('bond.analysis')}
+              aria-label={t('bond.analysis')}
             >
               <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5" />
               <span className="max-w-0 overflow-hidden group-hover:max-w-xs transition-all duration-500 whitespace-nowrap text-sm sm:text-base" aria-hidden="true">
@@ -64,12 +64,12 @@ export function Header({
                 onPerformanceComparison();
               }}
               className="group flex items-center space-x-1 sm:space-x-2 px-2 sm:px-3 py-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-all duration-500 hover:pr-3 sm:hover:pr-4 interactive-hover-subtle"
-              title="Performance Comparison"
-              aria-label="Performance Comparison"
+              title={t('performance.comparison')}
+              aria-label={t('performance.comparison')}
             >
               <BarChart3 className="h-4 w-4 sm:h-5 sm:w-5" />
               <span className="max-w-0 overflow-hidden group-hover:max-w-xs transition-all duration-500 whitespace-nowrap text-sm sm:text-base" aria-hidden="true">
-                Performance
+                {t('performance.comparison.button')}
               </span>
             </button>
 

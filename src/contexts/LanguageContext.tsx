@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 export type Language = 'en' | 'es';
 
@@ -23,8 +23,10 @@ const translations = {
     'loading': 'Loading...',
     'last.update': 'Last Update',
     'bond.analysis.button': 'Bond Analysis',
+    'performance.comparison.button': 'Performance Comparison',
     'chat.button': 'Chat',
     'back.to.portfolio': 'Back to Portfolio',
+    'refresh': 'Refresh',
     
     // Dashboard
     'dashboard.title': 'Portfolio Dashboard',
@@ -35,13 +37,53 @@ const translations = {
     'no.investments': 'No investments yet',
     'add.first.investment': 'Add your first investment to get started',
     
+    // Performance Comparison
+    'performance.comparison': 'Performance Comparison',
+    'performance.comparison.subtitle': 'Compare your portfolio performance against market benchmarks',
+    'performance.comparison.10k.subtitle': 'Compare 10k {currency} investment performance against {benchmark}',
+    'percentage.growth': 'Percentage Growth: Portfolio vs {benchmark}',
+    'investment.amount': 'Investment Amount',
+    'portfolio.return': 'Portfolio Return',
+    'benchmark.return': 'Benchmark Return',
+    'final.value': 'Final Value',
+    'alpha.title': 'Alpha (Portfolio Outperformance)',
+    'alpha.subtitle': 'How much your portfolio outperformed the benchmark over this period',
+    'portfolio.allocation.title': 'Portfolio Allocation & Investment Breakdown',
+    'portfolio.allocation.subtitle': 'How the {amount} was distributed across your portfolio',
+    'outperformed.by': 'Your portfolio outperformed {benchmark} by {percentage}%',
+    'underperformed.by': 'Your portfolio underperformed {benchmark} by {percentage}%',
+    'benchmark': 'Benchmark',
+    'time.period': 'Time Period',
+    'start.date': 'Start Date',
+    'end.date': 'End Date',
+    
+    // Bond Analysis
+    'bond.analysis': 'Bond Analysis',
+    'bond.analysis.subtitle': 'Advanced bond portfolio analysis and cash flow projections',
+    'no.bond.investments.title': 'No Bond Investments Found',
+    'no.bond.investments.subtitle': 'Add bonds to your portfolio to access advanced bond analysis, cash flow projections, and yield optimization tools.',
+    'bond.portfolio.summary': 'Bond Portfolio Summary',
+    'total.annual.income': 'Total Annual Income',
+    'average.yield': 'Average Yield',
+    'next.payment.date': 'Next Payment Date',
+    'bond.details': 'Bond Details',
+    'maturity.date': 'Maturity Date',
+    'payment.frequency': 'Payment Frequency',
+    'coupon.rate': 'Coupon Rate',
+    'face.value': 'Face Value',
+    'current.yield': 'Current Yield',
+    'yield.to.maturity': 'Yield to Maturity',
+    'accrued.interest': 'Accrued Interest',
+    'days.to.maturity': 'Days to Maturity',
+    'cash.flow.projections': 'Cash Flow Projections',
+    
     // Charts
-          'view.chart': 'View Chart',
-      'price.history': 'Price History',
-      'chart.powered.by': 'Powered by TradingView',
-      'chart.real.time': 'Real-time data',
-      'chart.symbol': 'Symbol',
-      'chart.loading': 'Loading chart...',
+    'view.chart': 'View Chart',
+    'price.history': 'Price History',
+    'chart.powered.by': 'Powered by TradingView',
+    'chart.real.time': 'Real-time data',
+    'chart.symbol': 'Symbol',
+    'chart.loading': 'Loading chart...',
     
     // Investment Types
     'type.crypto': 'Cryptocurrency',
@@ -62,98 +104,39 @@ const translations = {
     'current.price': 'Current Price',
     'currency': 'Currency',
     'fixed.yield': 'Fixed Yield (% per annum)',
-    'payment.frequency': 'Payment Frequency',
-    'maturity.date': 'Maturity Date',
-    'face.value': 'Face Value (Optional)',
     'last.payment.date': 'Last Payment Date Received',
-    'next.payment.date': 'Next Payment Date',
+    'next.payment.date.field': 'Next Payment Date',
+    'coupon.rate.field': 'Coupon Rate (%)',
+    'face.value.field': 'Face Value (Optional)',
     
     // Payment Frequencies
     'frequency.monthly': 'Monthly',
     'frequency.quarterly': 'Quarterly',
-    'frequency.semi.annual': 'Semi-Annual',
+    'frequency.semi-annual': 'Semi-Annual',
     'frequency.annual': 'Annual',
-    'frequency.zero.coupon': 'Zero Coupon',
-    'frequency.unknown': 'Unknown',
     
     // Form Actions
     'add': 'Add',
     'save': 'Save',
     'cancel': 'Cancel',
     'edit': 'Edit',
-    'remove': 'Remove',
     'delete': 'Delete',
-    'investment': 'Investment',
+    'remove': 'Remove',
+    'update': 'Update',
+    'clear': 'Clear',
+    'reset': 'Reset',
     
-    // Validation Messages
-    'required': 'Required',
-    'symbol.required': 'Symbol is required',
-    'name.required': 'Name is required',
-    'quantity.required': 'Quantity must be greater than 0',
-    'price.required': 'Purchase price must be greater than 0',
-    'date.required': 'Purchase date is required',
-    'yield.negative': 'Fixed yield cannot be negative',
-    'maturity.after.purchase': 'Maturity date must be after purchase date',
-    'face.value.positive': 'Face value must be greater than 0',
-    'last.payment.required': 'Last payment date is required for bonds purchased after payment cycles',
-    'last.payment.before.purchase': 'Last payment date cannot be before purchase date',
-    'next.payment.required': 'Next payment date is required for recently purchased bonds',
-    'next.payment.after.purchase': 'Next payment date must be after purchase date',
+    // Form Validation
+    'required.field': 'This field is required',
+    'invalid.number': 'Please enter a valid number',
+    'invalid.date': 'Please enter a valid date',
+    'invalid.percentage': 'Please enter a valid percentage',
     
-    // Bond Analysis
-    'bond.analysis': 'Bond Analysis',
-    'detected.frequency': 'Detected payment frequency',
-    'confidence': 'Confidence',
-    'estimated.payment': 'Estimated payment',
-    'payment.amount': 'Payment amount',
-    'per.payment': 'per payment',
-    'next.payment': 'Next Payment',
-    'days': 'days',
-    'days.overdue': 'days overdue',
-    'coupon.payment': 'coupon payment',
-    'coupon': 'Coupon',
-    
-    // Cash Flow
-    'bond.cash.flow': 'Bond Cash Flow Summary',
-    'monthly.income': 'Monthly Income',
-    'quarterly.income': 'Quarterly Income',
-    'annual.income': 'Annual Income',
-    'upcoming.payments': 'Upcoming Payments',
-    'bond.holdings': 'Bond Holdings',
-    'refresh.calculations': 'Refresh Calculations',
-    'debug': 'Debug',
-    'no.upcoming.payments': 'No upcoming payments scheduled',
-    'no.bond.investments': 'No Bond Investments',
-    'add.bonds.message': 'Add bonds with fixed yields to see cash flow projections',
-    
-    // Portfolio Stats
-    'portfolio.statistics': 'Portfolio Statistics',
-    'portfolio.allocation': 'Portfolio Allocation',
-    'total.return': 'Total Return',
-    'annualized.return': 'Annualized Return',
-    'volatility': 'Volatility',
-    'sharpe.ratio': 'Sharpe Ratio',
-    'max.drawdown': 'Max Drawdown',
-    
-    // Currency Names
-    'currency.usd': 'USD - US Dollar',
-    'currency.eur': 'EUR - Euro',
-    'currency.gbp': 'GBP - British Pound',
-    'currency.jpy': 'JPY - Japanese Yen',
-    'currency.cad': 'CAD - Canadian Dollar',
-    'currency.aud': 'AUD - Australian Dollar',
-    'currency.chf': 'CHF - Swiss Franc',
-    'currency.cny': 'CNY - Chinese Yuan',
-    'currency.inr': 'INR - Indian Rupee',
-    'currency.brl': 'BRL - Brazilian Real',
-    'currency.mxn': 'MXN - Mexican Peso',
-    'currency.ars': 'ARS - Argentine Peso',
-    
-    // Helper Text
-    'currency.helper': 'Exchange rates are automatically fetched and updated hourly',
-    'face.value.helper': 'Face value is used for accurate yield calculations. If not provided, we\'ll use purchase price × quantity',
-    'purchase.price.helper': 'Enter amount in any currency',
+    // Form Helpers
     'purchase.price.usd.helper': 'Enter amount in USD',
+    'face.value.helper': 'Leave blank to use purchase price × quantity',
+    'yield.helper': 'Annual percentage yield',
+    'maturity.date.helper': 'Bond maturity date',
     
     // Placeholders
     'placeholder.symbol': 'e.g., AAPL, BTC, SPY',
@@ -196,10 +179,32 @@ const translations = {
     'language.english': 'English',
     'language.spanish': 'Español',
     
-    // Navigation
-    'bond.analysis.subtitle': 'Advanced bond portfolio analysis and cash flow projections',
+    // Date/Time
+    'never': 'Never',
+    'today': 'Today',
+    'yesterday': 'Yesterday',
+    'days.ago': '{days} days ago',
+    'months.ago': '{months} months ago',
+    'years.ago': '{years} years ago',
     
-
+    // Navigation
+    'go.back': 'Go Back',
+    'next': 'Next',
+    'previous': 'Previous',
+    'close': 'Close',
+    'open': 'Open',
+    'show': 'Show',
+    'hide': 'Hide',
+    
+    // General
+    'yes': 'Yes',
+    'no': 'No',
+    'ok': 'OK',
+    'confirm': 'Confirm',
+    'warning': 'Warning',
+    'info': 'Information',
+    'success': 'Success',
+    'error': 'Error'
   },
   es: {
     // Header
@@ -212,25 +217,67 @@ const translations = {
     'loading': 'Cargando...',
     'last.update': 'Última Actualización',
     'bond.analysis.button': 'Análisis de Bonos',
+    'performance.comparison.button': 'Comparación de Rendimiento',
     'chat.button': 'Chat',
     'back.to.portfolio': 'Volver al Portafolio',
+    'refresh': 'Actualizar',
     
     // Dashboard
-    'dashboard.title': 'Panel del Portafolio',
+    'dashboard.title': 'Panel de Portafolio',
     'total.value': 'Valor Total',
     'total.invested': 'Total Invertido',
     'total.gain.loss': 'Ganancia/Pérdida Total',
-    'gain.loss.percentage': 'Ganancia/Pérdida %',
+    'gain.loss.percentage': '% Ganancia/Pérdida',
     'no.investments': 'Aún no hay inversiones',
     'add.first.investment': 'Agrega tu primera inversión para comenzar',
     
+    // Performance Comparison
+    'performance.comparison': 'Comparación de Rendimiento',
+    'performance.comparison.subtitle': 'Compara el rendimiento de tu portafolio contra benchmarks del mercado',
+    'performance.comparison.10k.subtitle': 'Compara el rendimiento de una inversión de 10k {currency} contra {benchmark}',
+    'percentage.growth': 'Crecimiento Porcentual: Portafolio vs {benchmark}',
+    'investment.amount': 'Monto de Inversión',
+    'portfolio.return': 'Retorno del Portafolio',
+    'benchmark.return': 'Retorno del Benchmark',
+    'final.value': 'Valor Final',
+    'alpha.title': 'Alfa (Sobrerrendimiento del Portafolio)',
+    'alpha.subtitle': 'Cuánto superó tu portafolio al benchmark durante este período',
+    'portfolio.allocation.title': 'Asignación del Portafolio y Desglose de Inversiones',
+    'portfolio.allocation.subtitle': 'Cómo se distribuyó {amount} a través de tu portafolio',
+    'outperformed.by': 'Tu portafolio superó a {benchmark} por {percentage}%',
+    'underperformed.by': 'Tu portafolio fue inferior a {benchmark} por {percentage}%',
+    'benchmark': 'Benchmark',
+    'time.period': 'Período de Tiempo',
+    'start.date': 'Fecha de Inicio',
+    'end.date': 'Fecha de Fin',
+    
+    // Bond Analysis
+    'bond.analysis': 'Análisis de Bonos',
+    'bond.analysis.subtitle': 'Análisis avanzado de portafolio de bonos y proyecciones de flujo de caja',
+    'no.bond.investments.title': 'No se Encontraron Inversiones en Bonos',
+    'no.bond.investments.subtitle': 'Agrega bonos a tu portafolio para acceder a análisis avanzado de bonos, proyecciones de flujo de caja y herramientas de optimización de rendimiento.',
+    'bond.portfolio.summary': 'Resumen del Portafolio de Bonos',
+    'total.annual.income': 'Ingreso Anual Total',
+    'average.yield': 'Rendimiento Promedio',
+    'next.payment.date': 'Próxima Fecha de Pago',
+    'bond.details': 'Detalles del Bono',
+    'maturity.date': 'Fecha de Vencimiento',
+    'payment.frequency': 'Frecuencia de Pago',
+    'coupon.rate': 'Tasa de Cupón',
+    'face.value': 'Valor Nominal',
+    'current.yield': 'Rendimiento Actual',
+    'yield.to.maturity': 'Rendimiento al Vencimiento',
+    'accrued.interest': 'Interés Devengado',
+    'days.to.maturity': 'Días al Vencimiento',
+    'cash.flow.projections': 'Proyecciones de Flujo de Caja',
+    
     // Charts
-          'view.chart': 'Ver Gráfico',
-      'price.history': 'Historial de Precios',
-      'chart.powered.by': 'Desarrollado por TradingView',
-      'chart.real.time': 'Datos en tiempo real',
-      'chart.symbol': 'Símbolo',
-      'chart.loading': 'Cargando gráfico...',
+    'view.chart': 'Ver Gráfico',
+    'price.history': 'Historial de Precios',
+    'chart.powered.by': 'Desarrollado por TradingView',
+    'chart.real.time': 'Datos en tiempo real',
+    'chart.symbol': 'Símbolo',
+    'chart.loading': 'Cargando gráfico...',
     
     // Investment Types
     'type.crypto': 'Criptomoneda',
@@ -238,7 +285,7 @@ const translations = {
     'type.etf': 'ETF',
     'type.bond': 'Bono',
     'type.cash': 'Efectivo',
-    'type.commodity': 'Materia Prima',
+    'type.commodity': 'Commodity',
     'type.other': 'Otro',
     
     // Form Fields
@@ -250,99 +297,40 @@ const translations = {
     'purchase.date': 'Fecha de Compra',
     'current.price': 'Precio Actual',
     'currency': 'Moneda',
-    'fixed.yield': 'Rendimiento Fijo (% anual)',
-    'payment.frequency': 'Frecuencia de Pago',
-    'maturity.date': 'Fecha de Vencimiento',
-    'face.value': 'Valor Nominal (Opcional)',
-    'last.payment.date': 'Fecha del Último Pago Recibido',
-    'next.payment.date': 'Próxima Fecha de Pago',
+    'fixed.yield': 'Rendimiento Fijo (% por año)',
+    'last.payment.date': 'Última Fecha de Pago Recibida',
+    'next.payment.date.field': 'Próxima Fecha de Pago',
+    'coupon.rate.field': 'Tasa de Cupón (%)',
+    'face.value.field': 'Valor Nominal (Opcional)',
     
     // Payment Frequencies
     'frequency.monthly': 'Mensual',
     'frequency.quarterly': 'Trimestral',
-    'frequency.semi.annual': 'Semestral',
+    'frequency.semi-annual': 'Semestral',
     'frequency.annual': 'Anual',
-    'frequency.zero.coupon': 'Cupón Cero',
-    'frequency.unknown': 'Desconocido',
     
     // Form Actions
     'add': 'Agregar',
     'save': 'Guardar',
     'cancel': 'Cancelar',
     'edit': 'Editar',
-    'remove': 'Eliminar',
     'delete': 'Eliminar',
-    'investment': 'Inversión',
+    'remove': 'Quitar',
+    'update': 'Actualizar',
+    'clear': 'Limpiar',
+    'reset': 'Reiniciar',
     
-    // Validation Messages
-    'required': 'Requerido',
-    'symbol.required': 'El símbolo es requerido',
-    'name.required': 'El nombre es requerido',
-    'quantity.required': 'La cantidad debe ser mayor a 0',
-    'price.required': 'El precio de compra debe ser mayor a 0',
-    'date.required': 'La fecha de compra es requerida',
-    'yield.negative': 'El rendimiento fijo no puede ser negativo',
-    'maturity.after.purchase': 'La fecha de vencimiento debe ser después de la fecha de compra',
-    'face.value.positive': 'El valor nominal debe ser mayor a 0',
-    'last.payment.required': 'La fecha del último pago es requerida para bonos comprados después de ciclos de pago',
-    'last.payment.before.purchase': 'La fecha del último pago no puede ser antes de la fecha de compra',
-    'next.payment.required': 'La próxima fecha de pago es requerida para bonos recientemente comprados',
-    'next.payment.after.purchase': 'La próxima fecha de pago debe ser después de la fecha de compra',
+    // Form Validation
+    'required.field': 'Este campo es obligatorio',
+    'invalid.number': 'Por favor ingresa un número válido',
+    'invalid.date': 'Por favor ingresa una fecha válida',
+    'invalid.percentage': 'Por favor ingresa un porcentaje válido',
     
-    // Bond Analysis
-    'bond.analysis': 'Análisis de Bonos',
-    'detected.frequency': 'Frecuencia de pago detectada',
-    'confidence': 'Confianza',
-    'estimated.payment': 'Pago estimado',
-    'payment.amount': 'Monto del pago',
-    'per.payment': 'por pago',
-    'next.payment': 'Próximo Pago',
-    'days': 'días',
-    'days.overdue': 'días de retraso',
-    'coupon.payment': 'pago de cupón',
-    'coupon': 'Cupón',
-    
-    // Cash Flow
-    'bond.cash.flow': 'Resumen de Flujo de Caja de Bonos',
-    'monthly.income': 'Ingreso Mensual',
-    'quarterly.income': 'Ingreso Trimestral',
-    'annual.income': 'Ingreso Anual',
-    'upcoming.payments': 'Pagos Próximos',
-    'bond.holdings': 'Tenencia de Bonos',
-    'refresh.calculations': 'Actualizar Cálculos',
-    'debug': 'Depurar',
-    'no.upcoming.payments': 'No hay pagos próximos programados',
-    'no.bond.investments': 'No Hay Inversiones en Bonos',
-    'add.bonds.message': 'Agrega bonos con rendimientos fijos para ver proyecciones de flujo de caja',
-    
-    // Portfolio Stats
-    'portfolio.statistics': 'Estadísticas del Portafolio',
-    'portfolio.allocation': 'Asignación del Portafolio',
-    'total.return': 'Retorno Total',
-    'annualized.return': 'Retorno Anualizado',
-    'volatility': 'Volatilidad',
-    'sharpe.ratio': 'Ratio de Sharpe',
-    'max.drawdown': 'Máxima Caída',
-    
-    // Currency Names
-    'currency.usd': 'USD - Dólar Estadounidense',
-    'currency.eur': 'EUR - Euro',
-    'currency.gbp': 'GBP - Libra Esterlina',
-    'currency.jpy': 'JPY - Yen Japonés',
-    'currency.cad': 'CAD - Dólar Canadiense',
-    'currency.aud': 'AUD - Dólar Australiano',
-    'currency.chf': 'CHF - Franco Suizo',
-    'currency.cny': 'CNY - Yuan Chino',
-    'currency.inr': 'INR - Rupia India',
-    'currency.brl': 'BRL - Real Brasileño',
-    'currency.mxn': 'MXN - Peso Mexicano',
-    'currency.ars': 'ARS - Peso Argentino',
-    
-    // Helper Text
-    'currency.helper': 'Las tasas de cambio se obtienen y actualizan automáticamente cada hora',
-    'face.value.helper': 'El valor nominal se usa para cálculos precisos de rendimiento. Si no se proporciona, usaremos precio de compra × cantidad',
-    'purchase.price.helper': 'Ingresa el monto en cualquier moneda',
+    // Form Helpers
     'purchase.price.usd.helper': 'Ingresa el monto en USD',
+    'face.value.helper': 'Deja en blanco para usar precio de compra × cantidad',
+    'yield.helper': 'Rendimiento porcentual anual',
+    'maturity.date.helper': 'Fecha de vencimiento del bono',
     
     // Placeholders
     'placeholder.symbol': 'ej., AAPL, BTC, SPY',
@@ -385,18 +373,49 @@ const translations = {
     'language.english': 'English',
     'language.spanish': 'Español',
     
-    // Navigation
-    'bond.analysis.subtitle': 'Análisis avanzado de portafolio de bonos y proyecciones de flujo de caja',
+    // Date/Time
+    'never': 'Nunca',
+    'today': 'Hoy',
+    'yesterday': 'Ayer',
+    'days.ago': 'hace {days} días',
+    'months.ago': 'hace {months} meses',
+    'years.ago': 'hace {years} años',
     
-
+    // Navigation
+    'go.back': 'Volver',
+    'next': 'Siguiente',
+    'previous': 'Anterior',
+    'close': 'Cerrar',
+    'open': 'Abrir',
+    'show': 'Mostrar',
+    'hide': 'Ocultar',
+    
+    // General
+    'yes': 'Sí',
+    'no': 'No',
+    'ok': 'OK',
+    'confirm': 'Confirmar',
+    'warning': 'Advertencia',
+    'info': 'Información',
+    'success': 'Éxito',
+    'error': 'Error'
   }
 };
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [language, setLanguage] = useState<Language>('en');
 
-  const t = (key: string): string => {
-    return (translations[language] as any)[key] || key;
+  const t = (key: string, interpolations?: Record<string, string>): string => {
+    let translation = (translations[language] as any)[key] || key;
+    
+    // Handle interpolations like {currency}, {benchmark}, etc.
+    if (interpolations) {
+      Object.keys(interpolations).forEach(key => {
+        translation = translation.replace(new RegExp(`\\{${key}\\}`, 'g'), interpolations[key]);
+      });
+    }
+    
+    return translation;
   };
 
   return (

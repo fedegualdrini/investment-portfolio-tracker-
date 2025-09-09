@@ -1,16 +1,19 @@
 import React from 'react';
 import { ChevronDown } from 'lucide-react';
 import { BenchmarkSelectorProps } from '../types/performance';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export function BenchmarkSelector({ 
   selectedBenchmark, 
   onBenchmarkChange, 
   benchmarks 
 }: BenchmarkSelectorProps) {
+  const { t } = useLanguage();
+  
   return (
     <div className="relative">
       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-        Benchmark
+        {t('benchmark')}
       </label>
       <div className="relative">
         <select

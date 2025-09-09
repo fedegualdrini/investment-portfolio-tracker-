@@ -82,9 +82,9 @@ export function BondAnalysisPage({ investments, onBack }: BondAnalysisPageProps)
           {/* Empty State */}
           <div className="text-center py-8 sm:py-16">
             <DollarSign className="mx-auto h-12 w-12 sm:h-16 sm:w-16 text-purple-400 dark:text-purple-500 mb-4 sm:mb-6" />
-            <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2 sm:mb-3">No Bond Investments Found</h3>
+            <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2 sm:mb-3">{t('no.bond.investments.title')}</h3>
             <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-4 sm:mb-6 px-4">
-              Add bonds to your portfolio to access advanced bond analysis, cash flow projections, and yield optimization tools.
+              {t('no.bond.investments.subtitle')}
             </p>
             <div className="flex justify-center">
               <button
