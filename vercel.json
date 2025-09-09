@@ -2,6 +2,12 @@
   "functions": {
     "api/chat.mjs": {
       "maxDuration": 30
+    },
+    "api/coingecko.js": {
+      "maxDuration": 30
+    },
+    "api/yahoo.js": {
+      "maxDuration": 30
     }
   },
   "rewrites": [

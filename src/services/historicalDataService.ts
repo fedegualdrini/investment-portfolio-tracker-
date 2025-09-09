@@ -29,15 +29,26 @@ export class UnifiedHistoricalDataService implements HistoricalDataService {
       if (source === 'coingecko') {
         return await this.coinGeckoService.getHistoricalData(symbol, startDate, endDate);
       } else {
-        return await this.yahooService.getHistoricalData(symbol, startDate, endDate);
+        // For crypto symbols that might be misclassified, try CoinGecko first
+        if (this.isLikelyCryptoSymbol(symbol)) {
+          console.log(`[Historical Service] ${symbol} appears to be crypto, trying CoinGecko first`);
+          try {
+            return await this.coinGeckoService.getHistoricalData(symbol, startDate, endDate);
+          } catch (cryptoError) {
+            console.log(`[Historical Service] CoinGecko failed for ${symbol}, falling back to Yahoo`);
+            return await this.yahooService.getHistoricalData(symbol, startDate, endDate);
+          }
+        } else {
+          return await this.yahooService.getHistoricalData(symbol, startDate, endDate);
+        }
       }
     } catch (error) {
       console.error(`Error fetching historical data for ${symbol} from ${source}:`, error);
-      
+
       // Try fallback to other source if primary fails
       const fallbackSource = source === 'coingecko' ? 'yahoo' : 'coingecko';
       console.log(`Trying fallback to ${fallbackSource} for ${symbol}`);
-      
+
       try {
         if (fallbackSource === 'coingecko') {
           return await this.coinGeckoService.getHistoricalData(symbol, startDate, endDate);
@@ -90,7 +101,7 @@ export class UnifiedHistoricalDataService implements HistoricalDataService {
 
   private detectDataSource(symbol: string): 'yahoo' | 'coingecko' {
     const upperSymbol = symbol.toUpperCase();
-    
+
     // Common crypto symbols that should use CoinGecko
     const cryptoSymbols = [
       'BTC', 'ETH', 'ADA', 'DOT', 'LINK', 'SOL', 'MATIC', 'AVAX', 'ATOM', 'LUNA',
@@ -110,6 +121,41 @@ export class UnifiedHistoricalDataService implements HistoricalDataService {
 
     // Default to Yahoo for stocks and other instruments
     return 'yahoo';
+  }
+
+  private isLikelyCryptoSymbol(symbol: string): boolean {
+    const upperSymbol = symbol.toUpperCase();
+    const lowerSymbol = symbol.toLowerCase();
+
+    // Extended list of crypto indicators
+    const cryptoIndicators = [
+      // Common crypto symbols
+      'BTC', 'ETH', 'ADA', 'DOT', 'LINK', 'SOL', 'MATIC', 'AVAX', 'ATOM', 'LUNA',
+      'USDT', 'USDC', 'BNB', 'XRP', 'DOGE', 'LTC', 'BCH', 'EOS', 'TRX', 'XLM',
+      'bitcoin', 'ethereum', 'cardano', 'polkadot', 'chainlink', 'solana',
+      // Additional crypto indicators
+      'crypto', 'coin', 'token', 'blockchain', 'defi', 'nft'
+    ];
+
+    // Check for exact matches
+    if (cryptoIndicators.includes(upperSymbol) || cryptoIndicators.includes(lowerSymbol)) {
+      return true;
+    }
+
+    // Check for partial matches in symbol names (e.g., "BTC-USD", "ETH/USD")
+    if (upperSymbol.includes('BTC') || upperSymbol.includes('ETH') ||
+        lowerSymbol.includes('bitcoin') || lowerSymbol.includes('ethereum')) {
+      return true;
+    }
+
+    // Check length - crypto symbols are typically short (2-5 characters)
+    if (upperSymbol.length >= 2 && upperSymbol.length <= 6 &&
+        !upperSymbol.includes('.') && !upperSymbol.includes('/')) {
+      // Additional heuristic: if it looks like a ticker and isn't obviously a stock
+      return true;
+    }
+
+    return false;
   }
 
   clearCache(): void {

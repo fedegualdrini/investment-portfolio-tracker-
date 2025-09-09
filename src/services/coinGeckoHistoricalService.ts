@@ -36,6 +36,10 @@ export interface CoinGeckoHistoricalResponse {
 export class CoinGeckoHistoricalService {
   private cache = new Map<string, { data: HistoricalPriceData[]; timestamp: number }>();
   private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+  private lastRequestTime = 0;
+  private requestQueue: Array<() => void> = [];
+  private isProcessingQueue = false;
+  private retryAttempts = new Map<string, number>();
 
   async getHistoricalData(
     symbol: string,
@@ -47,19 +51,14 @@ export class CoinGeckoHistoricalService {
     if (cached) return cached;
 
     try {
-      const coinId = this.getCoinId(symbol);
       const startTimestamp = Math.floor(new Date(startDate).getTime() / 1000);
       const endTimestamp = Math.floor(new Date(endDate).getTime() / 1000);
 
-      const response = await fetch(
-        `${COINGECKO_API}/coins/${coinId}/market_chart/range?vs_currency=usd&from=${startTimestamp}&to=${endTimestamp}`
-      );
+      // Use proxy endpoint to avoid CORS issues
+      const proxyUrl = `/api/coingecko?coinId=${encodeURIComponent(symbol)}&start=${startTimestamp}&end=${endTimestamp}`;
 
-      if (!response.ok) {
-        throw new Error(`Failed to fetch CoinGecko data for ${symbol}: ${response.status}`);
-      }
-
-      const data: CoinGeckoHistoricalResponse = await response.json();
+      // Use rate-limited request method
+      const data = await this.makeRateLimitedRequest(proxyUrl, cacheKey);
 
       if (!data.prices || data.prices.length === 0) {
         throw new Error(`No price data found for ${symbol}`);
@@ -204,7 +203,83 @@ export class CoinGeckoHistoricalService {
     });
   }
 
+  /**
+   * Make a rate-limited request with exponential backoff retry logic
+   */
+  private async makeRateLimitedRequest(
+    url: string,
+    cacheKey: string,
+    retryCount = 0
+  ): Promise<CoinGeckoHistoricalResponse> {
+
+    // Enforce minimum delay between requests (CoinGecko free tier: ~10-50 calls/minute)
+    const now = Date.now();
+    const timeSinceLastRequest = now - this.lastRequestTime;
+    const minDelay = 200; // 200ms minimum delay
+
+    if (timeSinceLastRequest < minDelay) {
+      await new Promise(resolve => setTimeout(resolve, minDelay - timeSinceLastRequest));
+    }
+
+    this.lastRequestTime = Date.now();
+
+    try {
+      console.log(`[CoinGecko Service] Making request: ${url}`);
+      const response = await fetch(url);
+
+      // Handle rate limiting
+      if (response.status === 429) {
+        const retryAfter = response.headers.get('Retry-After');
+        const delay = this.calculateBackoffDelay(retryCount, retryAfter);
+
+        console.warn(`[CoinGecko Service] Rate limited. Retrying in ${delay}ms (attempt ${retryCount + 1})`);
+
+        if (retryCount < 3) { // Max 3 retries
+          await new Promise(resolve => setTimeout(resolve, delay));
+          return this.makeRateLimitedRequest(url, cacheKey, retryCount + 1);
+        } else {
+          throw new Error(`CoinGecko rate limit exceeded after ${retryCount + 1} attempts`);
+        }
+      }
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      this.retryAttempts.delete(cacheKey); // Reset retry count on success
+      return data;
+
+    } catch (error) {
+      console.error(`[CoinGecko Service] Request failed:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Calculate exponential backoff delay
+   */
+  private calculateBackoffDelay(retryCount: number, retryAfterHeader?: string | null): number {
+    // If server provides Retry-After header, use it
+    if (retryAfterHeader) {
+      const retryAfter = parseInt(retryAfterHeader, 10);
+      if (!isNaN(retryAfter)) {
+        return Math.min(retryAfter * 1000, 30000); // Max 30 seconds
+      }
+    }
+
+    // Exponential backoff: 1s, 2s, 4s, 8s...
+    const baseDelay = 1000; // 1 second
+    const maxDelay = 30000; // 30 seconds
+    const delay = Math.min(baseDelay * Math.pow(2, retryCount), maxDelay);
+
+    // Add jitter to avoid thundering herd
+    const jitter = Math.random() * 1000;
+    return delay + jitter;
+  }
+
   clearCache(): void {
     this.cache.clear();
+    this.retryAttempts.clear();
   }
 }

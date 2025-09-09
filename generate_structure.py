@@ -111,8 +111,8 @@ This file is auto-generated to help Cursor AI understand the project structure.
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(output)
     
-    print(f"✅ Directory structure generated: {output_path}")
-    print(f"📁 Found {len(structure.split('<file'))} files and folders")
+    print(f"[SUCCESS] Directory structure generated: {output_path}")
+    print(f"[INFO] Found {len(structure.split('<file'))} files and folders")
 
 if __name__ == "__main__":
     main()
