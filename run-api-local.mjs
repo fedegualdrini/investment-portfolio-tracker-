@@ -1,6 +1,7 @@
 import { createServer } from 'http';
 import { config } from 'dotenv';
 import chatHandler from './api/chat.mjs';
+import createCheckoutHandler from './api/lemonsqueezy/create-checkout.mjs';
 
 // Load environment variables from .env.local for local development
 config({ path: '.env.local', override: true });
@@ -16,9 +17,52 @@ console.log('AI_GATEWAY_API_KEY starts with:', process.env.AI_GATEWAY_API_KEY?.s
 
 const PORT = 3001;
 
+const parseJsonBody = (req) => new Promise((resolve, reject) => {
+  let body = '';
+
+  req.on('data', chunk => {
+    body += chunk.toString();
+  });
+
+  req.on('end', () => {
+    if (!body) {
+      req.body = {};
+      resolve();
+      return;
+    }
+
+    try {
+      req.body = JSON.parse(body);
+      resolve();
+    } catch (error) {
+      reject(error);
+    }
+  });
+});
+
+const handleRequestWithJson = async (req, res, handler) => {
+  try {
+    if (['POST', 'PUT', 'PATCH'].includes(req.method)) {
+      await parseJsonBody(req);
+    }
+    await handler(req, res);
+  } catch (error) {
+    if (error instanceof SyntaxError) {
+      console.error('❌ Error parsing request body:', error);
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Invalid JSON' }));
+      return;
+    }
+
+    console.error('❌ Error in handler:', error);
+    res.writeHead(500, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ error: 'Internal server error' }));
+  }
+};
+
 const server = createServer(async (req, res) => {
   console.log(`📡 Local API Server: ${req.method} ${req.url}`);
-  
+
   // Handle CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
@@ -30,37 +74,27 @@ const server = createServer(async (req, res) => {
     return;
   }
 
-  // Route chat requests
-  if (req.url === '/chat' || req.url === '/api/chat') {
-    try {
-      // Parse request body for POST requests
-      if (req.method === 'POST') {
-        let body = '';
-        req.on('data', chunk => {
-          body += chunk.toString();
-        });
-        req.on('end', async () => {
-          try {
-            req.body = JSON.parse(body);
-            await chatHandler(req, res);
-          } catch (parseError) {
-            console.error('❌ Error parsing request body:', parseError);
-            res.writeHead(400, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ error: 'Invalid JSON' }));
-          }
-        });
-      } else {
-        await chatHandler(req, res);
-      }
-    } catch (error) {
-      console.error('❌ Error in chat handler:', error);
-      res.writeHead(500, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ error: 'Internal server error' }));
-    }
-  } else {
-    res.writeHead(404, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ error: 'Not found' }));
+  const { url, method } = req;
+  const parsedUrl = new URL(url, 'http://localhost');
+  const pathname = parsedUrl.pathname.replace(/\/$/, '');
+
+  if (pathname === '/chat' || pathname === '/api/chat') {
+    await handleRequestWithJson(req, res, chatHandler);
+    return;
   }
+
+  if (
+    pathname === '/lemonsqueezy/create-checkout' ||
+    pathname === '/api/lemonsqueezy/create-checkout' ||
+    pathname === '/lemonsqueezy-checkout'
+  ) {
+    await handleRequestWithJson(req, res, createCheckoutHandler);
+    return;
+  }
+
+  console.warn(`⚠️ No handler found for ${method} ${pathname}`);
+  res.writeHead(404, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify({ error: 'Not found' }));
 });
 
 server.listen(PORT, () => {

@@ -6,6 +6,9 @@
     "api/coingecko.js": {
       "maxDuration": 30
     },
+    "api/lemonsqueezy/create-checkout.mjs": {
+      "maxDuration": 30
+    },
     "api/yahoo.js": {
       "maxDuration": 30
     }
