@@ -43,6 +43,12 @@ Create a `.env.local` file in your project root with the following variables:
 LEMONSQUEEZY_API_KEY=your_api_key_here
 LEMONSQUEEZY_STORE_ID=your_store_id_here
 
+# Client-side configuration used by the checkout buttons
+VITE_LEMONSQUEEZY_VARIANT_ID=your_variant_id_here
+
+# Optional: override the fallback checkout URL used if the API fails
+# VITE_LEMONSQUEEZY_FALLBACK_URL=https://your-store.lemonsqueezy.com/buy/your_shareable_checkout
+
 # Optional: force test mode outside of production
 # LEMONSQUEEZY_TEST_MODE=true
 
@@ -53,17 +59,16 @@ OPENAI_API_KEY=your_openai_api_key_here
 > ℹ️ The Vite client no longer talks directly to LemonSqueezy. The API key and
 > store ID are only required on the serverless function (Vercel or the local
 > development server started with `npm run dev:api`), so they remain private.
+> The client only needs the public variant ID (and optionally the shareable
+> fallback checkout URL) which are safe to expose via `VITE_` variables.
 
-### 4. Update Variant ID
+### 4. Configure Variant and Fallback URLs
 
-In `src/components/Header.tsx`, replace the hardcoded variant ID with your actual variant ID:
-
-```typescript
-// Replace this line in both checkout buttons:
-variantId: '6ea39e2c-da56-46cf-a1f5-d2df1bd30f9f',
-// With your actual variant ID:
-variantId: 'your_actual_variant_id_here',
-```
+Set `VITE_LEMONSQUEEZY_VARIANT_ID` to the variant you want to sell. If you have
+an existing hosted checkout you prefer to fall back to when the API is
+unavailable, set `VITE_LEMONSQUEEZY_FALLBACK_URL` to that shareable URL. The
+buttons in the app will automatically pick up these values—no code edits are
+required.
 
 ## 🚀 How It Works
 

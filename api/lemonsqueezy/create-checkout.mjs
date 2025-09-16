@@ -5,10 +5,27 @@ config({ path: '.env.local', override: true });
 
 const LEMON_SQUEEZY_API_URL = 'https://api.lemonsqueezy.com/v1/checkouts';
 
+function toNonEmptyString(value) {
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    return trimmed === '' ? undefined : trimmed;
+  }
+
+  if (typeof value === 'number') {
+    return Number.isFinite(value) ? String(value) : undefined;
+  }
+
+  if (typeof value === 'boolean') {
+    return value ? 'true' : 'false';
+  }
+
+  return undefined;
+}
+
 function getEnvValue(...keys) {
   for (const key of keys) {
-    const value = process.env[key];
-    if (typeof value === 'string' && value.trim() !== '') {
+    const value = toNonEmptyString(process.env[key]);
+    if (value) {
       return value;
     }
   }
@@ -28,22 +45,21 @@ function parseBody(body) {
   return body;
 }
 
-function buildCustomFields(userId, customData) {
-  const customFields = {};
+function buildCustomField(userId, customData) {
+  if (customData && typeof customData === 'object' && !Array.isArray(customData)) {
+    const sanitizedEntries = Object.entries(customData)
+      .map(([key, value]) => {
+        const normalizedValue = toNonEmptyString(value);
+        return [key, normalizedValue];
+      })
+      .filter(([, value]) => value !== undefined);
 
-  if (customData && typeof customData === 'object') {
-    for (const [key, value] of Object.entries(customData)) {
-      if (value !== undefined) {
-        customFields[key] = value;
-      }
+    if (sanitizedEntries.length > 0) {
+      return Object.fromEntries(sanitizedEntries);
     }
   }
 
-  if (userId) {
-    customFields.custom = userId;
-  }
-
-  return Object.keys(customFields).length > 0 ? customFields : undefined;
+  return toNonEmptyString(userId);
 }
 
 function createCheckoutPayload({
@@ -63,12 +79,15 @@ function createCheckoutPayload({
 }) {
   const checkoutData = {};
 
-  if (email) checkoutData.email = email;
-  if (name) checkoutData.name = name;
+  const normalizedEmail = toNonEmptyString(email);
+  if (normalizedEmail) checkoutData.email = normalizedEmail;
 
-  const customFields = buildCustomFields(userId, customData);
-  if (customFields) {
-    checkoutData.custom = customFields;
+  const normalizedName = toNonEmptyString(name);
+  if (normalizedName) checkoutData.name = normalizedName;
+
+  const customField = buildCustomField(userId, customData);
+  if (customField) {
+    checkoutData.custom = customField;
   }
 
   const defaultReturnUrl = returnUrl ?? receiptLinkUrl ?? null;
@@ -161,7 +180,9 @@ export default async function handler(req, res) {
     testMode
   } = body;
 
-  if (!variantId) {
+  const normalizedVariantId = toNonEmptyString(variantId);
+
+  if (!normalizedVariantId) {
     res.writeHead(400, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'variantId is required' }));
     return;
@@ -197,7 +218,7 @@ export default async function handler(req, res) {
       : nodeEnv !== 'production') || envTestMode;
 
   const payload = createCheckoutPayload({
-    variantId,
+    variantId: normalizedVariantId,
     storeId,
     email,
     name,

@@ -8,7 +8,12 @@ import { CurrencyDropdown } from './CurrencyDropdown';
 import { trackInvestmentActions } from './GoogleAnalytics';
 import { useAuth } from '../contexts/AuthContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
-import { openLemonSqueezyCheckout, openLemonSqueezyCheckoutLegacy } from '../lib/openCheckout';
+import {
+  LEMON_SQUEEZY_FALLBACK_URL,
+  LEMON_SQUEEZY_VARIANT_ID,
+  openLemonSqueezyCheckout,
+  openLemonSqueezyCheckoutLegacy
+} from '../lib/openCheckout';
 
 interface HeaderProps {
   onAddInvestment: () => void;
@@ -126,7 +131,7 @@ export function Header({
                     if (user) {
                       try {
                         await openLemonSqueezyCheckout({
-                          variantId: '1000932',
+                          variantId: LEMON_SQUEEZY_VARIANT_ID,
                           email: user.email || undefined,
                           userId: user.id,
                           name: user.user_metadata?.full_name || undefined
@@ -135,7 +140,7 @@ export function Header({
                         console.error('Checkout error:', error);
                         // Fallback to legacy method
                         openLemonSqueezyCheckoutLegacy(
-                          'https://portfolio-tracker.lemonsqueezy.com/buy/1000932',
+                          LEMON_SQUEEZY_FALLBACK_URL,
                           user.email || undefined,
                           user.id
                         );
@@ -177,7 +182,7 @@ export function Header({
                     if (user) {
                       try {
                         await openLemonSqueezyCheckout({
-                          variantId: '1000932',
+                          variantId: LEMON_SQUEEZY_VARIANT_ID,
                           email: user.email || undefined,
                           userId: user.id,
                           name: user.user_metadata?.full_name || undefined
@@ -186,7 +191,7 @@ export function Header({
                         console.error('Checkout error:', error);
                         // Fallback to legacy method
                         openLemonSqueezyCheckoutLegacy(
-                          'https://portfolio-tracker.lemonsqueezy.com/buy/1000932',
+                          LEMON_SQUEEZY_FALLBACK_URL,
                           user.email || undefined,
                           user.id
                         );

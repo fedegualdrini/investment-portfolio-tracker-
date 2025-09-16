@@ -1,5 +1,5 @@
 interface LemonSqueezyCheckoutOptions {
-  variantId: string;
+  variantId?: string;
   email?: string;
   userId?: string;
   name?: string;
@@ -21,9 +21,40 @@ interface LemonSqueezyCheckoutResponse {
 
 const CHECKOUT_ENDPOINT = '/api/lemonsqueezy/create-checkout';
 
+const env = import.meta.env as Record<string, string | undefined>;
+
+function readEnvValue(...keys: string[]) {
+  for (const key of keys) {
+    const value = env[key];
+    if (typeof value === 'string') {
+      const trimmed = value.trim();
+      if (trimmed) {
+        return trimmed;
+      }
+    }
+  }
+  return undefined;
+}
+
+export const LEMON_SQUEEZY_VARIANT_ID = readEnvValue(
+  'VITE_LEMONSQUEEZY_VARIANT_ID',
+  'VITE_LEMON_SQUEEZY_VARIANT_ID',
+  'LEMONSQUEEZY_VARIANT_ID',
+  'LEMON_SQUEEZY_VARIANT_ID'
+) ?? '1000932';
+
+const DEFAULT_LEMON_SQUEEZY_FALLBACK_URL = `https://portfolio-tracker.lemonsqueezy.com/buy/${LEMON_SQUEEZY_VARIANT_ID}`;
+
+export const LEMON_SQUEEZY_FALLBACK_URL = readEnvValue(
+  'VITE_LEMONSQUEEZY_FALLBACK_URL',
+  'VITE_LEMON_SQUEEZY_FALLBACK_URL',
+  'LEMONSQUEEZY_FALLBACK_URL',
+  'LEMON_SQUEEZY_FALLBACK_URL'
+) ?? DEFAULT_LEMON_SQUEEZY_FALLBACK_URL;
+
 function buildCheckoutRequestPayload(options: LemonSqueezyCheckoutOptions) {
   const {
-    variantId,
+    variantId = LEMON_SQUEEZY_VARIANT_ID,
     email,
     userId,
     name,
@@ -36,6 +67,10 @@ function buildCheckoutRequestPayload(options: LemonSqueezyCheckoutOptions) {
     receiptThankYouNote,
     testMode
   } = options;
+
+  if (!variantId) {
+    throw new Error('Lemon Squeezy variant ID is not configured.');
+  }
 
   const baseReturnUrl = returnUrl ?? `${window.location.origin}/`;
   const payload: Record<string, unknown> = {
@@ -113,7 +148,7 @@ export async function openLemonSqueezyCheckout(options: LemonSqueezyCheckoutOpti
 }
 
 // Legacy function for backward compatibility
-export function openLemonSqueezyCheckoutLegacy(productUrl: string, email?: string, userId?: string) {
+export function openLemonSqueezyCheckoutLegacy(productUrl: string = LEMON_SQUEEZY_FALLBACK_URL, email?: string, userId?: string) {
   const url = new URL(productUrl);
   if (email) url.searchParams.set('checkout[email]', email);
   if (userId) url.searchParams.set('checkout[custom]', userId);
