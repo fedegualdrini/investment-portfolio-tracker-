@@ -39,13 +39,20 @@ This guide explains how to set up LemonSqueezy for subscription management in yo
 Create a `.env.local` file in your project root with the following variables:
 
 ```bash
-# LemonSqueezy Configuration
-VITE_LEMONSQUEEZY_API_KEY=your_api_key_here
-VITE_LEMONSQUEEZY_STORE_ID=your_store_id_here
+# LemonSqueezy server-side configuration
+LEMONSQUEEZY_API_KEY=your_api_key_here
+LEMONSQUEEZY_STORE_ID=your_store_id_here
+
+# Optional: force test mode outside of production
+# LEMONSQUEEZY_TEST_MODE=true
 
 # Other existing variables...
 OPENAI_API_KEY=your_openai_api_key_here
 ```
+
+> ℹ️ The Vite client no longer talks directly to LemonSqueezy. The API key and
+> store ID are only required on the serverless function (Vercel or the local
+> development server started with `npm run dev:api`), so they remain private.
 
 ### 4. Update Variant ID
 
@@ -63,10 +70,11 @@ variantId: 'your_actual_variant_id_here',
 ### Checkout Flow
 
 1. **User clicks "Upgrade" button**
-2. **System creates LemonSqueezy checkout** using the API
-3. **User completes payment** on LemonSqueezy's secure checkout page
-4. **Webhook updates subscription status** in your database
-5. **User gains access** to premium features
+2. **System calls `/api/lemonsqueezy/create-checkout`** to create a checkout
+3. **Serverless function talks to LemonSqueezy API** using secure credentials
+4. **User completes payment** on LemonSqueezy's secure checkout page
+5. **Webhook updates subscription status** in your database
+6. **User gains access** to premium features
 
 ### Webhook Integration
 
@@ -75,6 +83,13 @@ The system includes a Supabase Edge Function that handles LemonSqueezy webhooks:
 - **Location**: `supabase/functions/lemonsqueezy-webhook/index.ts`
 - **Purpose**: Updates subscription status when payments are processed
 - **Triggers**: Payment success, subscription changes, cancellations
+
+### Checkout API Function
+
+- **Location**: `api/lemonsqueezy/create-checkout.mjs`
+- **Purpose**: Creates checkouts on LemonSqueezy using secure server-side credentials
+- **Authentication**: Requires `LEMONSQUEEZY_API_KEY` and `LEMONSQUEEZY_STORE_ID`
+- **Local development**: Ensure `npm run dev:api` is running so the Vite proxy can reach the function at `http://localhost:3001`
 
 ### Database Schema
 
@@ -128,11 +143,11 @@ CREATE TABLE subscriptions (
 
 #### 401 Unauthorized
 - **Cause**: Invalid or missing API key
-- **Solution**: Verify `VITE_LEMONSQUEEZY_API_KEY` is correct
+- **Solution**: Verify `LEMONSQUEEZY_API_KEY` is set for the API function
 
 #### 422 Unprocessable Content
 - **Cause**: Invalid request data or missing store ID
-- **Solution**: Check `VITE_LEMONSQUEEZY_STORE_ID` and variant ID
+- **Solution**: Check `LEMONSQUEEZY_STORE_ID` and the variant ID being sent from the client
 
 #### Webhook Not Working
 - **Cause**: Webhook URL not configured or secret mismatch
