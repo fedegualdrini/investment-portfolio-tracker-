@@ -52,6 +52,79 @@ export const LEMON_SQUEEZY_FALLBACK_URL = readEnvValue(
   'LEMON_SQUEEZY_FALLBACK_URL'
 ) ?? DEFAULT_LEMON_SQUEEZY_FALLBACK_URL;
 
+function normalizeCheckoutString(value: unknown) {
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    return trimmed === '' ? undefined : trimmed;
+  }
+
+  if (typeof value === 'number') {
+    return Number.isFinite(value) ? String(value) : undefined;
+  }
+
+  return undefined;
+}
+
+function getPayloadString(payload: Record<string, unknown>, key: string) {
+  return normalizeCheckoutString(payload[key]);
+}
+
+function resolveLegacyProductUrl(productUrl: string | undefined, variantId?: string) {
+  const sanitizedProductUrl = normalizeCheckoutString(productUrl) ?? LEMON_SQUEEZY_FALLBACK_URL;
+  const sanitizedVariantId = normalizeCheckoutString(variantId);
+
+  if (!sanitizedVariantId) {
+    return sanitizedProductUrl;
+  }
+
+  try {
+    const fallbackUrl = new URL(sanitizedProductUrl);
+    const defaultUrl = new URL(DEFAULT_LEMON_SQUEEZY_FALLBACK_URL);
+
+    const fallbackSegments = fallbackUrl.pathname.split('/').filter(Boolean);
+    const defaultSegments = defaultUrl.pathname.split('/').filter(Boolean);
+
+    if (
+      fallbackUrl.origin === defaultUrl.origin &&
+      fallbackSegments.length === defaultSegments.length &&
+      fallbackSegments.slice(0, -1).every((segment, index) => segment === defaultSegments[index])
+    ) {
+      fallbackSegments[fallbackSegments.length - 1] = sanitizedVariantId;
+      fallbackUrl.pathname = `/${fallbackSegments.join('/')}`;
+      return fallbackUrl.toString();
+    }
+
+    return fallbackUrl.toString();
+  } catch (error) {
+    console.warn('Invalid Lemon Squeezy fallback product URL provided:', error);
+    return sanitizedProductUrl;
+  }
+}
+
+function buildLegacyCheckoutUrl(
+  productUrl: string = LEMON_SQUEEZY_FALLBACK_URL,
+  email?: string,
+  userId?: string
+) {
+  const sanitizedProductUrl = normalizeCheckoutString(productUrl) ?? LEMON_SQUEEZY_FALLBACK_URL;
+  const sanitizedEmail = normalizeCheckoutString(email);
+  const sanitizedUserId = normalizeCheckoutString(userId);
+
+  try {
+    const url = new URL(sanitizedProductUrl);
+    if (sanitizedEmail) {
+      url.searchParams.set('checkout[email]', sanitizedEmail);
+    }
+    if (sanitizedUserId) {
+      url.searchParams.set('checkout[custom]', sanitizedUserId);
+    }
+    return url.toString();
+  } catch (error) {
+    console.warn('Unable to construct Lemon Squeezy fallback URL:', error);
+    return sanitizedProductUrl;
+  }
+}
+
 function buildCheckoutRequestPayload(options: LemonSqueezyCheckoutOptions) {
   const {
     variantId = LEMON_SQUEEZY_VARIANT_ID,
@@ -143,16 +216,55 @@ export async function openLemonSqueezyCheckout(options: LemonSqueezyCheckoutOpti
     return result as LemonSqueezyCheckoutResponse;
   } catch (error) {
     console.error('Error creating LemonSqueezy checkout:', error);
+    const fallbackVariantId =
+      getPayloadString(payload, 'variantId') ??
+      normalizeCheckoutString(options.variantId) ??
+      LEMON_SQUEEZY_VARIANT_ID;
+
+    const fallbackProductUrl = resolveLegacyProductUrl(
+      LEMON_SQUEEZY_FALLBACK_URL,
+      fallbackVariantId
+    );
+
+    const fallbackEmail =
+      getPayloadString(payload, 'email') ?? normalizeCheckoutString(options.email);
+    const fallbackUserId =
+      getPayloadString(payload, 'userId') ?? normalizeCheckoutString(options.userId);
+
+    if (fallbackProductUrl) {
+      console.warn('Falling back to direct Lemon Squeezy checkout URL.');
+      const fallbackUrl = openLemonSqueezyCheckoutLegacy(
+        fallbackProductUrl,
+        fallbackEmail,
+        fallbackUserId
+      );
+
+      const payloadTestMode =
+        typeof payload['testMode'] === 'boolean' ? (payload['testMode'] as boolean) : undefined;
+
+      return {
+        url: fallbackUrl,
+        testMode: payloadTestMode ?? import.meta.env.DEV
+      };
+    }
+
+    if (!import.meta.env.DEV) {
+      alert('Unable to open checkout. Please try again or contact support.');
+    }
+
     throw error;
   }
 }
 
 // Legacy function for backward compatibility
-export function openLemonSqueezyCheckoutLegacy(productUrl: string = LEMON_SQUEEZY_FALLBACK_URL, email?: string, userId?: string) {
-  const url = new URL(productUrl);
-  if (email) url.searchParams.set('checkout[email]', email);
-  if (userId) url.searchParams.set('checkout[custom]', userId);
-  window.open(url.toString(), '_blank', 'noopener');
+export function openLemonSqueezyCheckoutLegacy(
+  productUrl: string = LEMON_SQUEEZY_FALLBACK_URL,
+  email?: string,
+  userId?: string
+): string {
+  const url = buildLegacyCheckoutUrl(productUrl, email, userId);
+  window.open(url, '_blank', 'noopener');
+  return url;
 }
 
 
