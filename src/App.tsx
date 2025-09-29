@@ -8,7 +8,14 @@ import { EditInvestmentForm } from './components/EditInvestmentForm';
 import { PortfolioStats } from './components/PortfolioStats';
 import { BondAnalysisPage } from './pages/BondAnalysisPage';
 import { PerformanceComparisonPage } from './pages/PerformanceComparisonPage';
+import { PricingPage } from './pages/PricingPage';
+import { TermsOfService } from './pages/TermsOfService';
+import { PrivacyPolicy } from './pages/PrivacyPolicy';
+import { RefundPolicy } from './pages/RefundPolicy';
+import { SuccessPage } from './pages/SuccessPage';
 import { ChatBlob } from './components/ChatBlob';
+import { Footer } from './components/Footer';
+import { Navigation } from './components/Navigation';
 import GoogleAnalytics from './components/GoogleAnalytics';
 import { useInvestmentContext } from './contexts/InvestmentContext';
 import type { Investment } from './types/investment';
@@ -16,13 +23,16 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { CurrencyProvider } from './contexts/CurrencyContext';
 import { InvestmentProvider } from './contexts/InvestmentContext';
+import { AuthProvider } from './contexts/AuthContext';
+import { SubscriptionProvider } from './contexts/SubscriptionContext';
+import type { PageType } from './types/navigation';
 
 function AppContent() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingInvestment, setEditingInvestment] = useState<string | null>(null);
-
   const [showBondAnalysis, setShowBondAnalysis] = useState(false);
   const [showPerformanceComparison, setShowPerformanceComparison] = useState(false);
+  const [currentPage, setCurrentPage] = useState<PageType>('dashboard');
 
   // Helper function to close all sections and return to home
   const closeAllSections = () => {
@@ -30,6 +40,7 @@ function AppContent() {
     setEditingInvestment(null);
     setShowBondAnalysis(false);
     setShowPerformanceComparison(false);
+    setCurrentPage('dashboard');
   };
 
   // Helper function to open a specific section (closes others)
@@ -121,46 +132,69 @@ function AppContent() {
     ? investments.find(inv => inv.id === editingInvestment) 
     : null;
 
+  // Handle navigation
+  const handleNavigation = (page: PageType) => {
+    setCurrentPage(page);
+    closeAllSections();
+  };
+
   return (
     <ThemeProvider>
       <LanguageProvider>
         <CurrencyProvider>
-          <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200" role="application" aria-label="Investment Portfolio Tracker">
-        <GoogleAnalytics />
-        <SpeedInsights />
-        <Analytics />
-        <Header
-          onAddInvestment={() => openSection('addForm')}
-          onExport={exportPortfolio}
-          onImport={handleImport}
-          onUpdatePrices={updatePrices}
-          onBondAnalysis={() => openSection('bondAnalysis')}
-          onPerformanceComparison={() => openSection('performanceComparison')}
-          isLoading={isLoading}
-        />
+          <AuthProvider>
+            <SubscriptionProvider>
+              <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200" role="application" aria-label="Investment Portfolio Tracker">
+                <GoogleAnalytics />
+                <SpeedInsights />
+                <Analytics />
+                <Header
+                  onAddInvestment={() => openSection('addForm')}
+                  onExport={exportPortfolio}
+                  onImport={handleImport}
+                  onUpdatePrices={updatePrices}
+                  onBondAnalysis={() => openSection('bondAnalysis')}
+                  onPerformanceComparison={() => openSection('performanceComparison')}
+                  isLoading={isLoading}
+                />
 
-        {/* Main content */}
-        <main className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
-                  {showAddForm ? (
-          <div ref={addFormRef} className="mb-8 mt-4 animate-fadeInUp">
-            <AddInvestmentForm
-              onAdd={handleAddInvestment}
-              onCancel={closeAllSections}
-            />
-          </div>
-        ) : null}
+                {/* Navigation */}
+                <Navigation 
+                  currentPage={currentPage} 
+                  onNavigate={handleNavigation}
+                />
 
-                  {editingInvestment && investmentToEdit ? (
-          <div ref={editFormRef} className="mb-8 mt-4 animate-fadeInUp">
-            <EditInvestmentForm
-              investment={investmentToEdit}
-              onSave={handleEditInvestment}
-              onCancel={closeAllSections}
-            />
-          </div>
-        ) : null}
+                {/* Main content */}
+                <main className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+                  {/* Page routing */}
+                  {currentPage === 'pricing' && <PricingPage />}
+                  {currentPage === 'terms' && <TermsOfService />}
+                  {currentPage === 'privacy' && <PrivacyPolicy />}
+                  {currentPage === 'refund' && <RefundPolicy />}
+                  {currentPage === 'success' && <SuccessPage />}
+                  
+                  {currentPage === 'dashboard' && (
+                    <>
+                      {showAddForm ? (
+                        <div ref={addFormRef} className="mb-8 mt-4 animate-fadeInUp">
+                          <AddInvestmentForm
+                            onAdd={handleAddInvestment}
+                            onCancel={closeAllSections}
+                          />
+                        </div>
+                      ) : null}
 
-          {!showAddForm && !editingInvestment && !showBondAnalysis && !showPerformanceComparison && (
+                      {editingInvestment && investmentToEdit ? (
+                        <div ref={editFormRef} className="mb-8 mt-4 animate-fadeInUp">
+                          <EditInvestmentForm
+                            investment={investmentToEdit}
+                            onSave={handleEditInvestment}
+                            onCancel={closeAllSections}
+                          />
+                        </div>
+                      ) : null}
+
+                      {!showAddForm && !editingInvestment && !showBondAnalysis && !showPerformanceComparison && (
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
               <div className="lg:col-span-3">
                 <Dashboard
@@ -183,22 +217,22 @@ function AppContent() {
             </div>
           )}
 
-          {/* Bond Analysis Page */}
-          {showBondAnalysis && (
-            <BondAnalysisPage
-              investments={investments}
-              onBack={closeAllSections}
-            />
-          )}
+                      {/* Bond Analysis Page */}
+                      {showBondAnalysis && (
+                        <BondAnalysisPage
+                          investments={investments}
+                          onBack={closeAllSections}
+                        />
+                      )}
 
-          {/* Performance Comparison Page */}
-          {showPerformanceComparison && (
-            <PerformanceComparisonPage
-              onBack={closeAllSections}
-            />
-          )}
+                      {/* Performance Comparison Page */}
+                      {showPerformanceComparison && (
+                        <PerformanceComparisonPage
+                          onBack={closeAllSections}
+                        />
+                      )}
 
-          {!showAddForm && !editingInvestment && !showBondAnalysis && !showPerformanceComparison && investments.length > 0 && (
+                      {!showAddForm && !editingInvestment && !showBondAnalysis && !showPerformanceComparison && investments.length > 0 && (
             <div className="mt-4 sm:mt-8 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6 transition-colors duration-200">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100">Quick Actions</h2>
@@ -238,18 +272,25 @@ function AppContent() {
                     <div className="text-xs text-gray-500 dark:text-gray-400">Upload JSON file</div>
                   </div>
                 </button>
-              </div>
-            </div>
-          )}
-        </main>
+                      </div>
+                    </div>
+                  )}
+                    </>
+                  )}
+                </main>
 
-        {/* ChatBlob - Floating chat interface */}
-        <ChatBlob />
+                {/* ChatBlob - Floating chat interface */}
+                <ChatBlob />
+                
+                {/* Footer */}
+                <Footer />
               </div>
-          </CurrencyProvider>
+            </SubscriptionProvider>
+          </AuthProvider>
+        </CurrencyProvider>
       </LanguageProvider>
-      </ThemeProvider>
-    );
+    </ThemeProvider>
+  );
   }
 
 function App() {

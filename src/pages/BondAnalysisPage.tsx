@@ -4,6 +4,7 @@ import { ArrowLeft, PieChart, TrendingUp, Calendar, DollarSign, Clock, RefreshCw
 import { useLanguage } from '../contexts/LanguageContext';
 import { useCurrency } from '../contexts/CurrencyContext';
 import { BondCashFlow } from '../components/BondCashFlow';
+import { PremiumGate } from '../components/subscription/PremiumGate';
 import type { Investment } from '../types/investment';
 
 interface BondAnalysisPageProps {
@@ -101,8 +102,9 @@ export function BondAnalysisPage({ investments, onBack }: BondAnalysisPageProps)
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
-      <div className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+    <PremiumGate>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
+        <div className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
         {/* Header */}
         <div className="flex items-center space-x-3 sm:space-x-4 mb-6 sm:mb-8">
           <button
@@ -178,7 +180,8 @@ export function BondAnalysisPage({ investments, onBack }: BondAnalysisPageProps)
 
         {/* Bond Cash Flow Component */}
         <BondCashFlow investments={bondInvestments} />
+        </div>
       </div>
-    </div>
+    </PremiumGate>
   );
 }
