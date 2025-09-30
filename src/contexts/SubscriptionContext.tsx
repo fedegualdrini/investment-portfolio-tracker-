@@ -33,6 +33,13 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
       return;
     }
 
+    // Check if Supabase is properly configured
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+      console.error('Supabase environment variables are not configured');
+      setSubscription(null);
+      return;
+    }
+
     setLoading(true);
     try {
       const sub = await DatabaseService.getSubscription(user.id);
