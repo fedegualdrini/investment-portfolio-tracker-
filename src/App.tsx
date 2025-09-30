@@ -34,13 +34,48 @@ function AppContent() {
   const [showPerformanceComparison, setShowPerformanceComparison] = useState(false);
   const [currentPage, setCurrentPage] = useState<PageType>('dashboard');
 
+  // URL routing logic
+  useEffect(() => {
+    const path = window.location.pathname;
+    const pageMap: Record<string, PageType> = {
+      '/': 'dashboard',
+      '/dashboard': 'dashboard',
+      '/pricing': 'pricing',
+      '/terms': 'terms',
+      '/privacy': 'privacy',
+      '/refund': 'refund',
+      '/success': 'success'
+    };
+    
+    const page = pageMap[path] || 'dashboard';
+    setCurrentPage(page);
+  }, []);
+
+  // Update URL when page changes
+  const handleNavigation = (page: PageType) => {
+    setCurrentPage(page);
+    closeAllSections();
+    
+    // Update URL without page reload
+    const urlMap: Record<PageType, string> = {
+      'dashboard': '/',
+      'pricing': '/pricing',
+      'terms': '/terms',
+      'privacy': '/privacy',
+      'refund': '/refund',
+      'success': '/success'
+    };
+    
+    const newUrl = urlMap[page] || '/';
+    window.history.pushState({}, '', newUrl);
+  };
+
   // Helper function to close all sections and return to home
   const closeAllSections = () => {
     setShowAddForm(false);
     setEditingInvestment(null);
     setShowBondAnalysis(false);
     setShowPerformanceComparison(false);
-    setCurrentPage('dashboard');
   };
 
   // Helper function to open a specific section (closes others)
@@ -132,11 +167,28 @@ function AppContent() {
     ? investments.find(inv => inv.id === editingInvestment) 
     : null;
 
-  // Handle navigation
-  const handleNavigation = (page: PageType) => {
-    setCurrentPage(page);
-    closeAllSections();
-  };
+  // Handle browser back/forward buttons
+  useEffect(() => {
+    const handlePopState = () => {
+      const path = window.location.pathname;
+      const pageMap: Record<string, PageType> = {
+        '/': 'dashboard',
+        '/dashboard': 'dashboard',
+        '/pricing': 'pricing',
+        '/terms': 'terms',
+        '/privacy': 'privacy',
+        '/refund': 'refund',
+        '/success': 'success'
+      };
+      
+      const page = pageMap[path] || 'dashboard';
+      setCurrentPage(page);
+      closeAllSections();
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   return (
     <ThemeProvider>
