@@ -1,4 +1,4 @@
-import { HistoricalPriceData, PerformanceDataPoint } from '../types/performance';
+import { HistoricalPriceData, PerformanceDataPoint } from '../types/performance.js';
 
 export interface NormalizedComparison {
   normalizedPortfolio: PerformanceDataPoint[];
