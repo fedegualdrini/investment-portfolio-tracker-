@@ -3,12 +3,12 @@ import {
   HistoricalPriceData, 
   Benchmark, 
   BENCHMARKS 
-} from '../types/performance';
-import { PortfolioValueCalculator, PerformanceMetricsCalculator } from '../utils/performanceCalculations';
-import { getDateRangeFromPreset, getLastTradingDay } from '../utils/dateUtils';
-import { HistoricalDataService } from './historicalDataService';
-import { PortfolioNormalizationService, NormalizedComparison } from './portfolioNormalizationService';
-import { DataGapFiller } from './dataGapFiller';
+} from '../types/performance.js';
+import { PortfolioValueCalculator, PerformanceMetricsCalculator } from '../utils/performanceCalculations.js';
+import { getDateRangeFromPreset, getLastTradingDay } from '../utils/dateUtils.js';
+import { HistoricalDataService } from './historicalDataService.js';
+import { PortfolioNormalizationService, NormalizedComparison } from './portfolioNormalizationService.js';
+import { DataGapFiller } from './dataGapFiller.js';
 
 export class PerformanceComparisonService {
   private cache: Map<string, any> = new Map();

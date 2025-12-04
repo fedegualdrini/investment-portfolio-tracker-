@@ -12,9 +12,9 @@
  * This separation is critical for data accuracy and consistency.
  */
 
-import { HistoricalPriceData } from '../types/performance';
-import { YahooHistoricalService } from './yahooHistoricalService';
-import { CoinGeckoHistoricalService } from './coinGeckoHistoricalService';
+import { HistoricalPriceData } from '../types/performance.js';
+import { YahooHistoricalService } from './yahooHistoricalService.js';
+import { CoinGeckoHistoricalService } from './coinGeckoHistoricalService.js';
 
 export interface HistoricalDataService {
   getHistoricalData(symbol: string, startDate: string, endDate: string): Promise<HistoricalPriceData[]>;

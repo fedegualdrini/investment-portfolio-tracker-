@@ -1,4 +1,4 @@
-import { HistoricalPriceData } from '../types/performance';
+import { HistoricalPriceData } from '../types/performance.js';
 
 export interface DateRange {
   start: string;

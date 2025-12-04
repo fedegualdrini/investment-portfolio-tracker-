@@ -1,4 +1,4 @@
-import { PerformanceDataPoint, PerformanceMetrics, HistoricalPriceData } from '../types/performance';
+import { PerformanceDataPoint, PerformanceMetrics, HistoricalPriceData } from '../types/performance.js';
 
 export class PerformanceMetricsCalculator {
   static calculateTotalReturn(values: number[]): number {

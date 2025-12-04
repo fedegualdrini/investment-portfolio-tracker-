@@ -3,6 +3,7 @@ import { ArrowLeft, TrendingUp, TrendingDown } from 'lucide-react';
 import { useInvestments } from '../hooks/useInvestments';
 import { useCurrency } from '../contexts/CurrencyContext';
 import { useLanguage } from '../contexts/LanguageContext';
+import { PremiumGate } from '../components/subscription/PremiumGate';
 import {
   PerformanceDataPoint,
   Benchmark,
@@ -253,8 +254,9 @@ export function PerformanceComparisonPage({ onBack }: PerformanceComparisonPageP
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
-      <div className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+    <PremiumGate>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
+        <div className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
         {/* Header with Back Button */}
         <div className="flex items-center space-x-3 sm:space-x-4 mb-6 sm:mb-8">
           <button
@@ -418,7 +420,8 @@ export function PerformanceComparisonPage({ onBack }: PerformanceComparisonPageP
             </div>
           </div>
         </div>
+        </div>
       </div>
-    </div>
+    </PremiumGate>
   );
 }

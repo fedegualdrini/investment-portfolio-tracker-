@@ -1,5 +1,5 @@
-import { HistoricalPriceData } from '../types/performance';
-import { DataGapFiller } from './dataGapFiller';
+import { HistoricalPriceData } from '../types/performance.js';
+import { DataGapFiller } from './dataGapFiller.js';
 
 export interface YahooHistoricalResponse {
   chart: {

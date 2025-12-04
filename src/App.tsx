@@ -8,7 +8,14 @@ import { EditInvestmentForm } from './components/EditInvestmentForm';
 import { PortfolioStats } from './components/PortfolioStats';
 import { BondAnalysisPage } from './pages/BondAnalysisPage';
 import { PerformanceComparisonPage } from './pages/PerformanceComparisonPage';
+import { PricingPage } from './pages/PricingPage';
+import { TermsOfService } from './pages/TermsOfService';
+import { PrivacyPolicy } from './pages/PrivacyPolicy';
+import { RefundPolicy } from './pages/RefundPolicy';
+import { SuccessPage } from './pages/SuccessPage';
 import { ChatBlob } from './components/ChatBlob';
+import { Footer } from './components/Footer';
+import { Navigation } from './components/Navigation';
 import GoogleAnalytics from './components/GoogleAnalytics';
 import { useInvestmentContext } from './contexts/InvestmentContext';
 import type { Investment } from './types/investment';
@@ -19,15 +26,54 @@ import { InvestmentProvider } from './contexts/InvestmentContext';
 import { GoalsProvider } from './contexts/GoalsContext';
 import { GoalsPage } from './pages/GoalsPage';
 import { RebalancingTool } from './components/RebalancingTool';
+import { AuthProvider } from './contexts/AuthContext';
+import { SubscriptionProvider } from './contexts/SubscriptionContext';
+import type { PageType } from './types/navigation';
 
 function AppContent() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingInvestment, setEditingInvestment] = useState<string | null>(null);
-
   const [showBondAnalysis, setShowBondAnalysis] = useState(false);
   const [showPerformanceComparison, setShowPerformanceComparison] = useState(false);
   const [showGoals, setShowGoals] = useState(false);
   const [showRebalancing, setShowRebalancing] = useState(false);
+  const [currentPage, setCurrentPage] = useState<PageType>('dashboard');
+
+  // URL routing logic
+  useEffect(() => {
+    const path = window.location.pathname;
+    const pageMap: Record<string, PageType> = {
+      '/': 'dashboard',
+      '/dashboard': 'dashboard',
+      '/pricing': 'pricing',
+      '/terms': 'terms',
+      '/privacy': 'privacy',
+      '/refund': 'refund',
+      '/success': 'success'
+    };
+    
+    const page = pageMap[path] || 'dashboard';
+    setCurrentPage(page);
+  }, []);
+
+  // Update URL when page changes
+  const handleNavigation = (page: PageType) => {
+    setCurrentPage(page);
+    closeAllSections();
+    
+    // Update URL without page reload
+    const urlMap: Record<PageType, string> = {
+      'dashboard': '/',
+      'pricing': '/pricing',
+      'terms': '/terms',
+      'privacy': '/privacy',
+      'refund': '/refund',
+      'success': '/success'
+    };
+    
+    const newUrl = urlMap[page] || '/';
+    window.history.pushState({}, '', newUrl);
+  };
 
   // Helper function to close all sections and return to home
   const closeAllSections = () => {
@@ -134,48 +180,88 @@ function AppContent() {
     ? investments.find(inv => inv.id === editingInvestment) 
     : null;
 
+  // Handle browser back/forward buttons
+  useEffect(() => {
+    const handlePopState = () => {
+      const path = window.location.pathname;
+      const pageMap: Record<string, PageType> = {
+        '/': 'dashboard',
+        '/dashboard': 'dashboard',
+        '/pricing': 'pricing',
+        '/terms': 'terms',
+        '/privacy': 'privacy',
+        '/refund': 'refund',
+        '/success': 'success'
+      };
+      
+      const page = pageMap[path] || 'dashboard';
+      setCurrentPage(page);
+      closeAllSections();
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
   return (
     <ThemeProvider>
       <LanguageProvider>
         <CurrencyProvider>
-          <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200" role="application" aria-label="Investment Portfolio Tracker">
-        <GoogleAnalytics />
-        <SpeedInsights />
-        <Analytics />
-        <Header
-          onAddInvestment={() => openSection('addForm')}
-          onExport={exportPortfolio}
-          onImport={handleImport}
-          onUpdatePrices={updatePrices}
-          onBondAnalysis={() => openSection('bondAnalysis')}
-          onPerformanceComparison={() => openSection('performanceComparison')}
-          onGoals={() => openSection('goals')}
-          onRebalancing={() => openSection('rebalancing')}
-          isLoading={isLoading}
-        />
+          <AuthProvider>
+            <SubscriptionProvider>
+              <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200" role="application" aria-label="Investment Portfolio Tracker">
+                <GoogleAnalytics />
+                <SpeedInsights />
+                <Analytics />
+                <Header
+                  onAddInvestment={() => openSection('addForm')}
+                  onExport={exportPortfolio}
+                  onImport={handleImport}
+                  onUpdatePrices={updatePrices}
+                  onBondAnalysis={() => openSection('bondAnalysis')}
+                  onPerformanceComparison={() => openSection('performanceComparison')}
+                  onGoals={() => openSection('goals')}
+                  onRebalancing={() => openSection('rebalancing')}
+                  isLoading={isLoading}
+                />
 
-        {/* Main content */}
-        <main className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
-                  {showAddForm ? (
-          <div ref={addFormRef} className="mb-8 mt-4 animate-fadeInUp">
-            <AddInvestmentForm
-              onAdd={handleAddInvestment}
-              onCancel={closeAllSections}
-            />
-          </div>
-        ) : null}
+                {/* Navigation */}
+                <Navigation 
+                  currentPage={currentPage} 
+                  onNavigate={handleNavigation}
+                />
 
-                  {editingInvestment && investmentToEdit ? (
-          <div ref={editFormRef} className="mb-8 mt-4 animate-fadeInUp">
-            <EditInvestmentForm
-              investment={investmentToEdit}
-              onSave={handleEditInvestment}
-              onCancel={closeAllSections}
-            />
-          </div>
-        ) : null}
+                {/* Main content */}
+                <main className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+                  {/* Page routing */}
+                  {currentPage === 'pricing' && <PricingPage />}
+                  {currentPage === 'terms' && <TermsOfService />}
+                  {currentPage === 'privacy' && <PrivacyPolicy />}
+                  {currentPage === 'refund' && <RefundPolicy />}
+                  {currentPage === 'success' && <SuccessPage />}
+                  
+                  {currentPage === 'dashboard' && (
+                    <>
+                      {showAddForm ? (
+                        <div ref={addFormRef} className="mb-8 mt-4 animate-fadeInUp">
+                          <AddInvestmentForm
+                            onAdd={handleAddInvestment}
+                            onCancel={closeAllSections}
+                          />
+                        </div>
+                      ) : null}
 
-          {!showAddForm && !editingInvestment && !showBondAnalysis && !showPerformanceComparison && !showGoals && !showRebalancing && (
+                      {editingInvestment && investmentToEdit ? (
+                        <div ref={editFormRef} className="mb-8 mt-4 animate-fadeInUp">
+                          <EditInvestmentForm
+                            investment={investmentToEdit}
+                            onSave={handleEditInvestment}
+                            onCancel={closeAllSections}
+                          />
+                        </div>
+                      ) : null}
+
+                      {!showAddForm && !editingInvestment && !showBondAnalysis && !showPerformanceComparison && !showGoals && !showRebalancing && (
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
               <div className="lg:col-span-3">
                 <Dashboard
@@ -198,47 +284,47 @@ function AppContent() {
             </div>
           )}
 
-          {/* Bond Analysis Page */}
-          {showBondAnalysis && (
-            <BondAnalysisPage
-              investments={investments}
-              onBack={closeAllSections}
-            />
-          )}
+                      {/* Bond Analysis Page */}
+                      {showBondAnalysis && (
+                        <BondAnalysisPage
+                          investments={investments}
+                          onBack={closeAllSections}
+                        />
+                      )}
 
-          {/* Performance Comparison Page */}
-          {showPerformanceComparison && (
-            <PerformanceComparisonPage
-              onBack={closeAllSections}
-            />
-          )}
+                      {/* Performance Comparison Page */}
+                      {showPerformanceComparison && (
+                        <PerformanceComparisonPage
+                          onBack={closeAllSections}
+                        />
+                      )}
 
-          {/* Goals Page */}
-          {showGoals && (
-            <GoalsPage
-              onBack={closeAllSections}
-            />
-          )}
+                      {/* Goals Page */}
+                      {showGoals && (
+                        <GoalsPage
+                          onBack={closeAllSections}
+                        />
+                      )}
 
-          {/* Rebalancing Tool */}
-          {showRebalancing && (
-            <div className="max-w-6xl mx-auto">
-              <div className="mb-4">
-                <button
-                  onClick={closeAllSections}
-                  className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                  </svg>
-                  Back to Dashboard
-                </button>
-              </div>
-              <RebalancingTool />
-            </div>
-          )}
+                      {/* Rebalancing Tool */}
+                      {showRebalancing && (
+                        <div className="max-w-6xl mx-auto">
+                          <div className="mb-4">
+                            <button
+                              onClick={closeAllSections}
+                              className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+                            >
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                              </svg>
+                              Back to Dashboard
+                            </button>
+                          </div>
+                          <RebalancingTool />
+                        </div>
+                      )}
 
-          {!showAddForm && !editingInvestment && !showBondAnalysis && !showPerformanceComparison && !showGoals && !showRebalancing && investments.length > 0 && (
+                      {!showAddForm && !editingInvestment && !showBondAnalysis && !showPerformanceComparison && !showGoals && !showRebalancing && investments.length > 0 && (
             <div className="mt-4 sm:mt-8 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6 transition-colors duration-200">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100">Quick Actions</h2>
@@ -278,18 +364,25 @@ function AppContent() {
                     <div className="text-xs text-gray-500 dark:text-gray-400">Upload JSON file</div>
                   </div>
                 </button>
-              </div>
-            </div>
-          )}
-        </main>
+                      </div>
+                    </div>
+                  )}
+                    </>
+                  )}
+                </main>
 
-        {/* ChatBlob - Floating chat interface */}
-        <ChatBlob />
+                {/* ChatBlob - Floating chat interface */}
+                <ChatBlob />
+                
+                {/* Footer */}
+                <Footer />
               </div>
-          </CurrencyProvider>
+            </SubscriptionProvider>
+          </AuthProvider>
+        </CurrencyProvider>
       </LanguageProvider>
-      </ThemeProvider>
-    );
+    </ThemeProvider>
+  );
   }
 
 function App() {
