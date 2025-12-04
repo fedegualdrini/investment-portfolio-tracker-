@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { TrendingUp, Plus, Download, Upload, RefreshCw, MessageCircle, BarChart3 } from 'lucide-react';
+import { TrendingUp, Plus, Download, Upload, RefreshCw, MessageCircle, BarChart3, Target, Scale } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
 import { useLanguage } from '../contexts/LanguageContext';
 import { LanguageToggle } from './LanguageToggle';
@@ -14,6 +14,8 @@ interface HeaderProps {
   onUpdatePrices: () => void;
   onBondAnalysis: () => void;
   onPerformanceComparison: () => void;
+  onGoals?: () => void;
+  onRebalancing?: () => void;
   isLoading: boolean;
 }
 
@@ -24,6 +26,8 @@ export function Header({
   onUpdatePrices, 
   onBondAnalysis,
   onPerformanceComparison,
+  onGoals,
+  onRebalancing,
   isLoading 
 }: HeaderProps) {
   const { t } = useLanguage();
@@ -73,6 +77,33 @@ export function Header({
               </span>
             </button>
 
+            {onGoals && (
+              <button
+                onClick={onGoals}
+                className="group flex items-center space-x-1 sm:space-x-2 px-2 sm:px-3 py-2 bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/30 transition-all duration-500 hover:pr-3 sm:hover:pr-4 interactive-hover-subtle"
+                title="Financial Goals"
+                aria-label="Financial Goals"
+              >
+                <Target className="h-4 w-4 sm:h-5 sm:w-5" />
+                <span className="max-w-0 overflow-hidden group-hover:max-w-xs transition-all duration-500 whitespace-nowrap text-sm sm:text-base" aria-hidden="true">
+                  Goals
+                </span>
+              </button>
+            )}
+
+            {onRebalancing && (
+              <button
+                onClick={onRebalancing}
+                className="group flex items-center space-x-1 sm:space-x-2 px-2 sm:px-3 py-2 bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 rounded-lg hover:bg-orange-100 dark:hover:bg-orange-900/30 transition-all duration-500 hover:pr-3 sm:hover:pr-4 interactive-hover-subtle"
+                title="Portfolio Rebalancing"
+                aria-label="Portfolio Rebalancing"
+              >
+                <Scale className="h-4 w-4 sm:h-5 sm:w-5" />
+                <span className="max-w-0 overflow-hidden group-hover:max-w-xs transition-all duration-500 whitespace-nowrap text-sm sm:text-base" aria-hidden="true">
+                  Rebalance
+                </span>
+              </button>
+            )}
 
             <button
               onClick={() => {

@@ -1,13 +1,16 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
-import type { Investment, PortfolioSummary } from '../types/investment';
+import type { Investment, PortfolioSummary, TargetAllocation, InvestmentType } from '../types/investment';
 import { PriceService } from '../services/priceService';
 
 const STORAGE_KEY = 'investment-portfolio';
+const TARGET_ALLOCATION_KEY = 'target-allocations';
 const priceService = new PriceService();
 
 interface InvestmentContextType {
   investments: Investment[];
+  targetAllocations: TargetAllocation[];
   setInvestments: (investments: Investment[] | ((prev: Investment[]) => Investment[])) => void;
+  updateTargetAllocation: (type: InvestmentType, percentage: number) => void;
   addInvestment: (investment: Omit<Investment, 'id'>) => void;
   updateInvestment: (id: string, updates: Partial<Investment>) => void;
   removeInvestment: (id: string) => void;
@@ -23,6 +26,7 @@ const InvestmentContext = createContext<InvestmentContextType | undefined>(undef
 
 export function InvestmentProvider({ children }: { children: ReactNode }) {
   const [investments, setInvestments] = useState<Investment[]>([]);
+  const [targetAllocations, setTargetAllocations] = useState<TargetAllocation[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
 
@@ -39,12 +43,32 @@ export function InvestmentProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  // Load target allocations from localStorage on mount
+  useEffect(() => {
+    const stored = localStorage.getItem(TARGET_ALLOCATION_KEY);
+    if (stored) {
+      try {
+        const parsedAllocations = JSON.parse(stored);
+        setTargetAllocations(parsedAllocations);
+      } catch (error) {
+        console.error('Error parsing stored target allocations:', error);
+      }
+    }
+  }, []);
+
   // Save to localStorage whenever investments change
   useEffect(() => {
     if (investments.length > 0) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(investments));
     }
   }, [investments]);
+
+  // Save to localStorage whenever target allocations change
+  useEffect(() => {
+    if (targetAllocations.length > 0) {
+      localStorage.setItem(TARGET_ALLOCATION_KEY, JSON.stringify(targetAllocations));
+    }
+  }, [targetAllocations]);
 
   const addInvestment = useCallback((investment: Omit<Investment, 'id'>) => {
     const newInvestment: Investment = {
@@ -66,9 +90,22 @@ export function InvestmentProvider({ children }: { children: ReactNode }) {
     setInvestments(prev => prev.filter(investment => investment.id !== id));
   }, []);
 
+  const updateTargetAllocation = useCallback((type: InvestmentType, percentage: number) => {
+    setTargetAllocations(prev => {
+      const existingIndex = prev.findIndex(a => a.type === type);
+      if (existingIndex >= 0) {
+        const newAllocations = [...prev];
+        newAllocations[existingIndex] = { type, targetPercentage: percentage };
+        return newAllocations;
+      } else {
+        return [...prev, { type, targetPercentage: percentage }];
+      }
+    });
+  }, []);
+
   const updatePrices = useCallback(async () => {
     if (investments.length === 0) return;
-    
+
     setIsLoading(true);
     try {
       const updatedInvestments = await priceService.updateAllPrices(investments);
@@ -89,10 +126,10 @@ export function InvestmentProvider({ children }: { children: ReactNode }) {
     investments.forEach(investment => {
       const currentValue = (investment.currentPrice || investment.purchasePrice) * investment.quantity;
       const investedValue = investment.purchasePrice * investment.quantity;
-      
+
       totalValue += currentValue;
       totalInvested += investedValue;
-      
+
       investmentsByType[investment.type] = (investmentsByType[investment.type] || 0) + currentValue;
     });
 
@@ -119,25 +156,25 @@ export function InvestmentProvider({ children }: { children: ReactNode }) {
     const blob = new Blob([JSON.stringify(portfolio, null, 2)], {
       type: 'application/json',
     });
-    
+
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
     link.download = `portfolio-${new Date().toISOString().split('T')[0]}.json`;
     link.click();
-    
+
     URL.revokeObjectURL(url);
   }, [investments, calculatePortfolioSummary]);
 
   const importPortfolio = useCallback((file: File) => {
     return new Promise<void>((resolve, reject) => {
       const reader = new FileReader();
-      
+
       reader.onload = (e) => {
         try {
           const content = e.target?.result as string;
           const portfolio = JSON.parse(content);
-          
+
           if (portfolio.investments && Array.isArray(portfolio.investments)) {
             setInvestments(portfolio.investments);
             resolve();
@@ -148,7 +185,7 @@ export function InvestmentProvider({ children }: { children: ReactNode }) {
           reject(error);
         }
       };
-      
+
       reader.onerror = () => reject(new Error('Error reading file'));
       reader.readAsText(file);
     });
@@ -156,7 +193,9 @@ export function InvestmentProvider({ children }: { children: ReactNode }) {
 
   const value: InvestmentContextType = {
     investments,
+    targetAllocations,
     setInvestments,
+    updateTargetAllocation,
     addInvestment,
     updateInvestment,
     removeInvestment,

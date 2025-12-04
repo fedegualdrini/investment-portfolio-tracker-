@@ -3,6 +3,7 @@ import { TrendingUp, TrendingDown, DollarSign, RefreshCw } from 'lucide-react';
 import type { Investment, PortfolioSummary } from '../types/investment';
 import { InvestmentCard } from './InvestmentCard';
 import { LoadingCard } from './LoadingSpinner';
+import { NewsFeed } from './NewsFeed';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useCurrency } from '../contexts/CurrencyContext';
 
@@ -27,8 +28,8 @@ export function Dashboard({
 }: DashboardProps) {
   const { t } = useLanguage();
   const { formatCurrency } = useCurrency();
-  
-  
+
+
   // Auto-update prices every 5 minutes
   useEffect(() => {
     if (investments.length === 0) return;
@@ -108,11 +109,10 @@ export function Dashboard({
               <button
                 onClick={onUpdatePrices}
                 disabled={isLoading}
-                className={`brand-button-icon ${
-                  isLoading
+                className={`brand-button-icon ${isLoading
                     ? 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 cursor-not-allowed'
                     : 'bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 hover:bg-purple-100 dark:hover:bg-purple-900/30'
-                }`}
+                  }`}
                 title={t('update.prices')}
               >
                 <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
@@ -145,6 +145,9 @@ export function Dashboard({
           ))
         )}
       </div>
+
+      {/* News Feed Section */}
+      <NewsFeed investments={investments} />
     </div>
   );
 }
