@@ -7,6 +7,7 @@ import { AddInvestmentForm } from './components/AddInvestmentForm';
 import { EditInvestmentForm } from './components/EditInvestmentForm';
 import { PortfolioStats } from './components/PortfolioStats';
 import { WeeklyPulse } from './components/WeeklyPulse';
+import { DisclaimerFooter } from './components/Footer';
 import { BondAnalysisPage } from './pages/BondAnalysisPage';
 import { PerformanceComparisonPage } from './pages/PerformanceComparisonPage';
 import { ChatBlob } from './components/ChatBlob';
@@ -180,7 +181,10 @@ function AppContent() {
               )}
 
               {showWeeklyPulse && (
-                <WeeklyPulse onBack={closeAllSections} />
+                <>
+                  <WeeklyPulse onBack={closeAllSections} />
+                  <DisclaimerFooter />
+                </>
               )}
 
               {showBondAnalysis && (
