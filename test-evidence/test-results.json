@@ -1,0 +1,27 @@
+{
+  "importSuccess": true,
+  "btcBenchmark": {
+    "tested": false,
+    "status": null,
+    "error": null,
+    "requestUrl": null,
+    "networkError": null
+  },
+  "bondAnalysis": {
+    "tested": false,
+    "i18nIssues": [],
+    "screenshot": null,
+    "error": "Navigation link not found"
+  },
+  "consoleLogs": [
+    "[debug] [vite] connecting...",
+    "[debug] [vite] connected.",
+    "[info] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold",
+    "[log] Google Analytics not initialized: Missing or invalid tracking ID",
+    "[log] Google Analytics not initialized: Missing or invalid tracking ID",
+    "[log] %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit",
+    "[log] %c[Vercel Web Analytics]%c [pageview] http://127.0.0.1:5173/ color: rgb(120, 120, 120) color: inherit {o: http://127.0.0.1:5173/, sv: 0.1.3, sdkn: @vercel/analytics/react, sdkv: 1.5.0, ts: 1770177111162}",
+    "[log] %c[Vercel Speed Insights]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit"
+  ],
+  "networkErrors": []
+}
