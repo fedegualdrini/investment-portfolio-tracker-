@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { TrendingUp, Plus, Download, Upload, RefreshCw, MessageCircle, BarChart3 } from 'lucide-react';
+import { TrendingUp, Plus, Download, Upload, RefreshCw, BarChart3, Activity } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
 import { useLanguage } from '../contexts/LanguageContext';
 import { LanguageToggle } from './LanguageToggle';
@@ -14,20 +13,22 @@ interface HeaderProps {
   onUpdatePrices: () => void;
   onBondAnalysis: () => void;
   onPerformanceComparison: () => void;
+  onWeeklyPulse: () => void;
   isLoading: boolean;
 }
 
-export function Header({ 
-  onAddInvestment, 
-  onExport, 
-  onImport, 
-  onUpdatePrices, 
+export function Header({
+  onAddInvestment,
+  onExport,
+  onImport,
+  onUpdatePrices,
   onBondAnalysis,
   onPerformanceComparison,
-  isLoading 
+  onWeeklyPulse,
+  isLoading,
 }: HeaderProps) {
   const { t } = useLanguage();
-  
+
   return (
     <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10 transition-colors duration-200 shadow-sm">
       <div className="w-full px-4 sm:px-6 lg:px-8">
@@ -43,6 +44,23 @@ export function Header({
           </div>
 
           <div className="mobile-nav w-full sm:w-auto">
+            {/* Weekly Pulse */}
+            <button
+              onClick={() => {
+                trackInvestmentActions.weeklyPulse();
+                onWeeklyPulse();
+              }}
+              className="group flex items-center space-x-1 sm:space-x-2 px-2 sm:px-3 py-2 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-all duration-500 hover:pr-3 sm:hover:pr-4 interactive-hover-subtle"
+              title="Portfolio Pulse"
+              aria-label="Portfolio Pulse"
+            >
+              <Activity className="h-4 w-4 sm:h-5 sm:w-5" />
+              <span className="max-w-0 overflow-hidden group-hover:max-w-xs transition-all duration-500 whitespace-nowrap text-sm sm:text-base" aria-hidden="true">
+                Pulse
+              </span>
+            </button>
+
+            {/* Bond Analysis */}
             <button
               onClick={() => {
                 trackInvestmentActions.bondAnalysis();
@@ -58,6 +76,7 @@ export function Header({
               </span>
             </button>
 
+            {/* Performance Comparison */}
             <button
               onClick={() => {
                 trackInvestmentActions.performanceComparison();
@@ -73,7 +92,7 @@ export function Header({
               </span>
             </button>
 
-
+            {/* Update Prices */}
             <button
               onClick={() => {
                 trackInvestmentActions.refreshPrices();
@@ -91,6 +110,7 @@ export function Header({
               <RefreshCw className={`h-4 w-4 sm:h-5 sm:w-5 ${isLoading ? 'animate-spin' : ''}`} />
             </button>
 
+            {/* Import */}
             <button
               onClick={onImport}
               className="brand-button-icon bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600"
@@ -100,6 +120,7 @@ export function Header({
               <Upload className="h-4 w-4 sm:h-5 sm:w-5" />
             </button>
 
+            {/* Export */}
             <button
               onClick={onExport}
               className="brand-button-icon bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600"
@@ -113,6 +134,7 @@ export function Header({
             <LanguageToggle />
             <ThemeToggle />
 
+            {/* Add Investment */}
             <button
               onClick={() => {
                 trackInvestmentActions.addInvestment('form_open');
