@@ -2,6 +2,7 @@ import React from 'react';
 import { RefreshCw, TrendingUp, Minus, AlertCircle, Lightbulb } from 'lucide-react';
 import { useWeeklyPulse } from '../hooks/useWeeklyPulse';
 import { useInvestmentContext } from '../contexts/InvestmentContext';
+import { DisclaimerFooter } from './Footer';
 import type { NarrativeSection } from '../lib/narrative/types';
 
 interface WeeklyPulseProps {
@@ -69,6 +70,7 @@ const Disclaimer: React.FC = () => (
 
 export const WeeklyPulse: React.FC<WeeklyPulseProps> = ({ compact = false, onBack }) => {
   const { investments } = useInvestmentContext();
+import { DisclaimerFooter } from './Footer';
   const {
     narrative,
     isLoading,
@@ -208,6 +210,7 @@ export const WeeklyPulse: React.FC<WeeklyPulseProps> = ({ compact = false, onBac
           </div>
         )}
       </div>
-    </div>
-  );
+    </div> <DisclaimerFooter /> );
 };
+
+export {};
