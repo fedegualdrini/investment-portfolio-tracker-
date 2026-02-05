@@ -70,7 +70,6 @@ const Disclaimer: React.FC = () => (
 
 export const WeeklyPulse: React.FC<WeeklyPulseProps> = ({ compact = false, onBack }) => {
   const { investments } = useInvestmentContext();
-import { DisclaimerFooter } from './Footer';
   const {
     narrative,
     isLoading,
@@ -209,8 +208,10 @@ import { DisclaimerFooter } from './Footer';
             </p>
           </div>
         )}
-      </div>
-    </div> <DisclaimerFooter /> );
-};
+ <DisclaimerFooter />
+ </div>
+ </div>
 
+ );
+ };
 export {};
