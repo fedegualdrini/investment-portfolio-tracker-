@@ -1,0 +1,85 @@
+{
+  "templates": {
+    "performance": {
+      "up": [
+        "Your portfolio gained {{amount}} ({{percent}}) this week.",
+        "Your portfolio is up {{amount}} ({{percent}}) since last week.",
+        "This week your portfolio increased by {{amount}} ({{percent}}).",
+        "Your portfolio value has risen {{percent}}, adding {{amount}} this week."
+      ],
+      "down": [
+        "Your portfolio declined {{amount}} ({{percent}}) this week.",
+        "Your portfolio is down {{amount}} ({{percent}}) since last week.",
+        "This week your portfolio decreased by {{amount}} ({{percent}}).",
+        "Your portfolio value has dropped {{percent}}, losing {{amount}} this week."
+      ],
+      "unchanged": [
+        "Your portfolio value remained stable this week.",
+        "There was little change in your portfolio this week."
+      ],
+      "totalValue": [
+        "Your portfolio is now worth {{totalValue}}.",
+        "Your total portfolio value is {{totalValue}}.",
+        "You have {{totalValue}} in invested assets."
+      ]
+    },
+    "allocation": {
+      "largestType": [
+        "{{type}} makes up {{percent}} of your portfolio.",
+        "Your portfolio is {{percent}} {{type}}.",
+        "{{percent}} of your investments are in {{type}}."
+      ],
+      "largestHolding": [
+        "Your largest position is {{symbol}} at {{percent}} of your portfolio.",
+        "{{symbol}} is your biggest holding, representing {{percent}} of the portfolio.",
+        "You have {{percent}} invested in {{symbol}}."
+      ],
+      "diversification": [
+        "You hold {{count}} different {{category}}.",
+        "Your portfolio includes {{count}} {{category}} positions.",
+        "You are invested across {{count}} {{category}}."
+      ]
+    },
+    "topMover": {
+      "best": [
+        "Your best performer is {{symbol}}, up {{percent}}.",
+        "{{symbol}} led your portfolio with a {{percent}} gain.",
+        "{{symbol}} was your top gainer this week at {{percent}}."
+      ],
+      "worst": [
+        "{{symbol}} was your weakest performer, down {{percent}}.",
+        "Your portfolio's biggest decline came from {{symbol}} at {{percent}}.",
+        "{{symbol}} dropped {{percent}}, the largest decrease in your holdings."
+      ]
+    },
+    "milestone": {
+      "crossedAbove": [
+        "You've crossed ${{threshold}} in portfolio value!",
+        "Portfolio milestone: you've reached ${{threshold}}.",
+        "Congratulations, your portfolio is now above ${{threshold}}."
+      ],
+      "crossedBelow": [
+        "Your portfolio has dipped below ${{threshold}}.",
+        "Portfolio update: you're now below ${{threshold}}.",
+        "Your portfolio is under ${{threshold}}."
+      ]
+    },
+    "educational": {
+      "diversification": [
+        "Some investors keep single positions under 10% for diversification.",
+        "Diversification typically involves spreading investments across sectors and asset types.",
+        "Having many different investments can help spread risk."
+      ],
+      "concentration": [
+        "A single position above 30% represents significant concentration.",
+        "Large positions can amplify both gains and losses.",
+        "Some investors monitor position sizes to manage exposure."
+      ],
+      "marketContext": [
+        "Technology stocks often experience more volatility than bonds.",
+        "Crypto markets tend to be more volatile than traditional stocks.",
+        "Bond prices typically move inversely to interest rates."
+      ]
+    }
+  }
+}
