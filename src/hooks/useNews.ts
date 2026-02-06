@@ -21,6 +21,13 @@ export function useNews(symbols: string[]): UseNewsReturn {
       return;
     }
 
+    const apiKey = import.meta.env.VITE_FINNHUB_API_KEY;
+    if (!apiKey) {
+      setNews([]);
+      setError('To enable News, set VITE_FINNHUB_API_KEY (Finnhub).');
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
@@ -29,7 +36,7 @@ export function useNews(symbols: string[]): UseNewsReturn {
       setNews(data.slice(0, 10));
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Failed to fetch news';
-      setError(msg.includes('API key') ? 'News requires Finnhub API key' : msg);
+      setError(msg.includes('API key') ? 'News is enabled but the Finnhub API key is missing/invalid.' : msg);
     } finally {
       setIsLoading(false);
     }

@@ -33,7 +33,23 @@ export const NewsPanel: React.FC<NewsPanelProps> = ({ symbols }) => {
         <div className="bg-amber-900/20 border border-amber-700/30 rounded-lg p-4 mb-4">
           <div className="flex items-start gap-3">
             <AlertCircle className="w-5 h-5 text-amber-400 flex-shrink-0" />
-            <p className="text-sm text-amber-200/80">{error}</p>
+            <div>
+              <p className="text-sm text-amber-200/80">{error}</p>
+              {error.includes('VITE_FINNHUB_API_KEY') && (
+                <p className="text-xs text-amber-200/70 mt-2">
+                  Get a free key at{' '}
+                  <a
+                    className="underline hover:text-amber-100"
+                    href="https://finnhub.io/register"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    finnhub.io/register
+                  </a>
+                  . Then add it in Vercel → Project → Settings → Environment Variables.
+                </p>
+              )}
+            </div>
           </div>
         </div>
       )}

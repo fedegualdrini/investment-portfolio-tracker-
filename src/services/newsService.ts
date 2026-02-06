@@ -105,7 +105,10 @@ export async function fetchNewsForSymbol(
 
     return items;
   } catch (error) {
-    console.error(`Failed to fetch news for ${symbol}:`, error);
+    // Avoid noisy logs in production builds (e.g. missing API key)
+    if (import.meta.env.DEV) {
+      console.error(`Failed to fetch news for ${symbol}:`, error);
+    }
     throw error;
   }
 }
@@ -134,7 +137,9 @@ export async function fetchGeneralNews(): Promise<NewsItem[]> {
 
     return items;
   } catch (error) {
-    console.error('Failed to fetch general news:', error);
+    if (import.meta.env.DEV) {
+      console.error('Failed to fetch general news:', error);
+    }
     throw error;
   }
 }
