@@ -5,6 +5,7 @@ import { useInvestmentContext } from '../contexts/InvestmentContext';
 import { DisclaimerFooter } from './Footer';
 import { NewsPanel } from './NewsPanel';
 import { EducationTooltip } from './EducationTooltip';
+import { ScenarioViewer } from './ScenarioViewer';
 import type { NarrativeSection } from '../lib/narrative/types';
 
 interface WeeklyPulseProps {
@@ -73,6 +74,7 @@ const DisclaimerInline: React.FC = () => (
 export const WeeklyPulse: React.FC<WeeklyPulseProps> = ({ compact = false, onBack }) => {
   const { investments } = useInvestmentContext();
   const portfolioSymbols = Array.from(new Set(investments.map((i) => i.symbol).filter(Boolean)));
+  const [showScenarios, setShowScenarios] = React.useState(false);
 
   const { narrative, isLoading, error, generatePulse, lastGenerated } = useWeeklyPulse(investments);
 
@@ -171,9 +173,25 @@ export const WeeklyPulse: React.FC<WeeklyPulseProps> = ({ compact = false, onBac
               ))}
             </div>
 
+            <div className="mt-6 flex items-center justify-between">
+              <button
+                type="button"
+                onClick={() => setShowScenarios(true)}
+                className="text-sm text-purple-300 hover:text-purple-200 underline"
+              >
+                Explore Scenarios
+              </button>
+            </div>
+
             <NewsPanel symbols={portfolioSymbols} />
 
             <DisclaimerInline />
+
+            <ScenarioViewer
+              open={showScenarios}
+              onClose={() => setShowScenarios(false)}
+              investments={investments}
+            />
           </>
         )}
 
