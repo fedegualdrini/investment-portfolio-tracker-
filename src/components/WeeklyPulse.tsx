@@ -11,6 +11,13 @@ interface WeeklyPulseProps {
   onBack?: () => void;
 }
 
+const PieIcon: React.FC = () => (
+  <svg className="w-5 h-5 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <circle cx="12" cy="12" r="10" />
+    <path d="M12 2v20M2 12h20" />
+  </svg>
+);
+
 const SectionIcon: React.FC<{ heading: string }> = ({ heading }) => {
   const lower = heading.toLowerCase();
   if (lower.includes('performance')) return <TrendingUp className="w-5 h-5 text-emerald-400" />;
@@ -20,13 +27,6 @@ const SectionIcon: React.FC<{ heading: string }> = ({ heading }) => {
   if (lower.includes('context')) return <Lightbulb className="w-5 h-5 text-purple-400" />;
   return <Minus className="w-5 h-5 text-gray-400" />;
 };
-
-const PieIcon: React.FC = () => (
-  <svg className="w-5 h-5 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <circle cx="12" cy="12" r="10" />
-    <path d="M12 2v20M2 12h20" />
-  </svg>
-);
 
 const HighlightCard: React.FC<{
   label: string;
@@ -44,7 +44,7 @@ const HighlightCard: React.FC<{
   </div>
 );
 
-const NarrativeSection: React.FC<{ section: NarrativeSection }> = ({ section }) => (
+const NarrativeSectionView: React.FC<{ section: NarrativeSection }> = ({ section }) => (
   <div className="mb-6">
     <div className="flex items-center gap-2 mb-3">
       <SectionIcon heading={section.heading} />
@@ -56,14 +56,14 @@ const NarrativeSection: React.FC<{ section: NarrativeSection }> = ({ section }) 
   </div>
 );
 
-const Disclaimer: React.FC = () => (
+const DisclaimerInline: React.FC = () => (
   <div className="mt-6 p-4 bg-amber-900/20 border border-amber-700/30 rounded-lg">
     <div className="flex items-start gap-3">
       <AlertCircle className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
       <p className="text-sm text-amber-200/80">
-        <strong className="text-amber-200">Not Financial Advice:</strong> This is educational
-        information only. Past performance does not guarantee future results. Always consult a
-        qualified financial advisor before making investment decisions.
+        <strong className="text-amber-200">Not Financial Advice:</strong> This is educational information only.
+        Past performance does not guarantee future results. Always consult a qualified financial advisor before
+        making investment decisions.
       </p>
     </div>
   </div>
@@ -71,14 +71,9 @@ const Disclaimer: React.FC = () => (
 
 export const WeeklyPulse: React.FC<WeeklyPulseProps> = ({ compact = false, onBack }) => {
   const { investments } = useInvestmentContext();
-  const portfolioSymbols = Array.from(new Set(investments.map(i => i.symbol).filter(Boolean)));
-  const {
-    narrative,
-    isLoading,
-    error,
-    generatePulse,
-    lastGenerated,
-  } = useWeeklyPulse(investments);
+  const portfolioSymbols = Array.from(new Set(investments.map((i) => i.symbol).filter(Boolean)));
+
+  const { narrative, isLoading, error, generatePulse, lastGenerated } = useWeeklyPulse(investments);
 
   if (compact) {
     return (
@@ -88,9 +83,7 @@ export const WeeklyPulse: React.FC<WeeklyPulseProps> = ({ compact = false, onBac
           <button
             onClick={generatePulse}
             disabled={isLoading || investments.length === 0}
-            className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700
-                       disabled:bg-gray-700 disabled:cursor-not-allowed rounded-lg
-                       text-white text-sm font-medium transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-700 disabled:cursor-not-allowed rounded-lg text-white text-sm font-medium transition-colors"
           >
             <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
             {narrative ? 'Refresh' : 'Generate'}
@@ -107,17 +100,13 @@ export const WeeklyPulse: React.FC<WeeklyPulseProps> = ({ compact = false, onBac
           <div>
             <p className="text-gray-300 mb-3">{narrative.summary}</p>
             {lastGenerated && (
-              <p className="text-sm text-gray-500">
-                Generated {lastGenerated.toLocaleDateString()}
-              </p>
+              <p className="text-sm text-gray-500">Generated {lastGenerated.toLocaleDateString()}</p>
             )}
           </div>
         ) : (
           <div className="text-center py-8">
             <p className="text-gray-400">
-              {investments.length === 0
-                ? 'Add investments to generate your first Pulse'
-                : 'Generate your first Portfolio Pulse'}
+              {investments.length === 0 ? 'Add investments to generate your first Pulse' : 'Generate your first Portfolio Pulse'}
             </p>
           </div>
         )}
@@ -132,30 +121,19 @@ export const WeeklyPulse: React.FC<WeeklyPulseProps> = ({ compact = false, onBac
           <div>
             <div className="flex items-center gap-3">
               {onBack && (
-                <button
-                  onClick={onBack}
-                  className="text-sm text-gray-400 hover:text-white transition-colors"
-                >
+                <button onClick={onBack} className="text-sm text-gray-400 hover:text-white transition-colors">
                   ← Back
                 </button>
               )}
               <h1 className="text-2xl font-bold text-white">{narrative?.title || 'Portfolio Pulse'}</h1>
             </div>
-            {narrative?.date && (
-              <p className="text-gray-400 mt-1">{narrative.date}</p>
-            )}
-            {lastGenerated && (
-              <p className="text-sm text-gray-500 mt-1">
-                Generated: {lastGenerated.toLocaleString()}
-              </p>
-            )}
+            {narrative?.date && <p className="text-gray-400 mt-1">{narrative.date}</p>}
+            {lastGenerated && <p className="text-sm text-gray-500 mt-1">Generated: {lastGenerated.toLocaleString()}</p>}
           </div>
           <button
             onClick={generatePulse}
             disabled={isLoading || investments.length === 0}
-            className="flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-700
-                       disabled:bg-gray-700 disabled:cursor-not-allowed rounded-lg
-                       text-white font-medium transition-colors"
+            className="flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-700 disabled:cursor-not-allowed rounded-lg text-white font-medium transition-colors"
           >
             <RefreshCw className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} />
             {narrative ? 'Generate New Pulse' : 'Generate First Pulse'}
@@ -177,46 +155,34 @@ export const WeeklyPulse: React.FC<WeeklyPulseProps> = ({ compact = false, onBac
 
         {!isLoading && narrative && (
           <>
-            {/* Highlights */}
             {narrative.highlights.length > 0 && (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 {narrative.highlights.map((h, i) => (
-                  <HighlightCard
-                    key={i}
-                    label={h.label}
-                    value={h.value}
-                    change={h.change}
-                  />
+                  <HighlightCard key={i} label={h.label} value={h.value} change={h.change} />
                 ))}
               </div>
             )}
 
-            {/* Narrative Sections */}
             <div className="space-y-2">
               {narrative.sections.map((section, index) => (
-                <NarrativeSection key={index} section={section} />
+                <NarrativeSectionView key={index} section={section} />
               ))}
             </div>
 
-            {/* News */}
             <NewsPanel symbols={portfolioSymbols} />
 
-            {/* Disclaimer */}
-            <Disclaimer />
+            <DisclaimerInline />
           </>
         )}
 
         {!isLoading && !narrative && investments.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-gray-400 text-lg">
-              Add some investments to your portfolio to generate your first Pulse.
-            </p>
+            <p className="text-gray-400 text-lg">Add some investments to your portfolio to generate your first Pulse.</p>
           </div>
         )}
- <DisclaimerFooter />
- </div>
- </div>
+      </div>
 
- );
- };
-export {};
+      <DisclaimerFooter />
+    </div>
+  );
+};
