@@ -10,6 +10,7 @@ import { WeeklyPulse } from './components/WeeklyPulse';
 import { DisclaimerFooter } from './components/Footer';
 import { BondAnalysisPage } from './pages/BondAnalysisPage';
 import { PerformanceComparisonPage } from './pages/PerformanceComparisonPage';
+import { TermsPage } from './pages/TermsPage';
 import { ChatBlob } from './components/ChatBlob';
 import GoogleAnalytics from './components/GoogleAnalytics';
 import { useInvestmentContext } from './contexts/InvestmentContext';
@@ -25,6 +26,7 @@ function AppContent() {
   const [showBondAnalysis, setShowBondAnalysis] = useState(false);
   const [showPerformanceComparison, setShowPerformanceComparison] = useState(false);
   const [showWeeklyPulse, setShowWeeklyPulse] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
 
   const closeAllSections = () => {
     setShowAddForm(false);
@@ -32,9 +34,10 @@ function AppContent() {
     setShowBondAnalysis(false);
     setShowPerformanceComparison(false);
     setShowWeeklyPulse(false);
+    setShowTerms(false);
   };
 
-  const openSection = (section: 'addForm' | 'editForm' | 'bondAnalysis' | 'performanceComparison' | 'weeklyPulse') => {
+  const openSection = (section: 'addForm' | 'editForm' | 'bondAnalysis' | 'performanceComparison' | 'weeklyPulse' | 'terms') => {
     closeAllSections();
     switch (section) {
       case 'addForm':
@@ -50,6 +53,9 @@ function AppContent() {
         break;
       case 'weeklyPulse':
         setShowWeeklyPulse(true);
+        break;
+      case 'terms':
+        setShowTerms(true);
         break;
     }
   };
@@ -158,7 +164,7 @@ function AppContent() {
               ) : null}
 
               {!showAddForm && !editingInvestment && !showBondAnalysis &&
-               !showPerformanceComparison && !showWeeklyPulse && (
+               !showPerformanceComparison && !showWeeklyPulse && !showTerms && (
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
                   <div className="lg:col-span-3">
                     <Dashboard
@@ -183,8 +189,12 @@ function AppContent() {
               {showWeeklyPulse && (
                 <>
                   <WeeklyPulse onBack={closeAllSections} />
-                  <DisclaimerFooter />
+                  <DisclaimerFooter onOpenTerms={() => openSection('terms')} />
                 </>
+              )}
+
+              {showTerms && (
+                <TermsPage onBack={closeAllSections} />
               )}
 
               {showBondAnalysis && (
@@ -199,7 +209,7 @@ function AppContent() {
               )}
 
               {!showAddForm && !editingInvestment && !showBondAnalysis &&
-               !showPerformanceComparison && !showWeeklyPulse && <ChatBlob />}
+               !showPerformanceComparison && !showWeeklyPulse && !showTerms && <ChatBlob />}
             </main>
           </div>
         </CurrencyProvider>

@@ -77,6 +77,11 @@ const translations = {
     'accrued.interest': 'Accrued Interest',
     'days.to.maturity': 'Days to Maturity',
     'cash.flow.projections': 'Cash Flow Projections',
+    'bond.cash.flow': 'Bond Cash Flow',
+    'next.payment': 'Next Payment',
+    'upcoming.payments': 'Upcoming Payments',
+    'no.upcoming.payments': 'No upcoming payments',
+    'bond.holdings': 'Bond Holdings',
     
     // Charts
     'view.chart': 'View Chart',
@@ -272,6 +277,11 @@ const translations = {
     'accrued.interest': 'Interés Devengado',
     'days.to.maturity': 'Días al Vencimiento',
     'cash.flow.projections': 'Proyecciones de Flujo de Caja',
+    'bond.cash.flow': 'Flujo de caja de bonos',
+    'next.payment': 'Próximo pago',
+    'upcoming.payments': 'Pagos próximos',
+    'no.upcoming.payments': 'No hay pagos próximos',
+    'bond.holdings': 'Bonos en cartera',
     
     // Charts
     'view.chart': 'Ver Gráfico',

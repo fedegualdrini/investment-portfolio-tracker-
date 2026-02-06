@@ -43,7 +43,7 @@ export function ScenarioViewer({
         </div>
 
         <p className="text-sm text-gray-400 mb-4">
-          Educational context only — not predictions and not financial advice.
+          Educational context only.
         </p>
 
         <div className="space-y-2 mb-5">
