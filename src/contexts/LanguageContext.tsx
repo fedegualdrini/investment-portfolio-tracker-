@@ -124,7 +124,11 @@ const translations = {
     'frequency.monthly': 'Monthly',
     'frequency.quarterly': 'Quarterly',
     'frequency.semi-annual': 'Semi-Annual',
+    'frequency.semi.annual': 'Semi-Annual',
     'frequency.annual': 'Annual',
+    'frequency.zero.coupon': 'Zero Coupon',
+    'frequency.unknown': 'Unknown',
+    'per.payment': 'per payment',
     
     // Form Actions
     'add': 'Add',
@@ -329,7 +333,11 @@ const translations = {
     'frequency.monthly': 'Mensual',
     'frequency.quarterly': 'Trimestral',
     'frequency.semi-annual': 'Semestral',
+    'frequency.semi.annual': 'Semestral',
     'frequency.annual': 'Anual',
+    'frequency.zero.coupon': 'Cupón cero',
+    'frequency.unknown': 'Desconocido',
+    'per.payment': 'por pago',
     
     // Form Actions
     'add': 'Agregar',
