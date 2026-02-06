@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { X, History } from 'lucide-react';
 import type { Investment } from '../types/investment';
 import { SCENARIOS, type ScenarioPeriod } from '../lib/scenarios/data';
@@ -16,6 +16,15 @@ export function ScenarioViewer({
   const [selected, setSelected] = useState<ScenarioPeriod>(SCENARIOS[0]);
 
   const result = useMemo(() => calculateScenario(investments, selected), [investments, selected]);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [open, onClose]);
 
   if (!open) return null;
 

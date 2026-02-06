@@ -200,6 +200,24 @@ export const WeeklyPulse: React.FC<WeeklyPulseProps> = ({ compact = false, onBac
             <p className="text-gray-400 text-lg">Add some investments to your portfolio to generate your first Pulse.</p>
           </div>
         )}
+
+        {!isLoading && !narrative && investments.length > 0 && (
+          <div className="text-center py-12 bg-gray-800/20 border border-gray-700 rounded-lg">
+            <p className="text-gray-300 text-lg mb-3">Ready when you are.</p>
+            <p className="text-gray-400 mb-6">Generate a Pulse to see performance, allocation, news, and educational context.</p>
+            <button
+              type="button"
+              onClick={generatePulse}
+              className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white font-medium transition-colors"
+            >
+              <RefreshCw className="w-5 h-5" />
+              Generate Pulse
+            </button>
+            <div className="mt-8 text-left">
+              <NewsPanel symbols={portfolioSymbols} />
+            </div>
+          </div>
+        )}
       </div>
 
       <DisclaimerFooter />
