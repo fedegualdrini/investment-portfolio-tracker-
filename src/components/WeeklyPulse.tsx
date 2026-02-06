@@ -3,6 +3,7 @@ import { RefreshCw, TrendingUp, Minus, AlertCircle, Lightbulb } from 'lucide-rea
 import { useWeeklyPulse } from '../hooks/useWeeklyPulse';
 import { useInvestmentContext } from '../contexts/InvestmentContext';
 import { DisclaimerFooter } from './Footer';
+import { NewsPanel } from './NewsPanel';
 import type { NarrativeSection } from '../lib/narrative/types';
 
 interface WeeklyPulseProps {
@@ -70,6 +71,7 @@ const Disclaimer: React.FC = () => (
 
 export const WeeklyPulse: React.FC<WeeklyPulseProps> = ({ compact = false, onBack }) => {
   const { investments } = useInvestmentContext();
+  const portfolioSymbols = Array.from(new Set(investments.map(i => i.symbol).filter(Boolean)));
   const {
     narrative,
     isLoading,
@@ -195,6 +197,9 @@ export const WeeklyPulse: React.FC<WeeklyPulseProps> = ({ compact = false, onBac
                 <NarrativeSection key={index} section={section} />
               ))}
             </div>
+
+            {/* News */}
+            <NewsPanel symbols={portfolioSymbols} />
 
             {/* Disclaimer */}
             <Disclaimer />
