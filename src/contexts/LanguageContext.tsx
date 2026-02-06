@@ -82,6 +82,11 @@ const translations = {
     'upcoming.payments': 'Upcoming Payments',
     'no.upcoming.payments': 'No upcoming payments',
     'bond.holdings': 'Bond Holdings',
+    'monthly.income': 'Monthly Income',
+    'quarterly.income': 'Quarterly Income',
+    'annual.income': 'Annual Income',
+    'coupon.payment': 'Coupon Payment',
+    'refresh.calculations': 'Refresh Calculations',
     
     // Charts
     'view.chart': 'View Chart',
@@ -282,6 +287,11 @@ const translations = {
     'upcoming.payments': 'Pagos próximos',
     'no.upcoming.payments': 'No hay pagos próximos',
     'bond.holdings': 'Bonos en cartera',
+    'monthly.income': 'Ingreso mensual',
+    'quarterly.income': 'Ingreso trimestral',
+    'annual.income': 'Ingreso anual',
+    'coupon.payment': 'Pago de cupón',
+    'refresh.calculations': 'Recalcular',
     
     // Charts
     'view.chart': 'Ver Gráfico',
