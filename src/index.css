@@ -293,8 +293,18 @@
   }
   
   .brand-card {
-    /* Removed transform/scale on hover to avoid hover-induced rendering artifacts (diagonal lines) */
-    @apply bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/10 hover:border-blue-300 dark:hover:border-blue-600;
+    /* Keep the hover "lift" animation but reduce GPU artifacts (Chrome + NVIDIA) */
+    @apply bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 transition-all duration-200 hover:shadow-lg hover:shadow-blue-500/10 hover:border-blue-300 dark:hover:border-blue-600;
+
+    /* Nudge Chrome into cleaner compositing */
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    will-change: transform;
+  }
+
+  .brand-card:hover {
+    /* Lift without scaling (scaling often causes diagonal/tearing artifacts on some GPUs) */
+    transform: translate3d(0, -4px, 0);
   }
 
   .brand-card-interactive {
