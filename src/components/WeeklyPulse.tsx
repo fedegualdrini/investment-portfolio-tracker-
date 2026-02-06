@@ -4,6 +4,7 @@ import { useWeeklyPulse } from '../hooks/useWeeklyPulse';
 import { useInvestmentContext } from '../contexts/InvestmentContext';
 import { DisclaimerFooter } from './Footer';
 import { NewsPanel } from './NewsPanel';
+import { EducationTooltip } from './EducationTooltip';
 import type { NarrativeSection } from '../lib/narrative/types';
 
 interface WeeklyPulseProps {
@@ -126,6 +127,7 @@ export const WeeklyPulse: React.FC<WeeklyPulseProps> = ({ compact = false, onBac
                 </button>
               )}
               <h1 className="text-2xl font-bold text-white">{narrative?.title || 'Portfolio Pulse'}</h1>
+              <EducationTooltip topicId="diversification" />
             </div>
             {narrative?.date && <p className="text-gray-400 mt-1">{narrative.date}</p>}
             {lastGenerated && <p className="text-sm text-gray-500 mt-1">Generated: {lastGenerated.toLocaleString()}</p>}
