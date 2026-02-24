@@ -76,34 +76,31 @@ export function PriceChart({ investment, isVisible, onClose }: PriceChartProps) 
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black bg-opacity-75 flex flex-col">
+    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex flex-col">
       {/* Header - Fixed at top */}
-      <div className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+      <div className="flex items-center justify-between p-3 flex-shrink-0" style={{ background: 'var(--bg-card)', borderBottom: '1px solid var(--border-primary)' }}>
         <div className="flex items-center space-x-3">
-          <div className="p-2 bg-purple-100 dark:bg-purple-900/20 rounded-lg">
-            <svg className="w-5 h-5 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="p-2 bg-emerald-500/10 rounded-lg">
+            <svg className="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
             </svg>
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            <h3 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
               {investment.symbol} - {investment.name}
             </h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400 capitalize">
+            <p className="text-sm capitalize" style={{ color: 'var(--text-secondary)' }}>
               {investment.type} • {t('price.history')}
             </p>
           </div>
         </div>
-        <button
-          onClick={onClose}
-          className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-        >
+        <button onClick={onClose} className="btn-icon">
           <X className="h-5 w-5" />
         </button>
       </div>
 
       {/* Chart Content - Takes up all remaining space */}
-      <div className="flex-1 min-h-0 bg-white dark:bg-gray-800 overflow-hidden">
+      <div className="flex-1 min-h-0 overflow-hidden" style={{ background: 'var(--bg-card)' }}>
         <div className="w-full h-full">
           <AdvancedChart
             key={`${investment.id}_${isDarkMode ? 'dark' : 'light'}`}
@@ -113,8 +110,8 @@ export function PriceChart({ investment, isVisible, onClose }: PriceChartProps) 
       </div>
 
       {/* Footer - Fixed at bottom */}
-      <div className="p-3 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
-        <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
+      <div className="p-3 flex-shrink-0" style={{ background: 'var(--bg-card)', borderTop: '1px solid var(--border-primary)' }}>
+        <div className="flex items-center justify-between text-sm" style={{ color: 'var(--text-muted)' }}>
           <div className="flex items-center space-x-4">
             <span>{t('chart.powered.by')}</span>
             <span>•</span>

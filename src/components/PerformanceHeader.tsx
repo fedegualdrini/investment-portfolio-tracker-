@@ -15,28 +15,28 @@ export function PerformanceHeader({
   loading
 }: PerformanceHeaderProps) {
   const { t } = useLanguage();
-  
+
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+    <div className="glass-card p-6">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-3">
-          <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
-            <BarChart3 className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+          <div className="p-2 bg-emerald-500/10 rounded-lg">
+            <BarChart3 className="w-6 h-6 text-emerald-500" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+            <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
               {t('performance.comparison')}
             </h1>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
               {t('performance.comparison.subtitle')}
             </p>
           </div>
         </div>
-        
+
         <button
           onClick={onRefresh}
           disabled={loading}
-          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="gradient-btn inline-flex items-center disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
           {loading ? t('loading') : t('refresh')}
@@ -49,7 +49,7 @@ export function PerformanceHeader({
           onBenchmarkChange={onBenchmarkChange}
           benchmarks={BENCHMARKS}
         />
-        
+
         <DateRangePicker
           dateRange={dateRange}
           onDateRangeChange={onDateRangeChange}

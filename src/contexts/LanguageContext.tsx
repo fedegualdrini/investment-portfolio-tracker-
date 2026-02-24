@@ -196,7 +196,42 @@ const translations = {
     'open': 'Open',
     'show': 'Show',
     'hide': 'Hide',
-    
+    'nav.dashboard': 'Dashboard',
+    'nav.performance': 'Performance',
+    'nav.bonds': 'Bonds',
+    'nav.settings': 'Settings',
+    'nav.add.investment': 'Add Investment',
+
+    // Greetings
+    'greeting.morning': 'Good morning',
+    'greeting.afternoon': 'Good afternoon',
+    'greeting.evening': 'Good evening',
+
+    // Form Steps
+    'step.basic': 'Basic Info',
+    'step.financial': 'Financial Details',
+    'step.bond': 'Bond Details',
+    'step.next': 'Next',
+    'step.back': 'Back',
+
+    // Toast Notifications
+    'toast.import.success': 'Portfolio imported successfully!',
+    'toast.import.error': 'Error importing portfolio. Please check the file format.',
+    'toast.export.success': 'Portfolio exported successfully!',
+    'toast.price.update.success': 'Prices updated successfully!',
+    'toast.investment.added': 'Investment added successfully!',
+    'toast.investment.updated': 'Investment updated successfully!',
+    'toast.investment.removed': 'Investment removed successfully!',
+
+    // Empty States
+    'empty.title': 'Start Building Your Portfolio',
+    'empty.subtitle': 'Add your first investment to track performance and get insights',
+    'empty.cta': 'Add Your First Investment',
+
+    // Sidebar
+    'sidebar.collapse': 'Collapse sidebar',
+    'sidebar.expand': 'Expand sidebar',
+
     // General
     'yes': 'Yes',
     'no': 'No',
@@ -391,7 +426,42 @@ const translations = {
     'open': 'Abrir',
     'show': 'Mostrar',
     'hide': 'Ocultar',
-    
+    'nav.dashboard': 'Panel',
+    'nav.performance': 'Rendimiento',
+    'nav.bonds': 'Bonos',
+    'nav.settings': 'Configuración',
+    'nav.add.investment': 'Agregar Inversión',
+
+    // Greetings
+    'greeting.morning': 'Buenos días',
+    'greeting.afternoon': 'Buenas tardes',
+    'greeting.evening': 'Buenas noches',
+
+    // Form Steps
+    'step.basic': 'Info Básica',
+    'step.financial': 'Detalles Financieros',
+    'step.bond': 'Detalles del Bono',
+    'step.next': 'Siguiente',
+    'step.back': 'Atrás',
+
+    // Toast Notifications
+    'toast.import.success': '¡Portafolio importado exitosamente!',
+    'toast.import.error': 'Error importando portafolio. Revisa el formato del archivo.',
+    'toast.export.success': '¡Portafolio exportado exitosamente!',
+    'toast.price.update.success': '¡Precios actualizados exitosamente!',
+    'toast.investment.added': '¡Inversión agregada exitosamente!',
+    'toast.investment.updated': '¡Inversión actualizada exitosamente!',
+    'toast.investment.removed': '¡Inversión eliminada exitosamente!',
+
+    // Empty States
+    'empty.title': 'Comienza a Construir tu Portafolio',
+    'empty.subtitle': 'Agrega tu primera inversión para rastrear rendimiento y obtener información',
+    'empty.cta': 'Agrega Tu Primera Inversión',
+
+    // Sidebar
+    'sidebar.collapse': 'Contraer barra lateral',
+    'sidebar.expand': 'Expandir barra lateral',
+
     // General
     'yes': 'Sí',
     'no': 'No',

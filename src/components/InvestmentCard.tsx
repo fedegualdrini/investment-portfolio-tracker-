@@ -1,9 +1,31 @@
 import React, { useState } from 'react';
-import { TrendingUp, TrendingDown, Trash2, Edit3, BarChart3 } from 'lucide-react';
+import { TrendingUp, TrendingDown, Trash2, Edit3, BarChart3, X } from 'lucide-react';
 import type { Investment } from '../types/investment';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useCurrency } from '../contexts/CurrencyContext';
 import { PriceChart } from './PriceChart';
+
+// Type color mapping
+const TYPE_COLORS: Record<string, string> = {
+  crypto: '#F97316',
+  stock: '#8B5CF6',
+  bond: '#3B82F6',
+  etf: '#10B981',
+  commodity: '#F59E0B',
+  cash: '#14B8A6',
+  other: '#6B7280',
+};
+
+// Type badge class mapping
+const TYPE_BADGE: Record<string, string> = {
+  crypto: 'badge-crypto',
+  stock: 'badge-stock',
+  bond: 'badge-bond',
+  etf: 'badge-etf',
+  commodity: 'badge-commodity',
+  cash: 'badge-cash',
+  other: 'badge-other',
+};
 
 interface InvestmentCardProps {
   investment: Investment;
@@ -16,8 +38,7 @@ export function InvestmentCard({ investment, onRemove, onEdit }: InvestmentCardP
   const { formatCurrency } = useCurrency();
   const [showModal, setShowModal] = useState(false);
   const [showChart, setShowChart] = useState(false);
-  
-  
+
   const currentPrice = investment.currentPrice || investment.purchasePrice;
   const totalValue = currentPrice * investment.quantity;
   const totalInvested = investment.purchasePrice * investment.quantity;
@@ -28,265 +49,312 @@ export function InvestmentCard({ investment, onRemove, onEdit }: InvestmentCardP
     return `${percentage >= 0 ? '+' : ''}${percentage.toFixed(2)}%`;
   };
 
-  const getTypeColor = (type: string) => {
-    const colors = {
-      crypto: 'bg-orange-100 text-orange-800 border-orange-300 dark:bg-orange-900 dark:text-orange-200 dark:border-orange-700',
-      stock: 'bg-purple-100 text-purple-800 border-purple-300 dark:bg-purple-900 dark:text-purple-200 dark:border-purple-700',
-      bond: 'bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-900 dark:text-blue-200 dark:border-blue-700',
-      etf: 'bg-green-100 text-green-800 border-green-300 dark:bg-green-900 dark:text-green-200 dark:border-green-700',
-      commodity: 'bg-yellow-100 text-yellow-800 border-yellow-300 dark:bg-yellow-900 dark:text-yellow-200 dark:border-yellow-700',
-      cash: 'bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-900 dark:text-emerald-200 dark:border-emerald-700',
-      other: 'bg-gray-100 text-gray-800 border-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600',
-    };
-    return colors[type as keyof typeof colors] || colors.other;
-  };
-
-  const getGainLossColor = (value: number) => {
-    if (value > 0) return 'text-green-600 dark:text-green-400';
-    if (value < 0) return 'text-red-600 dark:text-red-400';
-    return 'text-gray-600 dark:text-gray-400';
-  };
+  const typeColor = TYPE_COLORS[investment.type] || TYPE_COLORS.other;
+  const typeBadge = TYPE_BADGE[investment.type] || TYPE_BADGE.other;
 
   return (
     <>
-      <div 
-        className="brand-card-interactive p-4 sm:p-6 animate-fadeInUp"
+      {/* Investment Card */}
+      <div
+        className="glass-card group cursor-pointer animate-fade-in-up"
+        style={{ borderLeft: `4px solid ${typeColor}` }}
         onClick={() => setShowModal(true)}
-        style={{ animationDelay: `${Math.random() * 0.2}s` }}
       >
-      <div className="flex items-start justify-between mb-3 sm:mb-4">
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center space-x-2 mb-1">
-            <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100 truncate">{investment.symbol}</h3>
-            <span className={`px-2 py-1 text-xs font-medium rounded-full border flex-shrink-0 ${getTypeColor(investment.type)}`}>
-              {investment.type.toUpperCase()}
-            </span>
+        <div className="p-4 sm:p-5">
+          {/* Top row: Symbol + Badge + Actions */}
+          <div className="flex items-start justify-between mb-1">
+            <div className="flex items-center gap-2 min-w-0">
+              <h3
+                className="font-semibold text-base sm:text-lg truncate"
+                style={{ color: 'var(--text-primary)' }}
+              >
+                {investment.symbol}
+              </h3>
+              <span className={`${typeBadge} flex-shrink-0`}>
+                {investment.type.toUpperCase()}
+              </span>
+            </div>
+            {/* Action buttons — visible only on hover */}
+            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex-shrink-0">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEdit();
+                }}
+                className="btn-icon"
+                title={t('edit')}
+                aria-label={t('edit')}
+              >
+                <Edit3 className="h-4 w-4" />
+              </button>
+              {(investment.type === 'stock' || investment.type === 'crypto') && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowChart(true);
+                  }}
+                  className="btn-icon"
+                  title={t('view.chart')}
+                  aria-label={t('view.chart')}
+                >
+                  <BarChart3 className="h-4 w-4" />
+                </button>
+              )}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onRemove();
+                }}
+                className="btn-icon hover:!text-red-500"
+                title={t('remove')}
+                aria-label={t('remove')}
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+            </div>
           </div>
-          <p className="text-sm text-gray-600 dark:text-gray-400 truncate">{investment.name}</p>
-        </div>
-        <div className="flex items-center space-x-1 flex-shrink-0">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onEdit();
-            }}
-            className="brand-button-icon text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20"
-            title={t('edit')}
-            aria-label={t('edit')}
+
+          {/* Name */}
+          <p
+            className="text-sm truncate mb-4"
+            style={{ color: 'var(--text-muted)' }}
           >
-            <Edit3 className="h-4 w-4" />
-          </button>
-          {(investment.type === 'stock' || investment.type === 'crypto') && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowChart(true);
-              }}
-              className="brand-button-icon text-gray-400 dark:text-gray-500 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20"
-              title={t('view.chart')}
-              aria-label={t('view.chart')}
-            >
-              <BarChart3 className="h-4 w-4" />
-            </button>
-          )}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onRemove();
-            }}
-            className="brand-button-icon text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
-            title={t('remove')}
-            aria-label={t('remove')}
-          >
-            <Trash2 className="h-4 w-4" />
-          </button>
-        </div>
-      </div>
-
-      <div className="space-y-3">
-        <div className="flex justify-between items-center">
-          <span className="brand-subtext-sm">{t('quantity')}</span>
-          <span className="brand-text">{investment.quantity.toLocaleString()}</span>
-        </div>
-
-        <div className="flex justify-between items-center">
-          <span className="brand-subtext-sm">{t('purchase.price')}</span>
-          <span className="brand-text">{formatCurrency(investment.purchasePrice)}</span>
-        </div>
-
-        <div className="flex justify-between items-center">
-          <span className="brand-subtext-sm">{t('current.price')}</span>
-          <span className="brand-text">
-            {investment.type === 'cash' && investment.currency && investment.currency !== 'USD' 
-              ? `${investment.currency} ${currentPrice.toLocaleString()}`
-              : formatCurrency(currentPrice)
-            }
-          </span>
-        </div>
-
-        {investment.type === 'cash' && investment.currency && investment.currency !== 'USD' && (
-          <div className="flex justify-between items-center">
-            <span className="brand-subtext-sm">Value in USD</span>
-            <span className="brand-text">{formatCurrency(totalValue)}</span>
-          </div>
-        )}
-
-        <hr className="border-gray-200 dark:border-gray-600" />
-
-        <div className="flex justify-between items-center">
-          <span className="brand-subtext-sm">{t('total.value')}</span>
-          <span className="brand-heading-sm">{formatCurrency(totalValue)}</span>
-        </div>
-
-        <div className="flex justify-between items-center">
-          <span className="brand-subtext-sm">{t('total.gain.loss')}</span>
-          <div className="flex items-center space-x-1">
-            {gainLoss !== 0 && (
-              gainLoss > 0 ? (
-                <TrendingUp className="h-4 w-4 text-green-600 dark:text-green-400" />
-              ) : (
-                <TrendingDown className="h-4 w-4 text-red-600 dark:text-red-400" />
-              )
-            )}
-            <span className={`font-semibold ${getGainLossColor(gainLoss)}`}>
-              {formatCurrency(gainLoss)}
-            </span>
-            <span className={`text-sm ${getGainLossColor(gainLoss)}`}>
-              ({formatPercentage(gainLossPercentage)})
-            </span>
-          </div>
-        </div>
-
-        {investment.fixedYield && (
-          <div className="flex justify-between items-center">
-            <span className="brand-subtext-sm">{t('fixed.yield').split('(')[0].trim()}</span>
-            <span className="brand-text">{investment.fixedYield}% p.a.</span>
-          </div>
-        )}
-
-        {investment.type === 'bond' && investment.paymentFrequency && (
-          <div className="flex justify-between items-center">
-            <span className="brand-subtext-sm">{t('payment.frequency')}</span>
-            <span className="brand-text capitalize">
-              {investment.paymentFrequency.replace('-', ' ')}
-            </span>
-          </div>
-        )}
-
-        {investment.type === 'bond' && investment.maturityDate && (
-          <div className="flex justify-between items-center">
-            <span className="brand-subtext-sm">Maturity</span>
-            <span className="brand-text">
-              {new Date(investment.maturityDate).toLocaleDateString()}
-            </span>
-          </div>
-        )}
-      </div>
-
-      {investment.lastUpdated && (
-        <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-600">
-          <p className="brand-subtext-xs">
-            Updated: {new Date(investment.lastUpdated).toLocaleTimeString()}
+            {investment.name}
           </p>
+
+          {/* Key metrics */}
+          <div className="space-y-2">
+            <div className="flex justify-between items-center">
+              <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                {t('current.price')}
+              </span>
+              <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
+                {investment.type === 'cash' && investment.currency && investment.currency !== 'USD'
+                  ? `${investment.currency} ${currentPrice.toLocaleString()}`
+                  : formatCurrency(currentPrice)}
+              </span>
+            </div>
+
+            <div className="flex justify-between items-center">
+              <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                {t('total.gain.loss')}
+              </span>
+              <div className="flex items-center gap-1">
+                {gainLoss !== 0 &&
+                  (gainLoss > 0 ? (
+                    <TrendingUp className="h-3.5 w-3.5 text-emerald-500" />
+                  ) : (
+                    <TrendingDown className="h-3.5 w-3.5 text-red-500" />
+                  ))}
+                <span
+                  className={`text-sm font-semibold ${
+                    gainLoss > 0
+                      ? 'text-emerald-500'
+                      : gainLoss < 0
+                        ? 'text-red-500'
+                        : ''
+                  }`}
+                  style={gainLoss === 0 ? { color: 'var(--text-muted)' } : undefined}
+                >
+                  {gainLoss >= 0 ? '+' : ''}
+                  {formatCurrency(gainLoss)} ({formatPercentage(gainLossPercentage)})
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom row: quantity + total */}
+          <div
+            className="mt-4 pt-3 flex items-center justify-between text-xs"
+            style={{ borderTop: '1px solid var(--border-primary)' }}
+          >
+            <span style={{ color: 'var(--text-secondary)' }}>
+              {t('quantity')}: {investment.quantity.toLocaleString()}
+            </span>
+            <span
+              className="h-3 w-px mx-2"
+              style={{ background: 'var(--border-primary)' }}
+            />
+            <span className="font-medium" style={{ color: 'var(--text-primary)' }}>
+              {t('total.value')}: {formatCurrency(totalValue)}
+            </span>
+          </div>
+
+          {/* Timestamp */}
+          {investment.lastUpdated && (
+            <p
+              className="mt-2 text-[10px]"
+              style={{ color: 'var(--text-muted)' }}
+            >
+              Updated: {new Date(investment.lastUpdated).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </p>
+          )}
         </div>
-      )}
       </div>
 
-      {/* Investment Detail Modal */}
+      {/* ============================
+          Investment Detail Modal
+         ============================ */}
       {showModal && (
-        <div 
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fadeIn"
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in"
           onClick={() => setShowModal(false)}
         >
-          <div 
-            className="relative w-full max-w-4xl max-h-[90vh] overflow-auto brand-card rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 animate-scaleIn"
+          <div
+            className="relative w-full max-w-4xl max-h-[90vh] overflow-auto glass-card rounded-2xl animate-scale-in"
             onClick={(e) => e.stopPropagation()}
           >
+            {/* Top gradient accent bar */}
+            <div
+              className="h-1 w-full rounded-t-2xl"
+              style={{
+                background: `linear-gradient(90deg, ${typeColor}, ${typeColor}88)`,
+              }}
+            />
+
             {/* Modal Header */}
-            <div className="sticky top-0 brand-card-static px-8 py-6 border-b border-gray-200 dark:border-gray-700 rounded-t-2xl">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <div className="p-3 rounded-xl bg-purple-100 dark:bg-purple-900/30">
-                    <span className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                      {investment.symbol.charAt(0)}
-                    </span>
-                  </div>
-                  <div>
-                    <h2 className="brand-heading-lg">{investment.symbol}</h2>
-                    <p className="brand-text-lg">{investment.name}</p>
-                    <span className={`inline-block px-3 py-1 text-sm font-medium rounded-full border ${getTypeColor(investment.type)} mt-2`}>
+            <div
+              className="sticky top-0 px-6 sm:px-8 py-5 flex items-center justify-between"
+              style={{
+                background: 'var(--bg-card)',
+                borderBottom: '1px solid var(--border-primary)',
+              }}
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h2
+                      className="text-xl sm:text-2xl font-bold truncate"
+                      style={{ color: 'var(--text-primary)' }}
+                    >
+                      {investment.symbol}
+                    </h2>
+                    <span className={`${typeBadge} flex-shrink-0`}>
                       {investment.type.toUpperCase()}
                     </span>
                   </div>
+                  <p className="text-sm mt-0.5" style={{ color: 'var(--text-secondary)' }}>
+                    {investment.name}
+                  </p>
                 </div>
-                <button
-                  onClick={() => setShowModal(false)}
-                  className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-colors duration-200"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
               </div>
+              <button
+                onClick={() => setShowModal(false)}
+                className="btn-icon flex-shrink-0"
+                aria-label="Close"
+              >
+                <X className="w-5 h-5" />
+              </button>
             </div>
 
             {/* Modal Content */}
-            <div className="px-8 py-6">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Left Column - Key Metrics */}
+            <div className="px-6 sm:px-8 py-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Left Column — Key Metrics */}
                 <div className="space-y-6">
-                  <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-6">
-                    <h3 className="brand-heading mb-4">Key Metrics</h3>
-                    <div className="space-y-4">
+                  <div className="glass-card-static rounded-xl p-5">
+                    <h3
+                      className="text-sm font-semibold uppercase tracking-wider mb-4"
+                      style={{ color: 'var(--text-muted)' }}
+                    >
+                      Key Metrics
+                    </h3>
+                    <div className="space-y-3">
                       <div className="flex justify-between items-center">
-                        <span className="brand-subtext">{t('quantity')}</span>
-                        <span className="brand-heading-sm">{investment.quantity.toLocaleString()}</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="brand-subtext">{t('purchase.price')}</span>
-                        <span className="brand-heading-sm">{formatCurrency(investment.purchasePrice)}</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="brand-subtext">{t('current.price')}</span>
-                        <span className="brand-heading-sm">
-                          {investment.type === 'cash' && investment.currency && investment.currency !== 'USD' 
-                            ? `${investment.currency} ${currentPrice.toLocaleString()}`
-                            : formatCurrency(currentPrice)
-                          }
+                        <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                          {t('quantity')}
+                        </span>
+                        <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
+                          {investment.quantity.toLocaleString()}
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="brand-subtext">{t('total.value')}</span>
-                        <span className="brand-heading-lg">{formatCurrency(totalValue)}</span>
+                        <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                          {t('purchase.price')}
+                        </span>
+                        <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
+                          {formatCurrency(investment.purchasePrice)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                          {t('current.price')}
+                        </span>
+                        <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
+                          {investment.type === 'cash' && investment.currency && investment.currency !== 'USD'
+                            ? `${investment.currency} ${currentPrice.toLocaleString()}`
+                            : formatCurrency(currentPrice)}
+                        </span>
+                      </div>
+                      <div
+                        className="flex justify-between items-center pt-3"
+                        style={{ borderTop: '1px solid var(--border-primary)' }}
+                      >
+                        <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                          {t('total.value')}
+                        </span>
+                        <span className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>
+                          {formatCurrency(totalValue)}
+                        </span>
                       </div>
                     </div>
                   </div>
 
-                  <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-6">
-                    <h3 className="brand-heading mb-4">Performance</h3>
-                    <div className="space-y-4">
+                  <div className="glass-card-static rounded-xl p-5">
+                    <h3
+                      className="text-sm font-semibold uppercase tracking-wider mb-4"
+                      style={{ color: 'var(--text-muted)' }}
+                    >
+                      Performance
+                    </h3>
+                    <div className="space-y-3">
                       <div className="flex justify-between items-center">
-                        <span className="brand-subtext">Total Invested</span>
-                        <span className="brand-heading-sm">{formatCurrency(totalInvested)}</span>
+                        <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                          Total Invested
+                        </span>
+                        <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
+                          {formatCurrency(totalInvested)}
+                        </span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="brand-subtext">{t('total.gain.loss')}</span>
-                        <div className="flex items-center space-x-2">
-                          {gainLoss !== 0 && (
-                            gainLoss > 0 ? (
-                              <TrendingUp className="h-5 w-5 text-green-600 dark:text-green-400" />
+                        <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                          {t('total.gain.loss')}
+                        </span>
+                        <div className="flex items-center gap-1.5">
+                          {gainLoss !== 0 &&
+                            (gainLoss > 0 ? (
+                              <TrendingUp className="h-4 w-4 text-emerald-500" />
                             ) : (
-                              <TrendingDown className="h-5 w-5 text-red-600 dark:text-red-400" />
-                            )
-                          )}
-                          <span className={`brand-heading-sm ${getGainLossColor(gainLoss)}`}>
+                              <TrendingDown className="h-4 w-4 text-red-500" />
+                            ))}
+                          <span
+                            className={`text-sm font-semibold ${
+                              gainLoss > 0
+                                ? 'text-emerald-500'
+                                : gainLoss < 0
+                                  ? 'text-red-500'
+                                  : ''
+                            }`}
+                            style={gainLoss === 0 ? { color: 'var(--text-muted)' } : undefined}
+                          >
                             {formatCurrency(gainLoss)}
                           </span>
                         </div>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="brand-subtext">Gain/Loss %</span>
-                        <span className={`brand-heading-sm ${getGainLossColor(gainLoss)}`}>
+                        <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                          Gain/Loss %
+                        </span>
+                        <span
+                          className={`text-sm font-semibold ${
+                            gainLoss > 0
+                              ? 'text-emerald-500'
+                              : gainLoss < 0
+                                ? 'text-red-500'
+                                : ''
+                          }`}
+                          style={gainLoss === 0 ? { color: 'var(--text-muted)' } : undefined}
+                        >
                           {formatPercentage(gainLossPercentage)}
                         </span>
                       </div>
@@ -294,20 +362,33 @@ export function InvestmentCard({ investment, onRemove, onEdit }: InvestmentCardP
                   </div>
                 </div>
 
-                {/* Right Column - Additional Details */}
+                {/* Right Column — Additional Details */}
                 <div className="space-y-6">
                   {investment.fixedYield && (
-                    <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-6">
-                      <h3 className="brand-heading mb-4">Yield Information</h3>
-                      <div className="space-y-4">
+                    <div className="glass-card-static rounded-xl p-5">
+                      <h3
+                        className="text-sm font-semibold uppercase tracking-wider mb-4"
+                        style={{ color: 'var(--text-muted)' }}
+                      >
+                        Yield Information
+                      </h3>
+                      <div className="space-y-3">
                         <div className="flex justify-between items-center">
-                          <span className="brand-subtext">{t('fixed.yield').split('(')[0].trim()}</span>
-                          <span className="brand-heading-sm">{investment.fixedYield}% p.a.</span>
+                          <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                            {t('fixed.yield').split('(')[0].trim()}
+                          </span>
+                          <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
+                            {investment.fixedYield}% p.a.
+                          </span>
                         </div>
                         {investment.faceValue && (
                           <div className="flex justify-between items-center">
-                            <span className="brand-subtext">Face Value</span>
-                            <span className="brand-heading-sm">{formatCurrency(investment.faceValue)}</span>
+                            <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                              Face Value
+                            </span>
+                            <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
+                              {formatCurrency(investment.faceValue)}
+                            </span>
                           </div>
                         )}
                       </div>
@@ -315,29 +396,43 @@ export function InvestmentCard({ investment, onRemove, onEdit }: InvestmentCardP
                   )}
 
                   {investment.type === 'bond' && (
-                    <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-6">
-                      <h3 className="brand-heading mb-4">Bond Details</h3>
-                      <div className="space-y-4">
+                    <div className="glass-card-static rounded-xl p-5">
+                      <h3
+                        className="text-sm font-semibold uppercase tracking-wider mb-4"
+                        style={{ color: 'var(--text-muted)' }}
+                      >
+                        Bond Details
+                      </h3>
+                      <div className="space-y-3">
                         {investment.paymentFrequency && (
                           <div className="flex justify-between items-center">
-                            <span className="brand-subtext">{t('payment.frequency')}</span>
-                            <span className="brand-heading-sm capitalize">
+                            <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                              {t('payment.frequency')}
+                            </span>
+                            <span
+                              className="text-sm font-semibold capitalize"
+                              style={{ color: 'var(--text-primary)' }}
+                            >
                               {investment.paymentFrequency.replace('-', ' ')}
                             </span>
                           </div>
                         )}
                         {investment.maturityDate && (
                           <div className="flex justify-between items-center">
-                            <span className="brand-subtext">Maturity Date</span>
-                            <span className="brand-heading-sm">
+                            <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                              Maturity Date
+                            </span>
+                            <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
                               {new Date(investment.maturityDate).toLocaleDateString()}
                             </span>
                           </div>
                         )}
                         {investment.nextPaymentDate && (
                           <div className="flex justify-between items-center">
-                            <span className="brand-subtext">Next Payment</span>
-                            <span className="brand-heading-sm">
+                            <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                              Next Payment
+                            </span>
+                            <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
                               {new Date(investment.nextPaymentDate).toLocaleDateString()}
                             </span>
                           </div>
@@ -347,29 +442,51 @@ export function InvestmentCard({ investment, onRemove, onEdit }: InvestmentCardP
                   )}
 
                   {investment.type === 'cash' && investment.currency && investment.currency !== 'USD' && (
-                    <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-6">
-                      <h3 className="brand-heading mb-4">Currency Details</h3>
-                      <div className="space-y-4">
+                    <div className="glass-card-static rounded-xl p-5">
+                      <h3
+                        className="text-sm font-semibold uppercase tracking-wider mb-4"
+                        style={{ color: 'var(--text-muted)' }}
+                      >
+                        Currency Details
+                      </h3>
+                      <div className="space-y-3">
                         <div className="flex justify-between items-center">
-                          <span className="brand-subtext">Currency</span>
-                          <span className="brand-heading-sm">{investment.currency}</span>
+                          <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                            Currency
+                          </span>
+                          <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
+                            {investment.currency}
+                          </span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className="brand-subtext">Local Value</span>
-                          <span className="brand-heading-sm">{investment.currency} {currentPrice.toLocaleString()}</span>
+                          <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                            Local Value
+                          </span>
+                          <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
+                            {investment.currency} {currentPrice.toLocaleString()}
+                          </span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className="brand-subtext">USD Value</span>
-                          <span className="brand-heading-sm">{formatCurrency(totalValue)}</span>
+                          <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                            USD Value
+                          </span>
+                          <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
+                            {formatCurrency(totalValue)}
+                          </span>
                         </div>
                       </div>
                     </div>
                   )}
 
                   {investment.lastUpdated && (
-                    <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-6">
-                      <h3 className="brand-heading mb-4">{t('last.update')}</h3>
-                      <p className="brand-text">
+                    <div className="glass-card-static rounded-xl p-5">
+                      <h3
+                        className="text-sm font-semibold uppercase tracking-wider mb-4"
+                        style={{ color: 'var(--text-muted)' }}
+                      >
+                        {t('last.update')}
+                      </h3>
+                      <p className="text-sm" style={{ color: 'var(--text-primary)' }}>
                         {new Date(investment.lastUpdated).toLocaleString()}
                       </p>
                     </div>
@@ -378,28 +495,29 @@ export function InvestmentCard({ investment, onRemove, onEdit }: InvestmentCardP
               </div>
 
               {/* Action Buttons */}
-              <div className="flex justify-end space-x-4 mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+              <div
+                className="flex justify-end gap-3 mt-8 pt-6"
+                style={{ borderTop: '1px solid var(--border-primary)' }}
+              >
                 <button
                   onClick={() => {
                     setShowModal(false);
-                    // Small delay to ensure modal closes before edit form opens
                     setTimeout(() => {
                       onEdit();
                     }, 100);
                   }}
-                  className="bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-medium px-6 py-3 rounded-lg transition-colors duration-200"
+                  className="gradient-btn"
                 >
                   {t('edit')} {t('investment')}
                 </button>
                 <button
                   onClick={() => {
                     setShowModal(false);
-                    // Small delay to ensure modal closes before remove action
                     setTimeout(() => {
                       onRemove();
                     }, 100);
                   }}
-                  className="bg-red-600 hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200"
+                  className="btn-danger px-5 py-2.5"
                 >
                   {t('remove')} {t('investment')}
                 </button>
