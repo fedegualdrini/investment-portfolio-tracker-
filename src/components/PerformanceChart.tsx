@@ -21,8 +21,8 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
   if (active && payload && payload.length) {
     return (
-      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-4">
-        <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
+      <div className="glass-card-static p-3 shadow-lg" style={{ minWidth: '180px' }}>
+        <p className="text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
           {formatDate(label)}
         </p>
         {payload.map((entry: any, index: number) => {
@@ -38,10 +38,10 @@ const CustomTooltip = ({ active, payload, label }: any) => {
                 className="w-3 h-3 rounded-full"
                 style={{ backgroundColor: entry.color }}
               />
-              <span className="text-sm text-gray-600 dark:text-gray-400">
+              <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>
                 {entry.name}:
               </span>
-              <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+              <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
                 {displayValue}
               </span>
             </div>
@@ -84,74 +84,65 @@ export function PerformanceChart({ data, selectedBenchmark, dateRange }: Perform
 
   if (chartData.length === 0) {
     return (
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-8">
+      <div className="glass-card p-8">
         <div className="text-center">
-          <p className="text-gray-500 dark:text-gray-400">No data available for the selected period</p>
+          <p style={{ color: 'var(--text-muted)' }}>No data available for the selected period</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-      <div className="mb-6">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
-          Portfolio vs {selectedBenchmark}
-        </h2>
-        <p className="text-sm text-gray-600 dark:text-gray-400">
-          Performance comparison over time
-        </p>
-      </div>
-
+    <div>
       <ResponsiveContainer width="100%" height={400}>
         <LineChart
           data={chartData}
           margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
         >
-          <CartesianGrid 
-            strokeDasharray="3 3" 
-            stroke="#f5f5f5" 
-            strokeOpacity={0.3}
+          <CartesianGrid
+            strokeDasharray="3 3"
+            stroke="var(--border-primary)"
+            strokeOpacity={0.5}
           />
-          <XAxis 
-            dataKey="date" 
-            stroke="#666"
-            tick={{ fontSize: 12 }}
-            tickLine={{ stroke: '#666' }}
+          <XAxis
+            dataKey="date"
+            stroke="var(--text-muted)"
+            tick={{ fontSize: 12, fill: 'var(--text-muted)' }}
+            tickLine={{ stroke: 'var(--text-muted)' }}
           />
           <YAxis
-            stroke="#666"
-            tick={{ fontSize: 12 }}
-            tickLine={{ stroke: '#666' }}
+            stroke="var(--text-muted)"
+            tick={{ fontSize: 12, fill: 'var(--text-muted)' }}
+            tickLine={{ stroke: 'var(--text-muted)' }}
             tickFormatter={(value) => `${value.toFixed(1)}%`}
           />
-          <Tooltip 
+          <Tooltip
             content={<CustomTooltip />}
           />
           <Legend />
           <Line
             type="monotone"
             dataKey="portfolioGrowth"
-            stroke="#8884d8"
+            stroke="#10B981"
             strokeWidth={2}
             name="Portfolio"
             dot={false}
-            activeDot={{ r: 4, stroke: '#8884d8', strokeWidth: 2 }}
+            activeDot={{ r: 4, stroke: '#10B981', strokeWidth: 2, fill: '#10B981' }}
           />
           <Line
             type="monotone"
             dataKey="benchmarkGrowth"
-            stroke="#82ca9d"
+            stroke="#06B6D4"
             strokeWidth={2}
             name={selectedBenchmark}
             dot={false}
-            activeDot={{ r: 4, stroke: '#82ca9d', strokeWidth: 2 }}
+            activeDot={{ r: 4, stroke: '#06B6D4', strokeWidth: 2, fill: '#06B6D4' }}
           />
-          <Brush 
-            dataKey="date" 
-            height={30} 
-            stroke="#8884d8"
-            fill="#f8f9fa"
+          <Brush
+            dataKey="date"
+            height={30}
+            stroke="#10B981"
+            fill="transparent"
             tickFormatter={(value) => formatDate(value)}
           />
         </LineChart>

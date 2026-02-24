@@ -1,12 +1,10 @@
 import React from 'react';
-import { Calendar, ChevronDown } from 'lucide-react';
 import { DateRangePickerProps, DATE_RANGE_PRESETS, DateRangePreset } from '../types/performance';
 import { getDateRangeFromPreset, getPresetFromDateRange } from '../utils/dateUtils';
 import { useLanguage } from '../contexts/LanguageContext';
 
 export function DateRangePicker({ dateRange, onDateRangeChange }: DateRangePickerProps) {
   const { t } = useLanguage();
-  const [isOpen, setIsOpen] = React.useState(false);
 
   // Initialize selectedPreset based on the actual dateRange prop
   const [selectedPreset, setSelectedPreset] = React.useState<DateRangePreset>(() => {
@@ -27,7 +25,6 @@ export function DateRangePicker({ dateRange, onDateRangeChange }: DateRangePicke
     const newRange = getDateRangeFromPreset(preset);
     onDateRangeChange(newRange);
     setSelectedPreset(preset);
-    setIsOpen(false);
   };
 
   const handleCustomDateChange = (field: 'start' | 'end', value: string) => {
@@ -37,20 +34,20 @@ export function DateRangePicker({ dateRange, onDateRangeChange }: DateRangePicke
 
   return (
     <div className="relative">
-      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+      <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
         {t('time.period')}
       </label>
-      
+
       {/* Preset buttons */}
       <div className="flex flex-wrap gap-2 mb-3">
         {Object.entries(DATE_RANGE_PRESETS).map(([preset, _]) => (
           <button
             key={preset}
             onClick={() => handlePresetChange(preset as DateRangePreset)}
-            className={`px-3 py-1 text-sm rounded-md transition-colors ${
+            className={`px-3 py-1 text-sm rounded-lg transition-all duration-200 ${
               selectedPreset === preset
-                ? 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300'
-                : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                ? 'bg-emerald-500/20 text-emerald-500 font-medium'
+                : 'btn-ghost'
             }`}
           >
             {preset}
@@ -61,25 +58,25 @@ export function DateRangePicker({ dateRange, onDateRangeChange }: DateRangePicke
       {/* Custom date range */}
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">
+          <label className="block text-xs mb-1" style={{ color: 'var(--text-muted)' }}>
             {t('start.date')}
           </label>
           <input
             type="date"
             value={dateRange.start}
             onChange={(e) => handleCustomDateChange('start', e.target.value)}
-            className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            className="input-field"
           />
         </div>
         <div>
-          <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">
+          <label className="block text-xs mb-1" style={{ color: 'var(--text-muted)' }}>
             {t('end.date')}
           </label>
           <input
             type="date"
             value={dateRange.end}
             onChange={(e) => handleCustomDateChange('end', e.target.value)}
-            className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            className="input-field"
           />
         </div>
       </div>
