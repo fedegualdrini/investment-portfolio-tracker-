@@ -13,9 +13,19 @@ interface EditInvestmentFormProps {
   onCancel: () => void;
 }
 
+const TYPE_BADGE: Record<string, string> = {
+  crypto: 'badge-crypto',
+  stock: 'badge-stock',
+  bond: 'badge-bond',
+  etf: 'badge-etf',
+  commodity: 'badge-commodity',
+  cash: 'badge-cash',
+  other: 'badge-other',
+};
+
 export function EditInvestmentForm({ investment, onSave, onCancel }: EditInvestmentFormProps) {
   const { t } = useLanguage();
-  
+
   const [formData, setFormData] = useState({
     symbol: investment.symbol,
     name: investment.name,
@@ -63,7 +73,7 @@ export function EditInvestmentForm({ investment, onSave, onCancel }: EditInvestm
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
 
     const updates: Partial<Investment> = {
@@ -98,7 +108,7 @@ export function EditInvestmentForm({ investment, onSave, onCancel }: EditInvestm
       ...prev,
       [field]: e.target.value,
     }));
-    
+
     // Clear error when user starts typing
     if (errors[field]) {
       setErrors(prev => ({
@@ -109,275 +119,278 @@ export function EditInvestmentForm({ investment, onSave, onCancel }: EditInvestm
   };
 
   return (
-    <div className="brand-card p-6 pt-8">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="brand-heading-md">{t('edit')}</h2>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <h2 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>
+            {t('edit')} {formData.symbol}
+          </h2>
+          <span className={TYPE_BADGE[formData.type] || 'badge-other'}>
+            {formData.type}
+          </span>
+        </div>
         <button
+          type="button"
           onClick={onCancel}
-          className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
+          className="btn-icon"
         >
           <X className="h-5 w-5" />
         </button>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 dark:text-gray-300 mb-2">
-              {t('symbol')} *
-            </label>
-            <input
-              type="text"
-              value={formData.symbol}
-              onChange={handleChange('symbol')}
-              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 ${
-                errors.symbol ? 'border-red-300 dark:border-red-600 dark:border-red-600' : 'border-gray-300 dark:border-gray-600 dark:border-gray-600'
-              }`}
-              placeholder={t('placeholder.symbol')}
-            />
-            {errors.symbol && <p className="mt-1 text-sm text-red-600 dark:text-red-400 dark:text-red-400">{errors.symbol}</p>}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {t('investment.type')} *
-            </label>
-            <select
-              value={formData.type}
-              onChange={handleChange('type')}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-            >
-              {investmentTypes.map((type) => (
-                <option key={type.value} value={type.value}>
-                  {type.label}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {t('name')} *
-            </label>
-          <input
-            type="text"
-            value={formData.name}
-            onChange={handleChange('name')}
-            className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
-              errors.name ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
-            }`}
-            placeholder={t('placeholder.name')}
-          />
-          {errors.name && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.name}</p>}
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {t('quantity')} *
-            </label>
-            <input
-              type="number"
-              step="any"
-              value={formData.quantity}
-              onChange={handleChange('quantity')}
-              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 ${
-                errors.quantity ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
-              }`}
-              placeholder={t('placeholder.quantity')}
-            />
-            {errors.quantity && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.quantity}</p>}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {t('purchase.price')} (USD) *
-            </label>
-            <input
-              type="number"
-              step="any"
-              value={formData.purchasePrice}
-              onChange={handleChange('purchasePrice')}
-              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 ${
-                errors.purchasePrice ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
-              }`}
-              placeholder={t('placeholder.price')}
-            />
-            {errors.purchasePrice && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.purchasePrice}</p>}
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {t('purchase.date')} *
-            </label>
-            <input
-              type="date"
-              value={formData.purchaseDate}
-              onChange={handleChange('purchaseDate')}
-              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 ${
-                errors.purchaseDate ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
-              }`}
-            />
-            {errors.purchaseDate && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.purchaseDate}</p>}
-          </div>
-
-          {formData.type === 'bond' && (
+        {/* Main Form Section */}
+        <div className="glass-card p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {/* Symbol */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                {t('fixed.yield')}
+              <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>
+                {t('symbol')} *
+              </label>
+              <input
+                type="text"
+                value={formData.symbol}
+                onChange={handleChange('symbol')}
+                className={`input-field ${errors.symbol ? 'border-red-500' : ''}`}
+                placeholder={t('placeholder.symbol')}
+              />
+              {errors.symbol && <p className="text-red-500 text-xs mt-1">{errors.symbol}</p>}
+            </div>
+
+            {/* Investment Type */}
+            <div>
+              <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>
+                {t('investment.type')} *
+              </label>
+              <select
+                value={formData.type}
+                onChange={handleChange('type')}
+                className="input-field"
+              >
+                {investmentTypes.map((type) => (
+                  <option key={type.value} value={type.value}>
+                    {type.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Name — full width */}
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>
+                {t('name')} *
+              </label>
+              <input
+                type="text"
+                value={formData.name}
+                onChange={handleChange('name')}
+                className={`input-field ${errors.name ? 'border-red-500' : ''}`}
+                placeholder={t('placeholder.name')}
+              />
+              {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+            </div>
+
+            {/* Quantity */}
+            <div>
+              <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>
+                {t('quantity')} *
               </label>
               <input
                 type="number"
-                step="0.01"
-                value={formData.fixedYield}
-                onChange={handleChange('fixedYield')}
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 ${
-                  errors.fixedYield ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
-                }`}
-                placeholder="e.g., 3.5"
+                step="any"
+                value={formData.quantity}
+                onChange={handleChange('quantity')}
+                className={`input-field ${errors.quantity ? 'border-red-500' : ''}`}
+                placeholder={t('placeholder.quantity')}
               />
-              {errors.fixedYield && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.fixedYield}</p>}
+              {errors.quantity && <p className="text-red-500 text-xs mt-1">{errors.quantity}</p>}
             </div>
-          )}
 
-          {formData.type === 'cash' && (
+            {/* Purchase Price */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Currency *
+              <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>
+                {t('purchase.price')} (USD) *
               </label>
-              <select
-                value={formData.currency}
-                onChange={handleChange('currency')}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-              >
-                <option value="USD">USD - US Dollar</option>
-                <option value="EUR">EUR - Euro</option>
-                <option value="GBP">GBP - British Pound</option>
-                <option value="JPY">JPY - Japanese Yen</option>
-                <option value="CAD">CAD - Canadian Dollar</option>
-                <option value="AUD">AUD - Australian Dollar</option>
-                <option value="CHF">CHF - Swiss Franc</option>
-                <option value="CNY">CNY - Chinese Yuan</option>
-                              <option value="INR">INR - Indian Rupee</option>
-              <option value="BRL">BRL - Brazilian Real</option>
-              <option value="MXN">MXN - Mexican Peso</option>
-              <option value="ARS">ARS - Argentine Peso</option>
-              </select>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                Exchange rates are automatically fetched and updated hourly.
-              </p>
+              <input
+                type="number"
+                step="any"
+                value={formData.purchasePrice}
+                onChange={handleChange('purchasePrice')}
+                className={`input-field ${errors.purchasePrice ? 'border-red-500' : ''}`}
+                placeholder={t('placeholder.price')}
+              />
+              {errors.purchasePrice && <p className="text-red-500 text-xs mt-1">{errors.purchasePrice}</p>}
             </div>
-          )}
+
+            {/* Purchase Date */}
+            <div>
+              <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>
+                {t('purchase.date')} *
+              </label>
+              <input
+                type="date"
+                value={formData.purchaseDate}
+                onChange={handleChange('purchaseDate')}
+                className={`input-field ${errors.purchaseDate ? 'border-red-500' : ''}`}
+              />
+              {errors.purchaseDate && <p className="text-red-500 text-xs mt-1">{errors.purchaseDate}</p>}
+            </div>
+
+            {/* Fixed Yield (bond only) */}
+            {formData.type === 'bond' && (
+              <div>
+                <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>
+                  {t('fixed.yield')}
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={formData.fixedYield}
+                  onChange={handleChange('fixedYield')}
+                  className={`input-field ${errors.fixedYield ? 'border-red-500' : ''}`}
+                  placeholder="e.g., 3.5"
+                />
+                {errors.fixedYield && <p className="text-red-500 text-xs mt-1">{errors.fixedYield}</p>}
+              </div>
+            )}
+
+            {/* Currency (cash only) */}
+            {formData.type === 'cash' && (
+              <div>
+                <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>
+                  Currency *
+                </label>
+                <select
+                  value={formData.currency}
+                  onChange={handleChange('currency')}
+                  className="input-field"
+                >
+                  <option value="USD">USD - US Dollar</option>
+                  <option value="EUR">EUR - Euro</option>
+                  <option value="GBP">GBP - British Pound</option>
+                  <option value="JPY">JPY - Japanese Yen</option>
+                  <option value="CAD">CAD - Canadian Dollar</option>
+                  <option value="AUD">AUD - Australian Dollar</option>
+                  <option value="CHF">CHF - Swiss Franc</option>
+                  <option value="CNY">CNY - Chinese Yuan</option>
+                  <option value="INR">INR - Indian Rupee</option>
+                  <option value="BRL">BRL - Brazilian Real</option>
+                  <option value="MXN">MXN - Mexican Peso</option>
+                  <option value="ARS">ARS - Argentine Peso</option>
+                </select>
+                <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
+                  Exchange rates are automatically fetched and updated hourly.
+                </p>
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Enhanced Bond Fields for Editing */}
+        {/* Bond-Specific Section */}
         {formData.type === 'bond' && (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="glass-card p-6">
+            <h3 className="text-base font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>
+              {t('bond.details')}
+            </h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {/* Payment Frequency */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Payment Frequency *
+                <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>
+                  {t('payment.frequency')} *
                 </label>
                 <select
                   value={formData.paymentFrequency}
                   onChange={handleChange('paymentFrequency')}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                  className="input-field"
                 >
-                  <option value="monthly">Monthly</option>
-                  <option value="quarterly">Quarterly</option>
-                  <option value="semi-annual">Semi-Annual</option>
-                  <option value="annual">Annual</option>
-                  <option value="zero-coupon">Zero Coupon</option>
-                  <option value="unknown">Unknown</option>
+                  {paymentFrequencies.map((freq) => (
+                    <option key={freq.value} value={freq.value}>
+                      {freq.label}
+                    </option>
+                  ))}
                 </select>
               </div>
 
+              {/* Maturity Date */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>
                   {t('maturity.date')}
                 </label>
                 <input
                   type="date"
                   value={formData.maturityDate}
                   onChange={handleChange('maturityDate')}
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 ${
-                    errors.maturityDate ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
-                  }`}
+                  className={`input-field ${errors.maturityDate ? 'border-red-500' : ''}`}
                 />
-                {errors.maturityDate && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.maturityDate}</p>}
+                {errors.maturityDate && <p className="text-red-500 text-xs mt-1">{errors.maturityDate}</p>}
               </div>
-            </div>
 
-            <div>
-                              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              {/* Face Value — full width */}
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>
                   {t('face.value')}
                 </label>
-              <input
-                type="number"
-                step="0.01"
-                value={formData.faceValue}
-                onChange={handleChange('faceValue')}
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 ${
-                  errors.faceValue ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
-                }`}
-                placeholder={t('placeholder.face.value')}
-              />
-              {errors.faceValue && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.faceValue}</p>}
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                {t('face.value.helper')}
-              </p>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={formData.faceValue}
+                  onChange={handleChange('faceValue')}
+                  className={`input-field ${errors.faceValue ? 'border-red-500' : ''}`}
+                  placeholder={t('placeholder.face.value')}
+                />
+                {errors.faceValue && <p className="text-red-500 text-xs mt-1">{errors.faceValue}</p>}
+                <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
+                  {t('face.value.helper')}
+                </p>
+              </div>
+
+              {/* Conditional Payment Date Fields */}
+              {requiredPaymentField === 'lastPayment' && (
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>
+                    {t('last.payment.date')} *
+                  </label>
+                  <input
+                    type="date"
+                    value={formData.lastPaymentDate}
+                    onChange={handleChange('lastPaymentDate')}
+                    className={`input-field ${errors.lastPaymentDate ? 'border-red-500' : ''}`}
+                  />
+                  {errors.lastPaymentDate && <p className="text-red-500 text-xs mt-1">{errors.lastPaymentDate}</p>}
+                  <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
+                    Since you've owned this bond for more than one payment cycle, please enter the date of the last payment you received.
+                  </p>
+                </div>
+              )}
+
+              {requiredPaymentField === 'nextPayment' && (
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>
+                    {t('next.payment.date')} *
+                  </label>
+                  <input
+                    type="date"
+                    value={formData.nextPaymentDate}
+                    onChange={handleChange('nextPaymentDate')}
+                    className={`input-field ${errors.nextPaymentDate ? 'border-red-500' : ''}`}
+                  />
+                  {errors.nextPaymentDate && <p className="text-red-500 text-xs mt-1">{errors.nextPaymentDate}</p>}
+                  <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
+                    Since you recently purchased this bond, please enter the next payment date you expect to receive.
+                  </p>
+                </div>
+              )}
             </div>
-
-            {/* Conditional Payment Date Fields */}
-            {requiredPaymentField === 'lastPayment' && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  {t('last.payment.date')} *
-                </label>
-                <input
-                  type="date"
-                  value={formData.lastPaymentDate}
-                  onChange={handleChange('lastPaymentDate')}
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 ${
-                    errors.lastPaymentDate ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
-                  }`}
-                />
-                {errors.lastPaymentDate && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.lastPaymentDate}</p>}
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  Since you've owned this bond for more than one payment cycle, please enter the date of the last payment you received.
-                </p>
-              </div>
-            )}
-
-            {requiredPaymentField === 'nextPayment' && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  {t('next.payment.date')} *
-                </label>
-                <input
-                  type="date"
-                  value={formData.nextPaymentDate}
-                  onChange={handleChange('nextPaymentDate')}
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 ${
-                    errors.nextPaymentDate ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
-                  }`}
-                />
-                {errors.nextPaymentDate && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.nextPaymentDate}</p>}
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  Since you recently purchased this bond, please enter the next payment date you expect to receive.
-                </p>
-              </div>
-            )}
-          </>
+          </div>
         )}
 
-        <div className="flex space-x-4 pt-4">
+        {/* Action Buttons */}
+        <div className="flex gap-3">
           <button
             type="submit"
-            className="flex-1 bg-blue-600 dark:bg-blue-700 text-white py-2 px-4 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition-colors duration-200 flex items-center justify-center space-x-2"
+            className="gradient-btn flex-1 flex items-center justify-center gap-2"
           >
             <Save className="h-4 w-4" />
             <span>{t('save')}</span>
@@ -385,7 +398,7 @@ export function EditInvestmentForm({ investment, onSave, onCancel }: EditInvestm
           <button
             type="button"
             onClick={onCancel}
-            className="flex-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 py-2 px-4 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition-colors duration-200"
+            className="btn-ghost flex-1"
           >
             {t('cancel')}
           </button>
