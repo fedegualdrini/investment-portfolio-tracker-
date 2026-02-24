@@ -16,6 +16,8 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { CurrencyProvider } from './contexts/CurrencyContext';
 import { InvestmentProvider } from './contexts/InvestmentContext';
+import { ToastProvider } from './contexts/ToastContext';
+import { ToastContainer } from './components/ui/Toast';
 
 function DashboardPage() {
   const {
@@ -119,6 +121,7 @@ function AppRoutes() {
       <GoogleAnalytics />
       <SpeedInsights />
       <Analytics />
+      <ToastContainer />
       <Routes>
         <Route element={<AppLayout />}>
           <Route path="/" element={<DashboardPage />} />
@@ -140,7 +143,9 @@ function App() {
         <ThemeProvider>
           <LanguageProvider>
             <CurrencyProvider>
-              <AppRoutes />
+              <ToastProvider>
+                <AppRoutes />
+              </ToastProvider>
             </CurrencyProvider>
           </LanguageProvider>
         </ThemeProvider>
