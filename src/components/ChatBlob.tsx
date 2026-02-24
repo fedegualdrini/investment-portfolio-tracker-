@@ -238,24 +238,22 @@ export function ChatBlob() {
         <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50">
           {/* Hover Message Bubble */}
           {showBubble && (
-            <div className="absolute bottom-full right-0 mb-3 animate-fadeInUp">
-              <div className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-4 py-3 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 w-64 sm:w-72">
+            <div className="absolute bottom-full right-0 mb-3 animate-fade-in-up">
+              <div className="glass-card-static px-4 py-3 w-64 sm:w-72" style={{ color: 'var(--text-primary)' }}>
                 <p className="text-sm font-medium leading-snug">
                   Hi! I'm your personal AI assistant. Let me know if I can help you with your portfolio!
                 </p>
                 {/* Arrow pointing down */}
-                <div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-white dark:border-t-gray-800"></div>
-                {/* Arrow border for dark mode */}
-                <div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-gray-200 dark:border-t-gray-700 transform translate-y-0.5"></div>
+                <div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent" style={{ borderTopColor: 'var(--bg-card)' }}></div>
               </div>
             </div>
           )}
-          
+
           <button
             onClick={toggleChat}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
-            className="w-12 h-12 sm:w-14 sm:h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center transform hover:scale-110 active:scale-95 animate-float"
+            className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-emerald-500 to-cyan-500 text-white rounded-full shadow-lg shadow-glow-emerald hover:shadow-glow-accent transition-all duration-300 flex items-center justify-center transform hover:scale-110 active:scale-95"
             title={t('chat.title')}
             aria-label={t('chat.title')}
           >
@@ -266,18 +264,21 @@ export function ChatBlob() {
 
       {/* Chat Blob Interface */}
       {isOpen && (
-        <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 w-[calc(100vw-2rem)] sm:w-96 max-w-sm h-[calc(100vh-8rem)] sm:h-[500px] max-h-[600px] bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 flex flex-col z-50 transition-all duration-300 animate-slideInUp">
+        <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 w-[calc(100vw-2rem)] sm:w-96 max-w-sm h-[calc(100vh-8rem)] sm:h-[500px] max-h-[600px] rounded-xl shadow-glass-lg flex flex-col z-50 transition-all duration-300 animate-slide-in-up overflow-hidden" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-primary)' }}>
+          {/* Gradient accent bar at top */}
+          <div className="h-[3px] w-full bg-gradient-to-r from-emerald-500 to-cyan-500 flex-shrink-0"></div>
+
           {/* Chat Header */}
-          <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 rounded-t-xl bg-white dark:bg-gray-800">
+          <div className="flex items-center justify-between p-4 flex-shrink-0" style={{ borderBottom: '1px solid var(--border-primary)' }}>
             <div className="flex items-center space-x-2">
-              <div className="p-1.5 bg-blue-600 dark:bg-blue-500 rounded-lg">
+              <div className="p-1.5 bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-lg">
                 <Bot className="h-4 w-4 text-white" />
               </div>
               <div>
-                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                <h3 className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
                   {t('chat.title')}
                 </h3>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
+                <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
                   {t('chat.subtitle')}
                 </p>
               </div>
@@ -286,7 +287,7 @@ export function ChatBlob() {
               {messages.length > 0 && (
                 <button
                   onClick={clearChatHistory}
-                  className="p-1.5 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
+                  className="btn-icon !p-1.5 hover:!text-red-500 hover:!bg-red-500/10"
                   title="Clear chat history"
                   aria-label="Clear chat history"
                 >
@@ -295,7 +296,7 @@ export function ChatBlob() {
               )}
               <button
                 onClick={toggleChat}
-                className="p-1.5 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+                className="btn-icon !p-1.5"
                 title="Close chat"
                 aria-label="Close chat"
               >
@@ -308,16 +309,16 @@ export function ChatBlob() {
           <div className="flex-1 overflow-y-auto p-4 space-y-3">
             {messages.length === 0 && (
               <div className="text-center py-8">
-                <Bot className="h-8 w-8 text-blue-500 mx-auto mb-3" />
-                <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
+                <Bot className="h-8 w-8 text-emerald-500 mx-auto mb-3" />
+                <h4 className="text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
                   {t('chat.welcome.title')}
                 </h4>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
+                <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
                   {t('chat.welcome.message')}
                 </p>
               </div>
             )}
-            
+
             {messages.map((message) => (
               <div
                 key={message.id}
@@ -326,10 +327,10 @@ export function ChatBlob() {
                 <div className={`flex max-w-[80%] ${message.role === 'user' ? 'flex-row-reverse' : 'flex-row'} space-x-2`}>
                   <div className={`flex-shrink-0 ${message.role === 'user' ? 'ml-2' : 'mr-2'}`}>
                     <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
-                      message.role === 'user' 
-                        ? 'bg-blue-600 text-white' 
-                        : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300'
-                    }`}>
+                      message.role === 'user'
+                        ? 'bg-gradient-to-br from-emerald-500 to-cyan-500 text-white'
+                        : ''
+                    }`} style={message.role === 'assistant' ? { background: 'var(--bg-card-hover)', color: 'var(--text-secondary)' } : undefined}>
                       {message.role === 'user' ? (
                         <User className="h-3 w-3" />
                       ) : (
@@ -339,9 +340,9 @@ export function ChatBlob() {
                   </div>
                   <div className={`px-3 py-2 rounded-lg text-xs ${
                     message.role === 'user'
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100'
-                  }`}>
+                      ? 'bg-gradient-to-r from-emerald-500 to-cyan-500 text-white'
+                      : 'glass-card-static'
+                  }`} style={message.role === 'assistant' ? { color: 'var(--text-primary)' } : undefined}>
                     <div className="whitespace-pre-wrap">
                       {message.content}
                     </div>
@@ -349,20 +350,20 @@ export function ChatBlob() {
                 </div>
               </div>
             ))}
-            
+
             {isLoading && (
               <div className="flex justify-start">
                 <div className="flex max-w-[80%] space-x-2">
                   <div className="flex-shrink-0 mr-2">
-                    <div className="w-6 h-6 rounded-full flex items-center justify-center bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
+                    <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{ background: 'var(--bg-card-hover)', color: 'var(--text-secondary)' }}>
                       <Bot className="h-3 w-3" />
                     </div>
                   </div>
-                  <div className="px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-700">
+                  <div className="glass-card-static px-3 py-2">
                     <div className="flex space-x-1">
-                      <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"></div>
-                      <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                      <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                      <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-bounce"></div>
+                      <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                      <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                     </div>
                   </div>
                 </div>
@@ -371,7 +372,7 @@ export function ChatBlob() {
 
             {error && (
               <div className="text-center">
-                <div className="px-3 py-2 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 text-xs">
+                <div className="px-3 py-2 rounded-lg bg-red-500/10 text-red-500 text-xs" style={{ border: '1px solid rgba(239,68,68,0.2)' }}>
                   {error}
                 </div>
               </div>
@@ -379,20 +380,20 @@ export function ChatBlob() {
           </div>
 
           {/* Input Form */}
-          <div className="border-t border-gray-200 dark:border-gray-700 p-3">
+          <div className="p-3 flex-shrink-0" style={{ borderTop: '1px solid var(--border-primary)' }}>
             <form onSubmit={handleSubmit} className="flex space-x-2">
               <input
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder={t('chat.placeholder')}
-                className="flex-1 px-3 py-2 text-xs border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+                className="input-field !py-2 !text-xs flex-1"
                 disabled={isLoading}
               />
               <button
                 type="submit"
                 disabled={isLoading || !input.trim()}
-                className="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="px-3 py-2 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white rounded-lg hover:shadow-glow-emerald disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
                 aria-label="Send message"
               >
                 <Send className="h-4 w-4" />
